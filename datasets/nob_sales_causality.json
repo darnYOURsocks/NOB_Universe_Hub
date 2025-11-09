@@ -1,0 +1,307 @@
+{
+  "generated_utc": "2025-11-09T17:20:35.862763Z",
+  "aug_sep_blocks": {
+    "list1": [
+      {
+        "rank": 1,
+        "name": "David",
+        "amount_raw": "\u00a332.585",
+        "amount": 32585
+      },
+      {
+        "rank": 2,
+        "name": "Aryan",
+        "amount_raw": "\u00a36,579",
+        "amount": 6579
+      },
+      {
+        "rank": 3,
+        "name": "Adam",
+        "amount_raw": "\u00a32,913",
+        "amount": 2913
+      },
+      {
+        "rank": 4,
+        "name": "Alfie",
+        "amount_raw": "\u00a3 0",
+        "amount": 0
+      }
+    ],
+    "list1_total_calc": 42077,
+    "solo_block": [
+      {
+        "rank": 1,
+        "name": "Adam",
+        "amount_raw": "\u00a315,000",
+        "amount": 15000
+      }
+    ],
+    "solo_block_total_calc": 15000,
+    "totals_so_far": [
+      {
+        "rank": 1,
+        "name": "David",
+        "amount_raw": "\u00a332.585",
+        "amount": 32585
+      },
+      {
+        "rank": 2,
+        "name": "Adam",
+        "amount_raw": "\u00a318,000",
+        "amount": 18000
+      },
+      {
+        "rank": 3,
+        "name": "Aryan",
+        "amount_raw": "\u00a36,579",
+        "amount": 6579
+      },
+      {
+        "rank": 4,
+        "name": "Alfie",
+        "amount_raw": "\u00a3 0",
+        "amount": 0
+      },
+      {
+        "rank": 5,
+        "name": "Munbi",
+        "amount_raw": "\u00a30",
+        "amount": 0
+      }
+    ],
+    "totals_so_far_calc": 57164
+  },
+  "pattern_nodes": [
+    {
+      "Node_ID": "NOB-TEAM-DAVID",
+      "Title": "Rep \u2014 David",
+      "Domain": "Sales\u2192Team Performance",
+      "CorePattern": "Effort \u2192 Qualified Activity \u2192 Conversion \u2192 Value",
+      "Lambda": 1.0,
+      "Delta": 0.2,
+      "Psi": 1.0,
+      "Description": "August/September contribution proxy for David",
+      "Tags": [
+        "team",
+        "sales",
+        "aug-sep-2025",
+        "leaderboard"
+      ],
+      "Metric": {
+        "amount": 32585
+      }
+    },
+    {
+      "Node_ID": "NOB-TEAM-ADAM",
+      "Title": "Rep \u2014 Adam",
+      "Domain": "Sales\u2192Team Performance",
+      "CorePattern": "Effort \u2192 Qualified Activity \u2192 Conversion \u2192 Value",
+      "Lambda": 0.55,
+      "Delta": 0.38,
+      "Psi": 0.73,
+      "Description": "August/September contribution proxy for Adam",
+      "Tags": [
+        "team",
+        "sales",
+        "aug-sep-2025",
+        "leaderboard"
+      ],
+      "Metric": {
+        "amount": 18000
+      }
+    },
+    {
+      "Node_ID": "NOB-TEAM-ARYAN",
+      "Title": "Rep \u2014 Aryan",
+      "Domain": "Sales\u2192Team Performance",
+      "CorePattern": "Effort \u2192 Qualified Activity \u2192 Conversion \u2192 Value",
+      "Lambda": 0.2,
+      "Delta": 0.52,
+      "Psi": 0.52,
+      "Description": "August/September contribution proxy for Aryan",
+      "Tags": [
+        "team",
+        "sales",
+        "aug-sep-2025",
+        "leaderboard"
+      ],
+      "Metric": {
+        "amount": 6579
+      }
+    },
+    {
+      "Node_ID": "NOB-TEAM-ALFIE",
+      "Title": "Rep \u2014 Alfie",
+      "Domain": "Sales\u2192Team Performance",
+      "CorePattern": "Effort \u2192 Qualified Activity \u2192 Conversion \u2192 Value",
+      "Lambda": 0.0,
+      "Delta": 0.6,
+      "Psi": 0.4,
+      "Description": "August/September contribution proxy for Alfie",
+      "Tags": [
+        "team",
+        "sales",
+        "aug-sep-2025",
+        "leaderboard"
+      ],
+      "Metric": {
+        "amount": 0
+      }
+    },
+    {
+      "Node_ID": "NOB-TEAM-MUNBI",
+      "Title": "Rep \u2014 Munbi",
+      "Domain": "Sales\u2192Team Performance",
+      "CorePattern": "Effort \u2192 Qualified Activity \u2192 Conversion \u2192 Value",
+      "Lambda": 0.0,
+      "Delta": 0.6,
+      "Psi": 0.4,
+      "Description": "August/September contribution proxy for Munbi",
+      "Tags": [
+        "team",
+        "sales",
+        "aug-sep-2025",
+        "leaderboard"
+      ],
+      "Metric": {
+        "amount": 0
+      }
+    },
+    {
+      "Node_ID": "NOB-SYS-TEAM-STRUCTURE",
+      "Title": "Team Structure",
+      "Domain": "Org\u2192Process",
+      "CorePattern": "Role Clarity \u2192 Handoffs \u2192 Shared Wins",
+      "Lambda": 0.55,
+      "Delta": 0.45,
+      "Psi": 0.5,
+      "Description": "Structure quality (lanes, assists, attribution)",
+      "Tags": [
+        "structure",
+        "lanes",
+        "assists"
+      ]
+    },
+    {
+      "Node_ID": "NOB-SYS-STATUS-DYNAMICS",
+      "Title": "Status / Belonging Dynamics",
+      "Domain": "Social\u2192Motivation",
+      "CorePattern": "Status Security \u2192 Belonging \u2192 Collaboration",
+      "Lambda": 0.4,
+      "Delta": 0.6,
+      "Psi": 0.35,
+      "Description": "Perceived rank, fairness, micro-coalitions",
+      "Tags": [
+        "status",
+        "belonging",
+        "coalition"
+      ]
+    },
+    {
+      "Node_ID": "NOB-SYS-COORDINATION-COST",
+      "Title": "Coordination Cost",
+      "Domain": "Process\u2192Latency",
+      "CorePattern": "Handoffs \u00d7 Delay \u2192 Lost Probability",
+      "Lambda": 0.3,
+      "Delta": 0.55,
+      "Psi": 0.4,
+      "Description": "Friction from unclear ownership, rework, poaching",
+      "Tags": [
+        "handoff",
+        "delay",
+        "friction"
+      ]
+    },
+    {
+      "Node_ID": "NOB-SYS-PROFIT",
+      "Title": "Profit",
+      "Domain": "Outcome",
+      "CorePattern": "Value Won \u2212 Time/Cost",
+      "Lambda": 0.62,
+      "Delta": 0.38,
+      "Psi": 0.58,
+      "Description": "Net performance in period",
+      "Tags": [
+        "profit",
+        "outcome"
+      ]
+    }
+  ],
+  "edges": {
+    "causal": [
+      {
+        "from": "NOB-SYS-TEAM-STRUCTURE",
+        "to": "NOB-SYS-COORDINATION-COST",
+        "why": "Lanes/assists clarity reduces rework and delays"
+      },
+      {
+        "from": "NOB-SYS-COORDINATION-COST",
+        "to": "NOB-SYS-PROFIT",
+        "why": "Lower friction improves close rate and margins"
+      },
+      {
+        "from": "NOB-TEAM-DAVID",
+        "to": "NOB-SYS-PROFIT",
+        "why": "High individual contribution lifts profit"
+      },
+      {
+        "from": "NOB-TEAM-ADAM",
+        "to": "NOB-SYS-PROFIT",
+        "why": "Secondary contribution lifts profit"
+      },
+      {
+        "from": "NOB-TEAM-ARYAN",
+        "to": "NOB-SYS-PROFIT",
+        "why": "Additional contribution"
+      }
+    ],
+    "inCausal": [
+      {
+        "from": "NOB-SYS-STATUS-DYNAMICS",
+        "to": "NOB-SYS-TEAM-STRUCTURE",
+        "why": "Status threat undermines compliance with lanes"
+      },
+      {
+        "from": "NOB-SYS-STATUS-DYNAMICS",
+        "to": "NOB-SYS-COORDINATION-COST",
+        "why": "Coalitions increase handoff friction"
+      },
+      {
+        "from": "NOB-TEAM-ADAM",
+        "to": "NOB-SYS-STATUS-DYNAMICS",
+        "why": "Perceived competition spike (pride thread)"
+      },
+      {
+        "from": "NOB-TEAM-SCOTT",
+        "to": "NOB-SYS-STATUS-DYNAMICS",
+        "why": "Alignment with coalition narrative"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "label": "June (Solo)",
+      "value": 50000,
+      "team": "Solo",
+      "color": "#22c55e"
+    },
+    {
+      "label": "August (Team)",
+      "value": 42000,
+      "team": "Adam + Nibz",
+      "color": "#f59e0b"
+    },
+    {
+      "label": "September (Team)",
+      "value": 20000,
+      "team": "Adam + Nibz",
+      "color": "#84cc16"
+    },
+    {
+      "label": "October (Team)",
+      "value": 14000,
+      "team": "Adam + Umber + Nibz + Scott",
+      "color": "#ef4444"
+    }
+  ]
+}
