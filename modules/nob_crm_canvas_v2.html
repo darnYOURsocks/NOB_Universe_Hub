@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NOB CRM Canvas v2</title>
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:system-ui,sans-serif;color:#fff;}
+#canvas{position:absolute;inset:0;background:radial-gradient(circle at center,#020202 0%,#000 100%);}
+#panel{position:fixed;top:12px;left:12px;display:flex;gap:10px;z-index:10;align-items:center;background:rgba(18,18,28,0.9);border:1px solid rgba(100,100,255,0.2);padding:10px;border-radius:10px;}
+select,input{background:#0f172a;color:#e5e7eb;border:1px solid rgba(100,100,255,0.25);border-radius:8px;padding:8px;outline:none}
+button{background:#1d4ed8;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer}
+button.secondary{background:#374151}
+#stats{position:fixed;bottom:16px;left:16px;background:rgba(18,18,28,0.9);padding:10px 12px;border:1px solid rgba(100,100,255,0.2);border-radius:8px;font-size:12px}
+.tooltip{position:fixed;background:rgba(30,30,40,0.98);padding:10px 14px;border-radius:8px;color:white;font-size:0.9rem;pointer-events:none;display:none;max-width:300px;border:1px solid rgba(100,100,255,0.2);z-index:50;}
+</style></head>
+<body>
+<canvas id="canvas"></canvas>
+<div id="panel">
+  <label>Status <select id="qStatus"><option value="">All</option><option>new</option><option>contacted</option><option>quoted</option><option>scheduled</option><option>completed</option></select></label>
+  <label>Sender <select id="qSender"><option value="">All</option><option>Adam</option><option>James</option><option>Alfie</option><option>Scott</option><option>Arian</option><option>Adnan</option></select></label>
+  <label>Postcode <input id="qPost" placeholder="HP14"></label>
+  <label>Text <input id="qText" placeholder="door, leak…"></label>
+  <label>Days <select id="qDays"><option value="7">7</option><option value="14" selected>14</option><option value="30">30</option></select></label>
+  <button id="apply">Apply</button><button id="reset" class="secondary">Reset</button>
+</div>
+<div id="stats">Total: <span id="sTotal">0</span> | New: <span id="sNew">0</span> | Contacted: <span id="sCon">0</span> | Quoted: <span id="sQuo">0</span> | Scheduled: <span id="sSch">0</span> | Completed: <span id="sCom">0</span></div>
+<div id="tooltip" class="tooltip"></div>
+<script>
+const DATA_URL = '../datasets/nob_crm_data.json';
+const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
+let w=canvas.width=window.innerWidth,h=canvas.height=window.innerHeight;
+let stars=[],nodes=[],raw=[],rows=[],tooltip=document.getElementById('tooltip'),mx=0,my=0;
+function resize(){w=canvas.width=window.innerWidth;h=canvas.height=window.innerHeight;}
+window.addEventListener('resize',resize);
+for(let i=0;i<200;i++){stars.push({x:Math.random()*w,y:Math.random()*h,z:Math.random()*1.5,twinkle:Math.random()});}
+class Node{
+ constructor(ld){this.ld=ld;this.angle=Math.random()*Math.PI*2;this.radius=120+Math.random()*240;this.speed=0.0005+Math.random()*0.001;this.x=w/2;this.y=h/2;this.pulse=Math.random()*Math.PI*2;const c={new:'#60a5fa',contacted:'#fbbf24',quoted:'#a78bfa',scheduled:'#34d399',completed:'#6ee7b7'};this.color=c[ld.status]||'#60a5fa';}
+ update(){this.angle+=this.speed;this.pulse+=0.05;const tx=w/2+Math.cos(this.angle)*this.radius;const ty=h/2+Math.sin(this.angle)*this.radius*0.6;this.x+=(tx-this.x)*0.05; this.y+=(ty-this.y)*0.05;}
+ draw(){const r=8+Math.sin(this.pulse)*2;ctx.beginPath(); ctx.fillStyle=this.color; ctx.shadowBlur=15; ctx.shadowColor=this.color; ctx.arc(this.x,this.y,r,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;}
+ isHover(x,y){return Math.hypot(x-this.x,y-this.y)<14;}
+}
+function animate(){ctx.clearRect(0,0,w,h);ctx.fillStyle="#000";ctx.fillRect(0,0,w,h);
+ stars.forEach(s=>{s.x-=s.z; s.y+=s.z*0.3; if(s.x<0||s.y>h){s.x=Math.random()*w; s.y=0;} s.twinkle+=0.1; ctx.fillStyle=`rgba(255,255,255,${0.3+Math.sin(s.twinkle)*0.3})`; ctx.fillRect(s.x,s.y,1,1);});
+ ctx.strokeStyle="rgba(100,100,255,0.1)"; ctx.beginPath(); nodes.forEach(n=>{ctx.moveTo(w/2,h/2);ctx.lineTo(n.x,n.y);}); ctx.stroke();
+ ctx.beginPath(); ctx.fillStyle="rgba(100,100,255,0.3)"; ctx.shadowBlur=20; ctx.shadowColor="#2563eb"; ctx.arc(w/2,h/2,15,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
+ nodes.forEach(n=>{n.update(); n.draw();}); requestAnimationFrame(animate);} animate();
+canvas.addEventListener('mousemove',e=>{mx=e.clientX; my=e.clientY; let f=null; nodes.forEach(n=>{ if(n.isHover(mx,my)) f=n; });
+ if(f){canvas.style.cursor='pointer'; tooltip.style.display='block'; tooltip.style.left=(mx+15)+'px'; tooltip.style.top=(my+15)+'px';
+  const ld=f.ld; tooltip.innerHTML = `<b>${ld.customer}</b> <span>(${ld.status})</span><br>£${ld.value_estimate||0} · ${ld.source}<br>${ld.notes}<br>${ld.date} ${ld.time} · ${ld.postcode} · ${ld.sender}`;
+ } else { canvas.style.cursor='default'; tooltip.style.display='none'; }});
+function applyFilters(){const s=document.getElementById('qStatus').value; const u=document.getElementById('qSender').value; const p=(document.getElementById('qPost').value||'').toUpperCase(); const t=(document.getElementById('qText').value||'').toLowerCase(); const days=parseInt(document.getElementById('qDays').value||'14',10); const since=new Date(Date.now()-days*24*3600*1000);
+ rows = raw.filter(r=>{ if(s && r.status!==s) return false; if(u && r.sender!==u) return false; if(p && !r.postcode.toUpperCase().startsWith(p)) return false; if(t && !(r.customer.toLowerCase().includes(t) || r.notes.toLowerCase().includes(t) || r.address.toLowerCase().includes(t))) return false; if(new Date(r.date) < since) return false; return true; });
+ nodes = rows.map(r=>new Node(r)); updateStats();}
+function resetFilters(){document.getElementById('qStatus').value='';document.getElementById('qSender').value='';document.getElementById('qPost').value='';document.getElementById('qText').value='';document.getElementById('qDays').value='14'; rows = raw.slice(); nodes = rows.map(r=>new Node(r)); updateStats();}
+function updateStats(){const tot=rows.length; const c = (st)=> rows.filter(r=>r.status===st).length; document.getElementById('sTotal').textContent=tot; document.getElementById('sNew').textContent=c('new'); document.getElementById('sCon').textContent=c('contacted'); document.getElementById('sQuo').textContent=c('quoted'); document.getElementById('sSch').textContent=c('scheduled'); document.getElementById('sCom').textContent=c('completed');}
+document.getElementById('apply').onclick=applyFilters; document.getElementById('reset').onclick=resetFilters;
+fetch(DATA_URL).then(r=>r.json()).then(j=>{ raw = j.rows||[]; resetFilters(); }).catch(console.error);
+</script></body></html>
