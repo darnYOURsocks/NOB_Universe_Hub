@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ŊOB Universe CRM Canvas</title>
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:system-ui,sans-serif;color:#fff;}
+#canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;background:radial-gradient(circle at center,#020202 0%,#000 100%);cursor:pointer;}
+#controls{position:fixed;top:20px;left:20px;display:flex;gap:10px;z-index:10;}
+#controls button{background:rgba(30,30,40,0.9);border:1px solid rgba(100,100,255,0.3);color:white;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600;transition:all 0.3s;}
+#controls button:hover{background:rgba(50,50,80,0.9);border-color:rgba(120,120,255,0.5);}
+#addBtn{position:fixed;bottom:20px;right:20px;background:linear-gradient(135deg,#2563eb,#7e22ce);border:none;color:white;padding:14px 24px;border-radius:30px;font-weight:700;cursor:pointer;box-shadow:0 0 20px rgba(126,34,206,0.5);z-index:10;transition:transform 0.2s;}
+#addBtn:hover{transform:scale(1.05);}
+#addFormOverlay,#detailOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:100;}
+#addForm,#detailPanel{background:rgba(20,20,30,0.98);padding:2rem;border-radius:12px;max-width:480px;width:90%;box-shadow:0 0 30px rgba(126,34,206,0.6);border:1px solid rgba(100,100,255,0.2);}
+#addForm label{display:block;margin-top:8px;font-size:0.9rem;color:#9ca3af;}
+#addForm input,#addForm textarea,#addForm select{width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid rgba(100,100,255,0.2);background:#111827;color:#fff;font-family:inherit;}
+#addForm button{margin-top:12px;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:600;transition:all 0.2s;}
+#cancelBtn,#closeDetailBtn{background:#374151;color:white;}
+#cancelBtn:hover,#closeDetailBtn:hover{background:#4b5563;}
+#saveBtn{background:#2563eb;color:white;}
+#saveBtn:hover{background:#1d4ed8;}
+#deleteBtn{background:#dc2626;color:white;}
+#deleteBtn:hover{background:#b91c1c;}
+.tooltip{position:fixed;background:rgba(30,30,40,0.98);padding:10px 14px;border-radius:8px;color:white;font-size:0.9rem;pointer-events:none;display:none;max-width:300px;box-shadow:0 0 15px rgba(0,0,0,0.5);border:1px solid rgba(100,100,255,0.2);z-index:50;}
+#detailPanel h3{margin-top:0;color:#60a5fa;}
+#detailPanel .field{margin:12px 0;padding:8px;background:rgba(0,0,0,0.3);border-radius:6px;}
+#detailPanel .field label{color:#9ca3af;font-size:0.85rem;display:block;margin-bottom:4px;}
+#detailPanel .field div{color:#fff;font-size:1rem;}
+#stats{position:fixed;bottom:20px;left:20px;background:rgba(30,30,40,0.9);padding:12px 16px;border-radius:8px;border:1px solid rgba(100,100,255,0.2);font-size:0.85rem;}
+#stats span{color:#60a5fa;font-weight:700;}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<div id="controls">
+  <button id="filterAll">All Leads</button>
+  <button id="filterRecent">Recent (7 days)</button>
+  <button id="resetView">Reset View</button>
+</div>
+
+<div id="stats">
+  Total Leads: <span id="leadCount">0</span>
+</div>
+
+<button id="addBtn">➕ Add Lead</button>
+
+<div id="addFormOverlay">
+  <form id="addForm">
+    <h3>Add New Lead</h3>
+    <label>Date<input id="fDate" type="date" required></label>
+    <label>Time<input id="fTime" type="time" required></label>
+    <label>Sender<input id="fSender" required></label>
+    <label>Customer Name<input id="fCustomer" required></label>
+    <label>Phone<input id="fPhone" type="tel" required></label>
+    <label>Address<input id="fAddress" required></label>
+    <label>Postcode<input id="fPostcode" required></label>
+    <label>Appointment Time<input id="fAppTime" required></label>
+    <label>Status
+      <select id="fStatus">
+        <option value="new">New Lead</option>
+        <option value="contacted">Contacted</option>
+        <option value="quoted">Quoted</option>
+        <option value="scheduled">Scheduled</option>
+        <option value="completed">Completed</option>
+      </select>
+    </label>
+    <label>Job/Issue Notes<textarea id="fNotes" rows="3" required></textarea></label>
+    <div style="text-align:right;">
+      <button type="button" id="cancelBtn">Cancel</button>
+      <button type="submit" id="saveBtn">Save Lead</button>
+    </div>
+  </form>
+</div>
+
+<div id="detailOverlay">
+  <div id="detailPanel">
+    <h3 id="detailCustomer"></h3>
+    <div class="field"><label>Date & Time</label><div id="detailDateTime"></div></div>
+    <div class="field"><label>Sender</label><div id="detailSender"></div></div>
+    <div class="field"><label>Phone</label><div id="detailPhone"></div></div>
+    <div class="field"><label>Address</label><div id="detailAddress"></div></div>
+    <div class="field"><label>Postcode</label><div id="detailPostcode"></div></div>
+    <div class="field"><label>Appointment</label><div id="detailAppt"></div></div>
+    <div class="field"><label>Status</label><div id="detailStatus"></div></div>
+    <div class="field"><label>Notes</label><div id="detailNotes"></div></div>
+    <div style="text-align:right;margin-top:16px;">
+      <button id="deleteBtn">Delete</button>
+      <button id="closeDetailBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="tooltip" class="tooltip"></div>
+
+<script>
+const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
+let w=canvas.width=window.innerWidth,h=canvas.height=window.innerHeight;
+let stars=[],leads=[],nodes=[],selectedNode=null;
+let tooltip=document.getElementById('tooltip');
+let filter='all';
+
+function resize(){w=canvas.width=window.innerWidth;h=canvas.height=window.innerHeight;}
+window.addEventListener('resize',resize);
+
+// Initialize leads with status
+leads=JSON.parse(localStorage.getItem('nob_crm_leads'))||[
+ {date:"2025-07-30",time:"10:13",sender:"Adam",customer:"Mr + Mrs Perves",phone:"01494771400",address:"PennyBridge Cottage",postcode:"HP6 5RW",appt:"1Pm",notes:"Leaking roof",status:"new"},
+ {date:"2025-07-30",time:"10:28",sender:"Adam",customer:"Miss Parker",phone:"07873372640",address:"14 coopers crest rd",postcode:"Hp14 3qa",appt:"5pm",notes:"Back patio door",status:"contacted"},
+ {date:"2025-07-30",time:"11:18",sender:"James",customer:"Mr Mrs Gardner",phone:"07930954429",address:"26 littlewood",postcode:"hp143tf",appt:"Wed 6pm",notes:"Canopy, Porch",status:"quoted"},
+ {date:"2025-07-30",time:"11:34",sender:"James",customer:"Mr Andrade",phone:"07929971458",address:"3 Littlewood, Stokenchurch, High Wycombe",postcode:"HP14 3TF",appt:"Wed 1.30",notes:"Fd - in market hard",status:"new"},
+ {date:"2025-07-30",time:"11:37",sender:"Adam",customer:"Miss flak (eldery lady wheel chair )",phone:"01494483709",address:"21 slate rd",postcode:"Hp14 3qq",appt:"12:30",notes:"Front door glass replaced convinced to quote new door",status:"scheduled"}
+];
+
+// Generate drifting stars
+for(let i=0;i<200;i++){stars.push({x:Math.random()*w,y:Math.random()*h,z:Math.random()*1.5,twinkle:Math.random()});}
+
+// LeadNode Class
+class LeadNode{
+ constructor(ld,idx){
+  this.ld=ld;
+  this.idx=idx;
+  this.angle=Math.random()*Math.PI*2;
+  this.radius=120+Math.random()*200;
+  this.speed=0.0005+Math.random()*0.001;
+  this.x=w/2;this.y=h/2;
+  this.targetX=w/2;this.targetY=h/2;
+  const statusColors={new:'#60a5fa',contacted:'#fbbf24',quoted:'#a78bfa',scheduled:'#34d399',completed:'#6ee7b7'};
+  this.color=statusColors[ld.status]||'#60a5fa';
+  this.pulse=Math.random()*Math.PI*2;
+ }
+ update(){
+  this.angle+=this.speed;
+  this.pulse+=0.05;
+  this.targetX=w/2+Math.cos(this.angle)*this.radius;
+  this.targetY=h/2+Math.sin(this.angle)*this.radius*0.6;
+  this.x+=(this.targetX-this.x)*0.05;
+  this.y+=(this.targetY-this.y)*0.05;
+ }
+ draw(){
+  const pulseSize=8+Math.sin(this.pulse)*2;
+  ctx.beginPath();
+  ctx.fillStyle=this.color;
+  ctx.shadowBlur=15+Math.sin(this.pulse)*5;
+  ctx.shadowColor=this.color;
+  ctx.arc(this.x,this.y,pulseSize,0,Math.PI*2);
+  ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.font="12px system-ui";
+  ctx.fillStyle="#fff";
+  ctx.fillText(this.ld.customer.substring(0,20),this.x+15,this.y+4);
+ }
+ isHover(mx,my){return Math.hypot(mx-this.x,my-this.y)<15;}
+}
+
+function updateNodes(){
+ nodes=leads.map((l,i)=>new LeadNode(l,i));
+ document.getElementById('leadCount').textContent=leads.length;
+}
+updateNodes();
+
+// Animation Loop
+function animate(){
+ ctx.clearRect(0,0,w,h);
+ ctx.fillStyle="#000";
+ ctx.fillRect(0,0,w,h);
+ 
+ // Twinkling stars
+ stars.forEach(s=>{
+  s.x-=s.z;s.y+=s.z*0.3;
+  if(s.x<0||s.y>h){s.x=Math.random()*w;s.y=0;}
+  s.twinkle+=0.1;
+  ctx.fillStyle=`rgba(255,255,255,${0.3+Math.sin(s.twinkle)*0.3})`;
+  ctx.fillRect(s.x,s.y,1,1);
+ });
+ 
+ // Connection lines
+ ctx.strokeStyle="rgba(100,100,255,0.1)";
+ ctx.lineWidth=1;
+ ctx.beginPath();
+ nodes.forEach(n=>{ctx.moveTo(w/2,h/2);ctx.lineTo(n.x,n.y);});
+ ctx.stroke();
+ 
+ // Draw center hub
+ ctx.beginPath();
+ ctx.fillStyle="rgba(100,100,255,0.3)";
+ ctx.shadowBlur=20;
+ ctx.shadowColor="#2563eb";
+ ctx.arc(w/2,h/2,15,0,Math.PI*2);
+ ctx.fill();
+ ctx.shadowBlur=0;
+ 
+ nodes.forEach(n=>{n.update();n.draw();});
+ requestAnimationFrame(animate);
+}
+animate();
+
+// Hover Tooltip
+let mx=0,my=0;
+canvas.addEventListener('mousemove',e=>{
+ mx=e.clientX;my=e.clientY;
+ let found=null;
+ nodes.forEach(n=>{if(n.isHover(mx,my))found=n;});
+ if(found){
+  canvas.style.cursor='pointer';
+  tooltip.style.display='block';
+  tooltip.style.left=(mx+15)+'px';
+  tooltip.style.top=(my+15)+'px';
+  tooltip.innerHTML=`<b>${found.ld.customer}</b><br>📞 ${found.ld.phone}<br>📅 ${found.ld.appt}<br>📝 ${found.ld.notes.substring(0,50)}...`;
+ }else{
+  canvas.style.cursor='default';
+  tooltip.style.display='none';
+ }
+});
+
+// Click to view details
+canvas.addEventListener('click',e=>{
+ mx=e.clientX;my=e.clientY;
+ let found=null;
+ nodes.forEach(n=>{if(n.isHover(mx,my))found=n;});
+ if(found){
+  selectedNode=found;
+  document.getElementById('detailCustomer').textContent=found.ld.customer;
+  document.getElementById('detailDateTime').textContent=`${found.ld.date} at ${found.ld.time}`;
+  document.getElementById('detailSender').textContent=found.ld.sender;
+  document.getElementById('detailPhone').textContent=found.ld.phone;
+  document.getElementById('detailAddress').textContent=found.ld.address;
+  document.getElementById('detailPostcode').textContent=found.ld.postcode;
+  document.getElementById('detailAppt').textContent=found.ld.appt;
+  document.getElementById('detailStatus').textContent=(found.ld.status||'new').toUpperCase();
+  document.getElementById('detailNotes').textContent=found.ld.notes;
+  document.getElementById('detailOverlay').style.display='flex';
+ }
+});
+
+// Add Lead Form
+document.getElementById('addBtn').onclick=()=>{
+ const today=new Date().toISOString().split('T')[0];
+ const now=new Date().toTimeString().split(' ')[0].substring(0,5);
+ fDate.value=today;
+ fTime.value=now;
+ document.getElementById('addFormOverlay').style.display='flex';
+};
+
+document.getElementById('cancelBtn').onclick=()=>{
+ document.getElementById('addFormOverlay').style.display='none';
+};
+
+document.getElementById('addForm').onsubmit=(e)=>{
+ e.preventDefault();
+ const newLead={
+   date:fDate.value,time:fTime.value,sender:fSender.value,
+   customer:fCustomer.value,phone:fPhone.value,address:fAddress.value,
+   postcode:fPostcode.value,appt:fAppTime.value,notes:fNotes.value,
+   status:fStatus.value
+ };
+ leads.push(newLead);
+ localStorage.setItem('nob_crm_leads',JSON.stringify(leads));
+ updateNodes();
+ document.getElementById('addFormOverlay').style.display='none';
+ fSender.value=fCustomer.value=fPhone.value=fAddress.value=fPostcode.value=fAppTime.value=fNotes.value="";
+};
+
+// Detail panel actions
+document.getElementById('closeDetailBtn').onclick=()=>{
+ document.getElementById('detailOverlay').style.display='none';
+};
+
+document.getElementById('deleteBtn').onclick=()=>{
+ if(selectedNode&&confirm(`Delete lead for ${selectedNode.ld.customer}?`)){
+  leads.splice(selectedNode.idx,1);
+  localStorage.setItem('nob_crm_leads',JSON.stringify(leads));
+  updateNodes();
+  document.getElementById('detailOverlay').style.display='none';
+ }
+};
+
+// Filter controls
+document.getElementById('filterAll').onclick=()=>{filter='all';updateNodes();};
+document.getElementById('filterRecent').onclick=()=>{
+ const weekAgo=new Date();weekAgo.setDate(weekAgo.getDate()-7);
+ nodes=leads.filter(l=>new Date(l.date)>=weekAgo).map((l,i)=>new LeadNode(l,i));
+};
+document.getElementById('resetView').onclick=()=>{updateNodes();};
+</script>
+</body>
+</html>

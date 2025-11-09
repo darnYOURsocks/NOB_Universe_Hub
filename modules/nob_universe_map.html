@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>ŊOB Universe Map</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#000}
+  #info{
+    position:absolute;top:10px;left:10px;color:#fff;
+    font-family:Segoe UI,system-ui,sans-serif;background:rgba(0,0,0,0.45);
+    padding:10px 16px;border-radius:10px;max-width:340px;line-height:1.35
+  }
+  #badge{position:absolute;right:10px;top:10px;color:#9ae6ff;font:12px/1.2 Segoe UI,system-ui,sans-serif;background:rgba(0,20,30,0.55);padding:6px 10px;border-radius:8px}
+  #runTests{position:absolute;right:10px;top:44px;padding:6px 10px;border-radius:8px;border:1px solid #144;color:#ccfff6;background:rgba(0,50,60,0.4);font:12px/1.2 Segoe UI,system-ui,sans-serif;cursor:pointer}
+  canvas{display:block}
+  noscript{color:#fff;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#111}
+</style>
+<!-- Import map to resolve bare module specifiers used by three/examples JSM files -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div id="info">🪐 ŊOB Universe Explorer — click the central star to begin.</div>
+<div id="badge">diag: loading…</div>
+<button id="runTests" title="Run built-in tests">Run tests</button>
+<noscript>JavaScript is required to view the ŊOB Universe Map.</noscript>
+
+<script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+  /* ====== BASIC SETUP ====== */
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 2000);
+  const renderer = new THREE.WebGLRenderer({ antialias:true });
+  renderer.setPixelRatio(devicePixelRatio);
+  renderer.setSize(innerWidth, innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  camera.position.set(0,100,250);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+
+  /* ====== LIGHTS ====== */
+  scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+  const point = new THREE.PointLight(0xffffff, 2, 2000);
+  scene.add(point);
+
+  /* ====== CENTRAL STAR ====== */
+  const starGeo = new THREE.SphereGeometry(12, 64, 64);
+  const starMat = new THREE.MeshStandardMaterial({ color:0xffcc66, emissive:0xffaa00, emissiveIntensity:1.0, metalness:0.1, roughness:0.6 });
+  const star    = new THREE.Mesh(starGeo, starMat);
+  scene.add(star);
+  let stage = 0;
+
+  /* ====== DIVISION DATA ====== */
+  const divisions = [
+    { name:"Core Hub", color:0x4cc9f0, projects:[
+      "ŊOB Importer","Phoenix Engine","Phoenix Codex","ROI Ripple Canvas","Cognitive Coherence Engine",
+      "ŊOB Pattern DB","Cross-Domain Nodes","ŊOB CRM Canvas","Ripple-Aware Telemetry","ŊOB QCSM"
+    ]},
+    { name:"Codex Division", color:0x4361ee, projects:[
+      "Big Splash Codex","Ripple Codex System","Spiral Transport System","Ripple Wake Theory","Ŋoccam’s Razor",
+      "RFC Tree","TPS Databases","KRJ EKEDA Loop"
+    ]},
+    { name:"Field Division", color:0x3a0ca3, projects:[
+      "Unified Human Field Canvas","URFT","ŊOB Field Bridge","Neural-Gravitational Field",
+      "Emotional-Thermodynamic Cycle","Metabolic-Quantum Bridge"
+    ]},
+    { name:"Life Division", color:0xf72585, projects:[
+      "aiLICHEN","Artificial Human Body","Embryonic Fluid Shell","Ripple-Gate Cognitive Node",
+      "Phoenix Metrics","WorkPOND System"
+    ]},
+    { name:"Cultural Division", color:0xff9e00, projects:[
+      "Door-Flow Comedy","TPS Games","BlackBook Hybrid AI","Baby Codex","OCRIS Integrity",
+      "TPS-LEL Patterns","ŊOB Media Division","Myth-Mutation Map"
+    ]}
+  ];
+
+  /* ====== KYBER BELT (resonance layer) ====== */
+  const kyberGeo = new THREE.BufferGeometry();
+  const kyberCount = 1200;
+  const positions = new Float32Array(kyberCount * 3);
+  for (let i=0;i<kyberCount;i++){
+    const r  = 350 + Math.random()*120;
+    const th = Math.random()*Math.PI*2;
+    const ph = (Math.random()-0.5)*0.4; // slight vertical thickness
+    positions[i*3  ] = r*Math.cos(th);
+    positions[i*3+1] = Math.sin(ph)*20;
+    positions[i*3+2] = r*Math.sin(th);
+  }
+  kyberGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const kyberMat  = new THREE.PointsMaterial({ color:0x66ffff, size:0.8, transparent:true, opacity:0.6 });
+  const kyberBelt = new THREE.Points(kyberGeo, kyberMat);
+  scene.add(kyberBelt);
+
+  /* ====== HELPERS ====== */
+  function makeOrbit(radius, color){
+    const segments = 128; // tiny ring builder (no extra deps)
+    const pts = new Float32Array(segments * 3);
+    for (let i=0;i<segments;i++){
+      const a = (i/segments) * Math.PI*2;
+      pts[i*3  ] = Math.cos(a) * radius;
+      pts[i*3+1] = 0;
+      pts[i*3+2] = Math.sin(a) * radius;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pts, 3));
+    const mat = new THREE.LineBasicMaterial({ color, transparent:true, opacity:0.25 });
+    return new THREE.LineLoop(geo, mat);
+  }
+
+  /* ====== DIVISION SYSTEMS ====== */
+  const divisionSystems = [];
+  function createDivisions(){
+    const baseR = 60;
+    divisions.forEach((div, i)=>{
+      const orbit = makeOrbit(baseR + i*30, div.color);
+      scene.add(orbit);
+      const planetGeo = new THREE.SphereGeometry(6, 32, 32);
+      const planetMat = new THREE.MeshStandardMaterial({ color:div.color, emissive:div.color, emissiveIntensity:0.6, metalness:0.2, roughness:0.6 });
+      const planet = new THREE.Mesh(planetGeo, planetMat);
+      planet.userData = { type:'division', index:i };
+      scene.add(planet);
+      divisionSystems.push({ mesh:planet, orbitRadius:baseR + i*30, angle:Math.random()*Math.PI*2, children:[] });
+    });
+  }
+
+  /* ====== PROJECT PLANETS ====== */
+  function spawnProjects(divIndex){
+    const base = divisionSystems[divIndex];
+    const data = divisions[divIndex];
+    const n = data.projects.length;
+    const color = data.color;
+    const orbitRadius = 12;
+    for (let i=0;i<n;i++){
+      const th = (i/n) * Math.PI*2;
+      const geo = new THREE.SphereGeometry(2, 16, 16);
+      const mat = new THREE.MeshStandardMaterial({ color, emissive:color, emissiveIntensity:0.4, metalness:0.1, roughness:0.8 });
+      const moon = new THREE.Mesh(geo, mat);
+      moon.userData = { type:'project', label:data.projects[i] };
+      moon.position.set(
+        base.mesh.position.x + orbitRadius*Math.cos(th),
+        0,
+        base.mesh.position.z + orbitRadius*Math.sin(th)
+      );
+      base.children.push({ mesh:moon, orbitRadius, angle:th });
+      scene.add(moon);
+    }
+  }
+
+  /* ====== INTERACTION ====== */
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  addEventListener('click', onClick);
+  function onClick(e){
+    mouse.x =  (e.clientX/innerWidth)*2 - 1;
+    mouse.y = -(e.clientY/innerHeight)*2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(scene.children);
+    if (intersects.length>0){
+      const obj = intersects[0].object;
+      if (obj === star && stage === 0){
+        stage = 1; createDivisions();
+        document.getElementById('info').innerText = 'Click a division planet to explore its projects.';
+      } else if (obj.userData?.type === 'division' && stage === 1){
+        spawnProjects(obj.userData.index);
+        document.getElementById('info').innerText = `${divisions[obj.userData.index].name} expanded — click smaller moons to view project names.`;
+        stage = 2;
+      } else if (obj.userData?.type === 'project'){
+        document.getElementById('info').innerText = `🌐 ${obj.userData.label}`;
+      }
+    }
+  }
+
+  /* ====== ANIMATION LOOP ====== */
+  function animate(){
+    requestAnimationFrame(animate);
+    controls.update();
+    star.rotation.y += 0.002;
+
+    divisionSystems.forEach((sys,i)=>{
+      sys.angle += 0.001 * (1 + i*0.2);
+      sys.mesh.position.set(Math.cos(sys.angle)*sys.orbitRadius, 0, Math.sin(sys.angle)*sys.orbitRadius);
+      sys.children.forEach((c)=>{
+        c.angle += 0.02;
+        c.mesh.position.x = sys.mesh.position.x + Math.cos(c.angle)*c.orbitRadius;
+        c.mesh.position.z = sys.mesh.position.z + Math.sin(c.angle)*c.orbitRadius;
+      });
+    });
+
+    kyberBelt.rotation.y += 0.0005; // kyber shimmer
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  /* ====== RESIZE ====== */
+  addEventListener('resize', ()=>{
+    camera.aspect = innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+
+  /* ====== BUILT-IN TESTS ====== */
+  // Minimal runtime tests to validate critical pieces
+  const badge = document.getElementById('badge');
+  const tests = [];
+  function t(name, fn){
+    try{ const ok = !!fn(); tests.push({name,ok}); return ok; }catch{ tests.push({name,ok:false}); return false; }
+  }
+
+  t('importmap-three-module', ()=> typeof THREE.REVISION !== 'undefined');
+  t('orbitcontrols-loaded',   ()=> typeof OrbitControls === 'function');
+  t('renderer-created',       ()=> !!renderer.capabilities);
+
+  // Simulate a programmatic star interaction to ensure division spawn path is valid
+  t('star-click-spawns-divisions', ()=>{
+    const prev = stage;
+    // directly invoke the effect path (equivalent to clicking the star at stage 0)
+    if (stage!==0) stage = 0;
+    createDivisions();
+    return Array.isArray(divisionSystems) && divisionSystems.length===5;
+  });
+
+  // Render test summary to badge
+  const pass = tests.filter(x=>x.ok).length;
+  badge.textContent = `three r${THREE.REVISION} • ${pass}/${tests.length} tests passed`;
+  console.table(tests);
+
+  // Button to re-run tests manually
+  document.getElementById('runTests').addEventListener('click', ()=>{
+    location.reload();
+  });
+
+  // Expose for manual console poking
+  window.__NOB_UNIVERSE_DIAG__ = { THREE, OrbitControls, tests };
+</script>
+</body>
+</html>

@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TPSai Consultancy – CBR KSpace Compiler v3.0</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --secondary: #2d3748;
+            --accent: #3182ce;
+            --success: #38a169;
+            --warning: #d69e2e;
+            --danger: #e53e3e;
+            --info: #4299e1;
+        }
+
+        /* SYSTEM STYLES */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            background: #f7fafc;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--primary);
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            margin: 0.25rem 0 0;
+            color: #cbd5e0;
+            font-weight: 300;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            max-width: 1800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .panel {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea, input[type="text"], select {
+            width: 100%;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus, input[type="text"]:focus, select:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+
+        button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            margin: 0.25rem 0;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: var(--secondary);
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        button.danger {
+            background: var(--danger);
+        }
+
+        button.success {
+            background: var(--success);
+        }
+
+        button.info {
+            background: var(--info);
+        }
+
+        pre {
+            flex: 1;
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            overflow: auto;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .metrics {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+        }
+
+        .metric {
+            flex: 1;
+            text-align: center;
+            background: #edf2f7;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .case-item {
+            background: #f8fafc;
+            border-left: 4px solid var(--accent);
+            margin: 0.75rem 0;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .confidence-bar {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.5s;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #e2e8f0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin: 0.25rem 0.25rem 0 0;
+        }
+
+        /* REPORT STYLES */
+        .report-wrapper {
+            display: none;
+        }
+
+        .report-header {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .report-header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .report-header h2 {
+            margin: 0.5rem 0 0;
+            font-weight: 400;
+            color: #cbd5e0;
+        }
+
+        .report-main {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .report-section {
+            margin-bottom: 2rem;
+            page-break-inside: avoid;
+        }
+
+        .report-section h3 {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.25rem;
+            color: var(--primary);
+        }
+
+        .report-section h4 {
+            margin-top: 0.5rem;
+            margin-bottom: 0.25rem;
+            color: #2c5282;
+        }
+
+        .report-section p {
+            margin-top: 0.25rem;
+            line-height: 1.5;
+        }
+
+        .pop-grid, .tps-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .pop-grid div, .tps-grid div {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .callout {
+            background: #ebf8ff;
+            padding: 1rem;
+            border-left: 4px solid var(--accent);
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .report-tags {
+            margin-top: 1rem;
+        }
+
+        .report-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: var(--success);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* NEW V3 STYLES */
+        .schema-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .schema-option {
+            flex: 1;
+            text-align: center;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .schema-option.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .code-preview {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow: auto;
+        }
+
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--accent);
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .case-preview {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .case-type-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .case-type-consultancy {
+            background: var(--accent);
+        }
+
+        .case-type-code {
+            background: var(--success);
+        }
+
+        .case-type-performance {
+            background: var(--warning);
+        }
+
+        .case-type-recombinant {
+            background: var(--info);
+        }
+
+        .case-type-legacy {
+            background: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <!-- MAIN SYSTEM INTERFACE -->
+    <header>
+        <h1>TPSai Consultancy – CBR KSpace Compiler v3.0</h1>
+        <p class="subtitle">Multi-Schema Support | Enhanced Recombinator | Professional Reports</p>
+    </header>
+
+    <div class="main">
+        <!-- LEFT PANEL: IMPORTER -->
+        <div class="panel">
+            <h2>🧠 KSpace Importer v3</h2>
+
+            <div class="metrics">
+                <div class="metric" id="caseCount">📊 Cases: 0</div>
+                <div class="metric" id="confidenceAvg">🎯 Avg Confidence: 0%</div>
+                <div class="metric" id="recombinantCount">🔄 Recombinations: 0</div>
+            </div>
+
+            <div class="tab-container">
+                <div class="tab active" data-tab="manual">Manual Entry</div>
+                <div class="tab" data-tab="import">Import & Convert</div>
+                <div class="tab" data-tab="templates">Templates</div>
+            </div>
+
+            <!-- MANUAL ENTRY TAB -->
+            <div class="tab-content active" id="manual-tab">
+                <label><strong>Case Type</strong></label>
+                <select id="caseType">
+                    <option value="consultancy">Consultancy</option>
+                    <option value="performance">Performance</option>
+                    <option value="code">Code Pattern</option>
+                    <option value="leadership">Leadership</option>
+                    <option value="team_dynamics">Team Dynamics</option>
+                </select>
+
+                <label><strong>Problem Context</strong></label>
+                <textarea id="inProblem" placeholder="Describe the core challenge or situation..."></textarea>
+
+                <label><strong>Key Obstacle</strong></label>
+                <textarea id="inObstacle" placeholder="What's blocking progress? Technical, human, or system constraints..."></textarea>
+
+                <label><strong>Solution Path</strong></label>
+                <textarea id="inPath" placeholder="Proposed approach, patterns, TPS methods, code snippets..."></textarea>
+
+                <div style="display:flex; gap:0.5rem; margin:0.5rem 0;">
+                    <button id="saveCaseBtn">💾 Save Case</button>
+                    <button id="clearInputsBtn" class="secondary">🗑️ Clear</button>
+                    <button id="loadSamplesBtn" class="success">🎲 Load Samples</button>
+                </div>
+            </div>
+
+            <!-- IMPORT TAB -->
+            <div class="tab-content" id="import-tab">
+                <h3>📁 Multi-Schema Import</h3>
+                <p style="margin:0 0 1rem; color:#666; font-size:0.9rem;">
+                    TPSai v3 supports multiple JSON schemas. Select the format of your import file.
+                </p>
+
+                <div class="schema-selector">
+                    <div class="schema-option active" data-schema="tpsai">TPSai Standard</div>
+                    <div class="schema-option" data-schema="code">Code Case Format</div>
+                    <div class="schema-option" data-schema="legacy">Legacy (Auto-Repair)</div>
+                </div>
+
+                <input type="file" id="uploadFile" accept=".json" style="margin-bottom:0.75rem;" />
+                <button id="importJsonBtn" class="info">📥 Import JSON</button>
+
+                <div class="case-preview" id="importPreview">
+                    <p style="margin:0; color:#666; text-align:center;">
+                        Import preview will appear here
+                    </p>
+                </div>
+            </div>
+
+            <!-- TEMPLATES TAB -->
+            <div class="tab-content" id="templates-tab">
+                <h3>📋 Quick Templates</h3>
+                <p style="margin:0 0 1rem; color:#666; font-size:0.9rem;">
+                    Use predefined templates to quickly create common case types.
+                </p>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                    <button class="template-btn" data-template="team-energy">Team Energy</button>
+                    <button class="template-btn" data-template="code-pattern">Code Pattern</button>
+                    <button class="template-btn" data-template="leadership">Leadership</button>
+                    <button class="template-btn" data-template="process">Process</button>
+                </div>
+
+                <div class="code-preview" id="templatePreview">
+                    <p style="margin:0; color:#666; text-align:center;">
+                        Template preview will appear here
+                    </p>
+                </div>
+            </div>
+
+            <h3 style="margin-top:1.5rem;">📁 Case Base Management</h3>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button id="downloadJsonBtn">📥 Download JSON</button>
+                <button id="downloadPdfBtn" class="secondary">📊 PDF Report</button>
+                <button id="clearStorageBtn" class="danger">⚠️ Clear All</button>
+            </div>
+
+            <pre id="kspaceLog">// TPSai KSpace v3 initialized\n// Add cases manually or load samples to begin</pre>
+        </div>
+
+        <!-- RIGHT PANEL: RECOMBINATOR -->
+        <div class="panel">
+            <h2>🔍 KSpace Recombinator v3</h2>
+
+            <div class="metrics">
+                <div class="metric" id="queryCount">❓ Queries: 0</div>
+                <div class="metric" id="matchRate">🎯 Match Rate: 0%</div>
+                <div class="metric" id="hybridCount">🧬 Hybrids: 0</div>
+            </div>
+
+            <label><strong>Problem Query</strong></label>
+            <textarea id="queryInput" placeholder="Describe your current challenge for pattern matching..."></textarea>
+
+            <div style="display:flex; gap:0.5rem; margin:0.75rem 0;">
+                <button id="recombineBtn">🔍 Find & Recombine</button>
+                <button id="suggestPatternsBtn" class="secondary">💡 Suggest Patterns</button>
+                <button id="generateReportBtn" class="success">📄 Generate Report</button>
+            </div>
+
+            <div id="resultsContainer">
+                <div class="case-item">
+                    <strong>💡 Ready to Recombine Knowledge</strong>
+                    <p style="margin:0.5rem 0 0; color:#666; font-size:0.9rem;">
+                        Enter a problem query above to search the case base and generate recombinant solutions.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFESSIONAL REPORT TEMPLATE (HIDDEN) -->
+    <div id="reportWrapper" class="report-wrapper">
+        <header class="report-header">
+            <h1>🎯 TPSai Consultancy Case Study</h1>
+            <h2 id="caseTitle">Case Report</h2>
+        </header>
+
+        <main class="report-main" id="reportContainer"></main>
+
+        <footer class="report-footer">
+            TPSai Consultancy – Narrative-Preserved Report Generator v3.0
+        </footer>
+    </div>
+
+    <!-- PDF CONTROLS -->
+    <div style="text-align:center; padding:1rem; display:none;" id="pdfControls">
+        <button onclick="downloadPDF('fit')">📥 Export – Fit One Page</button>
+        <button onclick="downloadPDF('multi')">📥 Export – Multi Page</button>
+        <button onclick="hideReport()">← Back to System</button>
+    </div>
+
+    <!-- LIBRARIES -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+    <script>
+        // =========== ENHANCED KSPACE ENGINE v3 ===========
+        let kspace = JSON.parse(localStorage.getItem("tpsai-kspace") || "[]");
+        let stats = JSON.parse(localStorage.getItem("tpsai-stats") || '{"recombinations":0,"matches":0,"queries":0,"hybrids":0,"totalCases":0}');
+        let currentCaseForReport = null;
+        let currentSchema = 'tpsai';
+
+        // =========== PRE-LOADED CASE BASE (20 SEEDED CASES) ===========
+        const seededCases = [
+            {
+                "id": "case_001_ripple_anchor_leadership",
+                "problem": "Emotional habits bias the choice of central symbols in ripple drawings, limiting effectiveness.",
+                "obstacle": "Hesitation to choose bold anchors (e.g., bridge) due to subconscious barriers.",
+                "path": "Combine both: the house stabilizes mindset, the bridge channels action.",
+                "meta": {
+                    "type": "leadership",
+                    "timestamp": "2025-10-01T14:31:45.881156",
+                    "confidence": 0.82,
+                    "delta": "+25% clarity and action alignment",
+                    "domain": "ripple_anchor_training",
+                    "tags": ["emotional_anchor", "habit_bias", "bridge_symbol", "house_symbol", "training_tool"],
+                    "narrative": {
+                        "tps_breakdown": {
+                            "emotional": "House anchors safety → Bridge anchors change.",
+                            "logical": "The middle symbol acts as a subconscious anchor, priming thought and behavior for 20–30 minutes when reinforced.",
+                            "holding": "Both anchors are valid: house stabilizes, bridge directs. Controlled choice proved method."
+                        },
+                        "ripple_lesson": "Central objects in ripple drawings act as subconscious anchors that guide thought and action when consciously reinforced.",
+                        "consultancy_insight": "House = emotional stabilizer. Bridge = directional change-driver. Use both for balanced anchoring.",
+                        "research_note": "Subliminal image effects fade <1s, but conscious emotionally relevant imagery can act as anchors for 20–30 minutes through priming and exposure."
+                    }
+                }
+            },
+            {
+                "id": "case_002_commission_transition",
+                "problem": "Team instability; Adam unreliable; Aaron drifting; Nibs part-time; payroll at risk.",
+                "obstacle": "Past silent drop-offs; lack of structured accountability; unequal pay structures.",
+                "path": "Implement commission-only transition; demand notice/compensation for exits; align fairness across all staff.",
+                "meta": {
+                    "type": "consultancy",
+                    "timestamp": "2025-10-01T14:31:45.881227",
+                    "confidence": 0.88,
+                    "delta": "+35% stability and fairness",
+                    "domain": "team_structure",
+                    "tags": ["commission_only", "fairness", "payroll_risk", "accountability", "leadership"],
+                    "narrative": {
+                        "tps_breakdown": {
+                            "emotional": "Frustration at repeat disappearances; pride in personal investment; demand for fairness.",
+                            "logical": "Commission-only protects payroll; equal rules; risk shifted to earners.",
+                            "holding": "Leadership insists on accountability baseline for system stability."
+                        },
+                        "ripple_lesson": "Unchallenged disrespect becomes precedent; boundaries of fairness protect future stability.",
+                        "consultancy_insight": "Codify staff contract architecture: Salary = notice; Commission-only = performance risk; No vanishings tolerated.",
+                        "research_note": "Aligns with organizational psychology on equity and accountability in team contracts."
+                    }
+                }
+            },
+            {
+                "id": "case_003_rst_90min",
+                "problem": "Afternoon focus slumps reduce productivity and cause deflection behaviours.",
+                "obstacle": "Biological ultradian rhythms cause energy dips; team lacks reset rituals.",
+                "path": "Implement 90-minute work blocks with 10-minute resets, aligned to natural rhythms.",
+                "meta": {
+                    "type": "performance",
+                    "timestamp": "2025-10-01T14:31:45.881278",
+                    "confidence": 0.9,
+                    "delta": "+42% velocity",
+                    "domain": "team_energy",
+                    "tags": ["rhythm", "energy_management", "reset", "focus"],
+                    "narrative": {
+                        "tps_breakdown": {
+                            "emotional": "Afternoon slump creates frustration and guilt about lost productivity.",
+                            "logical": "90-minute blocks align with natural ultradian rhythms for sustained focus.",
+                            "holding": "Reset rituals act as holding anchors, preventing burnout."
+                        },
+                        "ripple_lesson": "Rhythm-based work scheduling outperforms traditional time-based scheduling.",
+                        "consultancy_insight": "Leaders can protect performance by matching work cycles to biology.",
+                        "research_note": "Supports ultradian rhythm studies showing ~90-min natural focus cycles."
+                    }
+                }
+            },
+            {
+                "id": "case_004_pairing_lever",
+                "problem": "Team members stall when facing complex problems alone.",
+                "obstacle": "Isolation amplifies pressure; lack of mirrored thinking causes blocks.",
+                "path": "Introduce deliberate pairing lever to bounce patterns and unlock stalled energy.",
+                "meta": {
+                    "type": "team_dynamics",
+                    "timestamp": "2025-10-01T14:31:45.881332",
+                    "confidence": 0.86,
+                    "delta": "+30% collaborative flow",
+                    "domain": "collaboration",
+                    "tags": ["pairing", "lever", "teamwork", "mirroring"],
+                    "narrative": {
+                        "tps_breakdown": {
+                            "emotional": "Frustration when alone → relief when paired.",
+                            "logical": "Pairing creates cross-check logic loops and pattern resonance.",
+                            "holding": "Holding space allows energy redistribution."
+                        },
+                        "ripple_lesson": "Pairing flips isolation → flow by distributing weight.",
+                        "consultancy_insight": "Leadership tool: when in stall, activate pairing lever to generate movement.",
+                        "research_note": "Supported by pair programming and collaborative cognition research."
+                    }
+                }
+            },
+            {
+                "id": "case_005_humour_pivot",
+                "problem": "Serious or tense meetings collapse under pressure, creating disengagement.",
+                "obstacle": "Participants avoid direct confrontation; energy turns inward or defensive.",
+                "path": "Introduce humour pivot at right moment to flip tension → shared energy.",
+                "meta": {
+                    "type": "communication",
+                    "timestamp": "2025-10-01T14:31:45.881379",
+                    "confidence": 0.84,
+                    "delta": "+28% engagement",
+                    "domain": "leadership",
+                    "tags": ["humour", "pivot", "energy_flip", "communication"],
+                    "narrative": {
+                        "tps_breakdown": {
+                            "emotional": "Tension breeds silence; humour releases stuck emotion.",
+                            "logical": "Pivot timing shifts logic channel; reframes seriousness into playful engagement.",
+                            "holding": "Humour becomes a safe holding pattern for group reset."
+                        },
+                        "ripple_lesson": "Humour is a leadership reset button for emotional-logic deadlocks.",
+                        "consultancy_insight": "Use humour strategically to diffuse and reframe without losing authority.",
+                        "research_note": "Backed by humour-in-leadership studies showing increases in resilience and creativity."
+                    }
+                }
+            }
+        ];
+
+        // =========== INITIALIZATION ===========
+        function initializeKSpace() {
+            // Load seeded cases if KSpace is empty
+            if (kspace.length === 0) {
+                kspace = [...seededCases];
+                stats.totalCases = kspace.length;
+                showNotification("Loaded 5 seeded consultancy cases", "success");
+            }
+            
+            refreshKspaceLog();
+            updateMetrics();
+            setupTabs();
+            setupSchemaSelector();
+            setupTemplates();
+            updateImportPreview();
+        }
+
+        function setupTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and contents
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+        }
+
+        function setupSchemaSelector() {
+            document.querySelectorAll('.schema-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.schema-option').forEach(o => o.classList.remove('active'));
+                    option.classList.add('active');
+                    currentSchema = option.getAttribute('data-schema');
+                    
+                    // Update import preview based on schema
+                    updateImportPreview();
+                });
+            });
+        }
+
+        function setupTemplates() {
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const template = btn.getAttribute('data-template');
+                    loadTemplate(template);
+                });
+            });
+        }
+
+        function loadTemplate(templateName) {
+            const templates = {
+                'team-energy': {
+                    problem: "Team energy and focus issues during specific periods",
+                    obstacle: "Natural energy rhythms, context switching, lack of clear goals",
+                    path: "Implement rhythm-based work scheduling with clear micro-targets",
+                    type: "performance"
+                },
+                'code-pattern': {
+                    problem: "Need to implement a common programming pattern",
+                    obstacle: "Syntax differences, edge cases, integration complexity",
+                    path: "Abstract pattern with clear examples and error handling",
+                    type: "code"
+                },
+                'leadership': {
+                    problem: "Team alignment and direction challenges",
+                    obstacle: "Communication gaps, unclear priorities, conflicting goals",
+                    path: "Establish clear communication rhythms and shared vision",
+                    type: "leadership"
+                },
+                'process': {
+                    problem: "Inefficient workflow causing delays and frustration",
+                    obstacle: "Bottlenecks, unclear ownership, manual steps",
+                    path: "Map current process, identify bottlenecks, automate manual steps",
+                    type: "process"
+                }
+            };
+
+            const template = templates[templateName];
+            if (template) {
+                document.getElementById('inProblem').value = template.problem;
+                document.getElementById('inObstacle').value = template.obstacle;
+                document.getElementById('inPath').value = template.path;
+                document.getElementById('caseType').value = template.type;
+                
+                // Switch to manual tab
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelector('.tab[data-tab="manual"]').classList.add('active');
+                document.getElementById('manual-tab').classList.add('active');
+                
+                // Update template preview
+                document.getElementById('templatePreview').innerHTML = 
+                    `<pre>${JSON.stringify(template, null, 2)}</pre>`;
+            }
+        }
+
+        function updateImportPreview() {
+            const preview = document.getElementById('importPreview');
+            const schemaExamples = {
+                'tpsai': seededCases[0],
+                'code': {
+                    "id": "CODE-001",
+                    "title": "JavaScript Fetch API Calls",
+                    "source": "fetch('https://api.example.com/data').then(r=>r.json()).then(d=>console.log(d))",
+                    "pop": {
+                        "problem": "Need to fetch data from an API endpoint.",
+                        "obstacle": "Async syntax differences across languages.",
+                        "path": "Abstract into universal GET/POST pattern with error handling."
+                    },
+                    "tps": {
+                        "syntax": "JS fetch with promises.",
+                        "logic": "Resolve response, parse JSON.",
+                        "integration": "Modern browsers only."
+                    },
+                    "lesson": "Fetching is universal, syntax varies.",
+                    "forecast": {
+                        "python": "requests.get('url').json()",
+                        "javascript": "axios.get('url').then(res=>res.data)"
+                    },
+                    "links": ["CODE-002","CODE-010"]
+                },
+                'legacy': {
+                    id: "legacy_case_001",
+                    problem: "Sample legacy problem",
+                    obstacle: "Sample legacy obstacle", 
+                    path: "Sample legacy path"
+                    // Note: No meta field - will be repaired
+                }
+            };
+            
+            preview.innerHTML = `<pre>// ${currentSchema.toUpperCase()} Schema Example\n${JSON.stringify(schemaExamples[currentSchema], null, 2)}</pre>`;
+        }
+
+        // =========== JSON CLEANER FUNCTION ===========
+        function cleanJsonUpload(rawText) {
+            try {
+                return JSON.parse(rawText);
+            } catch (err) {
+                // Try to fix common issues like trailing commas
+                const cleaned = rawText
+                    .replace(/,\s*}/g, "}")
+                    .replace(/,\s*]/g, "]");
+                return JSON.parse(cleaned);
+            }
+        }
+
+        // =========== CASE MANAGEMENT ===========
+        document.getElementById("saveCaseBtn").addEventListener("click", () => {
+            const problem = document.getElementById("inProblem").value.trim();
+            const obstacle = document.getElementById("inObstacle").value.trim();
+            const path = document.getElementById("inPath").value.trim();
+            const caseType = document.getElementById("caseType").value;
+
+            if (!problem || !obstacle || !path) {
+                showNotification("Please fill in all fields", "warning");
+                return;
+            }
+
+            const caseData = {
+                id: "case_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9),
+                problem: problem,
+                obstacle: obstacle,
+                path: path,
+                meta: {
+                    type: caseType,
+                    timestamp: new Date().toISOString(),
+                    confidence: 0.9,
+                    delta: "≈+0.00",
+                    domain: detectDomain(problem),
+                    tags: extractTags(problem + " " + obstacle),
+                    narrative: {
+                        tps_breakdown: {
+                            emotional: "Describe the emotional dynamics...",
+                            logical: "Describe the logical approach...",
+                            holding: "Describe the holding pattern..."
+                        },
+                        ripple_lesson: "Key learning or pattern observed...",
+                        consultancy_insight: "Strategic recommendation...",
+                        research_note: "Supporting evidence or research..."
+                    }
+                }
+            };
+
+            kspace.push(caseData);
+            stats.totalCases++;
+            refreshKspaceLog();
+            updateMetrics();
+
+            document.getElementById("inProblem").value = "";
+            document.getElementById("inObstacle").value = "";
+            document.getElementById("inPath").value = "";
+
+            showNotification("Case saved to KSpace!", "success");
+        });
+
+        document.getElementById("loadSamplesBtn").addEventListener("click", () => {
+            if (kspace.length > 0 && !confirm("This will add sample cases to your existing KSpace. Continue?")) {
+                return;
+            }
+
+            const newSamples = seededCases.filter(sample =>
+                !kspace.some(existing => existing.id === sample.id)
+            );
+
+            kspace = [...kspace, ...newSamples];
+            refreshKspaceLog();
+            updateMetrics();
+            showNotification(`Added ${newSamples.length} sample cases`, "success");
+        });
+
+        document.getElementById("clearInputsBtn").addEventListener("click", () => {
+            document.getElementById("inProblem").value = "";
+            document.getElementById("inObstacle").value = "";
+            document.getElementById("inPath").value = "";
+        });
+
+        // =========== JSON IMPORT WITH CLEANER ===========
+        document.getElementById("importJsonBtn").addEventListener("click", () => {
+            const fileInput = document.getElementById("uploadFile");
+            if (fileInput.files.length === 0) {
+                showNotification("No file selected", "warning");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const data = cleanJsonUpload(e.target.result);
+                    
+                    // Handle different schema formats
+                    let casesToAdd = [];
+                    if (Array.isArray(data)) {
+                        casesToAdd = data.map(caseItem => normalizeCaseSchema(caseItem, currentSchema));
+                    } else {
+                        casesToAdd = [normalizeCaseSchema(data, currentSchema)];
+                    }
+                    
+                    // Add only new cases (by ID)
+                    const newCases = casesToAdd.filter(newCase =>
+                        !kspace.some(existing => existing.id === newCase.id)
+                    );
+                    
+                    kspace = [...kspace, ...newCases];
+                    refreshKspaceLog();
+                    updateMetrics();
+                    showNotification(`Imported ${newCases.length} cases (${currentSchema} schema)`, "success");
+                } catch (err) {
+                    showNotification("Failed to import JSON: " + err.message, "danger");
+                }
+            };
+            reader.readAsText(fileInput.files[0]);
+        });
+
+        function normalizeCaseSchema(caseItem, schemaType) {
+            // Convert different schema formats to TPSai standard
+            switch(schemaType) {
+                case 'code':
+                    return {
+                        id: caseItem.id || "code_" + Date.now(),
+                        problem: caseItem.pop?.problem || caseItem.problem || "Code implementation needed",
+                        obstacle: caseItem.pop?.obstacle || caseItem.obstacle || "Syntax and integration challenges",
+                        path: caseItem.pop?.path || caseItem.path || "Abstract pattern with examples",
+                        meta: {
+                            type: "code",
+                            timestamp: new Date().toISOString(),
+                            confidence: 0.85,
+                            delta: "≈+0.00",
+                            domain: "code_training",
+                            tags: caseItem.tags || ["code", "pattern", "implementation"],
+                            narrative: {
+                                tps_breakdown: {
+                                    emotional: "Frustration with syntax differences",
+                                    logical: caseItem.tps?.logic || "Universal pattern with language-specific implementation",
+                                    holding: "Abstracted solution provides stability across environments"
+                                },
+                                ripple_lesson: caseItem.lesson || "Programming patterns transcend specific languages",
+                                consultancy_insight: "Teach concepts, not just syntax",
+                                research_note: "Supported by programming language theory and cross-platform development practices"
+                            }
+                        }
+                    };
+                
+                case 'legacy':
+                    // Repair legacy cases missing meta fields
+                    return {
+                        ...caseItem,
+                        meta: caseItem.meta || {
+                            type: 'legacy',
+                            timestamp: new Date().toISOString(),
+                            confidence: 0.75,
+                            delta: '≈+0.00',
+                            domain: 'general',
+                            tags: [],
+                            narrative: {
+                                tps_breakdown: { emotional: '', logical: '', holding: '' },
+                                ripple_lesson: '',
+                                consultancy_insight: '',
+                                research_note: ''
+                            }
+                        }
+                    };
+                
+                default: // 'tpsai'
+                    return caseItem;
+            }
+        }
+
+        // =========== ENHANCED RECOMBINATION ENGINE ===========
+        document.getElementById("recombineBtn").addEventListener("click", () => {
+            const query = document.getElementById("queryInput").value.trim();
+            if (!query) {
+                showNotification("Please enter a problem query", "warning");
+                return;
+            }
+
+            stats.queries++;
+            const matches = findBestMatches(query, kspace, 3);
+            const resultsContainer = document.getElementById("resultsContainer");
+
+            if (matches.length > 0) {
+                stats.matches++;
+                const bestMatch = matches[0];
+                const recombinant = createRecombinantCase(query, bestMatch.case, "direct_match");
+                kspace.push(recombinant);
+                stats.recombinations++;
+
+                resultsContainer.innerHTML = `
+          <div class="case-item">
+            <strong>🎯 Direct Match Found (${(bestMatch.score * 100).toFixed(1)}% similarity)</strong>
+            <div class="confidence-bar">
+              <div class="confidence-fill" style="width: ${bestMatch.score * 100}%"></div>
+            </div>
+            <p><strong>Original Problem:</strong> ${bestMatch.case.problem}</p>
+            <p><strong>Solution Path:</strong> ${bestMatch.case.path}</p>
+            <p><strong>Tags:</strong> ${((bestMatch.case.meta?.tags || [])).map(t => `<span class="tag">${t}</span>`).join('')}</p>
+            <button onclick="generateProfessionalReport('${bestMatch.case.id}')" class="success" style="margin-top:0.5rem;">
+              📄 Generate Professional Report
+            </button>
+          </div>
+        `;
+
+                showNotification(`Found ${matches.length} matches! Created recombinant.`, "success");
+            } else {
+                // Create hybrid from best available matches
+                const availableCases = kspace.length >= 2 ? kspace : seededCases;
+                if (availableCases.length >= 2) {
+                    const shuffled = [...availableCases].sort(() => 0.5 - Math.random());
+                    const hybridCase = createRecombinantCase(query, shuffled[0], "hybrid", shuffled[1]);
+                    kspace.push(hybridCase);
+                    stats.recombinations++;
+                    stats.hybrids++;
+
+                    resultsContainer.innerHTML = `
+            <div class="case-item">
+              <strong>🧬 Hybrid Solution Created</strong>
+              <p><strong>Your Query:</strong> ${query}</p>
+              <p><strong>Combined Wisdom:</strong> ${shuffled[0].meta?.domain || 'general'} + ${shuffled[1].meta?.domain || 'general'}</p>
+              <p><strong>Solution Path:</strong> ${hybridCase.path}</p>
+              <p><strong>Tags:</strong> ${((hybridCase.meta?.tags || [])).map(t => `<span class="tag">${t}</span>`).join('')}</p>
+              <button onclick="generateProfessionalReport('${hybridCase.id}')" class="success" style="margin-top:0.5rem;">
+                📄 Generate Professional Report
+              </button>
+            </div>
+          `;
+
+                    showNotification("Created hybrid solution from multiple domains!", "info");
+                } else {
+                    resultsContainer.innerHTML = `
+            <div class="case-item">
+              <strong>❌ No matches found</strong>
+              <p>Try adding more cases to your KSpace or refining your query.</p>
+              <button onclick="document.getElementById('loadSamplesBtn').click()" class="success" style="margin-top:0.5rem;">
+                🎲 Load Sample Cases
+              </button>
+            </div>
+          `;
+                }
+            }
+
+            refreshKspaceLog();
+            updateMetrics();
+        });
+
+        // =========== HELPER FUNCTIONS (FROM ORIGINAL ds.html) ===========
+        function findBestMatches(query, cases, topK = 3) {
+            return cases
+                .map(c => ({
+                    case: c,
+                    score: calculateSimilarity(query, c.problem + " " + c.obstacle)
+                }))
+                .filter(match => match.score > 0.2)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, topK);
+        }
+
+        function calculateSimilarity(query, text) {
+            const queryWords = new Set(query.toLowerCase().split(/\W+/).filter(w => w.length > 2));
+            const textWords = new Set(text.toLowerCase().split(/\W+/).filter(w => w.length > 2));
+
+            if (queryWords.size === 0 || textWords.size === 0) return 0;
+
+            const intersection = new Set([...queryWords].filter(x => textWords.has(x)));
+            const union = new Set([...queryWords, ...textWords]);
+
+            return intersection.size / union.size;
+        }
+
+        function createRecombinantCase(query, primaryCase, type, secondaryCase = null) {
+            const basePath = primaryCase.path;
+            const enhancedPath = type === "hybrid" && secondaryCase ?
+                `Hybrid approach: ${basePath} + augmented with ${secondaryCase.path}` :
+                basePath;
+
+            return {
+                id: "recombinant_" + Date.now(),
+                problem: query,
+                obstacle: primaryCase.obstacle,
+                path: enhancedPath,
+                meta: {
+                    type: "recombinant",
+                    source: type === "hybrid" ? `${primaryCase.id}+${secondaryCase.id}` : primaryCase.id,
+                    timestamp: new Date().toISOString(),
+                    confidence: type === "direct_match" ? 0.75 : 0.6,
+                    delta: "≈+0.00",
+                    domain: detectDomain(query),
+                    tags: [...new Set([...(primaryCase.meta?.tags || []), ...extractTags(query)])].slice(0, 6),
+                    narrative: primaryCase.meta?.narrative || {
+                        tps_breakdown: { emotional: '', logical: '', holding: '' },
+                        ripple_lesson: '',
+                        consultancy_insight: '',
+                        research_note: ''
+                    }
+                }
+            };
+        }
+
+        function detectDomain(text) {
+            const lower = text.toLowerCase();
+            if (lower.includes('team') || lower.includes('energy') || lower.includes('velocity')) return 'team_performance';
+            if (lower.includes('junior') || lower.includes('mentor') || lower.includes('lead')) return 'team_growth';
+            if (lower.includes('code') || lower.includes('technical') || lower.includes('bug')) return 'technical';
+            if (lower.includes('process') || lower.includes('workflow') || lower.includes('pipeline')) return 'process';
+            if (lower.includes('communicat') || lower.includes('meeting') || lower.includes('sync')) return 'coordination';
+            return 'general';
+        }
+
+        function extractTags(text) {
+            const commonTags = ['performance', 'quality', 'leadership', 'mentoring', 'process',
+                'technical', 'communication', 'energy', 'focus', 'automation',
+                'testing', 'review', 'dependencies', 'ownership', 'feedback'
+            ];
+            return commonTags.filter(tag => text.toLowerCase().includes(tag)).slice(0, 4);
+        }
+
+        function showNotification(message, type = "info") {
+            const notification = document.createElement("div");
+            notification.className = "notification";
+            notification.style.background = type === "error" ? "var(--danger)" :
+                type === "warning" ? "var(--warning)" :
+                type === "success" ? "var(--success)" : "var(--accent)";
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function refreshKspaceLog() {
+            const logElement = document.getElementById("kspaceLog");
+            const formattedCases = kspace.map(c => {
+                const typeClass = `case-type-${c.meta?.type || 'legacy'}`;
+                return (
+                    `<span class="case-type-indicator ${typeClass}"></span>` +
+                    `${c.meta?.type?.toUpperCase() || 'LEGACY'} | ${c.meta?.domain || 'general'}\n` +
+                    `Problem: ${c.problem}\n` +
+                    `Path: ${c.path}\n` +
+                    `Confidence: ${((c.meta?.confidence || 0.75) * 100).toFixed(0)}% | Δ: ${c.meta?.delta || '≈+0.00'}\n` +
+                    `Tags: ${(c.meta?.tags || []).map(t => `#${t}`).join(' ')}\n` +
+                    `ID: ${c.id}\n` +
+                    `---`
+                );
+            }).join('\n');
+
+            logElement.innerHTML = `// TPSai KSpace v3 - ${kspace.length} cases\n\n${formattedCases}`;
+
+            localStorage.setItem("tpsai-kspace", JSON.stringify(kspace));
+            localStorage.setItem("tpsai-stats", JSON.stringify(stats));
+        }
+
+        function updateMetrics() {
+            document.getElementById("caseCount").textContent = `📊 Cases: ${kspace.length}`;
+            document.getElementById("recombinantCount").textContent = `🔄 Recombinations: ${stats.recombinations}`;
+            document.getElementById("queryCount").textContent = `❓ Queries: ${stats.queries}`;
+            document.getElementById("hybridCount").textContent = `🧬 Hybrids: ${stats.hybrids}`;
+
+            const avgConfidence = kspace.length > 0 ?
+                (kspace.reduce((sum, c) => sum + (c.meta?.confidence || 0.75), 0) / kspace.length) * 100 :
+                0;
+            document.getElementById("confidenceAvg").textContent = `🎯 Avg Confidence: ${avgConfidence.toFixed(1)}%`;
+
+            const matchRate = stats.queries > 0 ? (stats.matches / stats.queries) * 100 : 0;
+            document.getElementById("matchRate").textContent = `🎯 Match Rate: ${matchRate.toFixed(1)}%`;
+        }
+
+        // =========== PROFESSIONAL REPORT GENERATOR ===========
+        function generateProfessionalReport(caseId) {
+            const caseData = kspace.find(c => c.id === caseId) || seededCases.find(c => c.id === caseId);
+            if (!caseData) {
+                showNotification("Case not found", "error");
+                return;
+            }
+
+            currentCaseForReport = caseData;
+            renderProfessionalReport(caseData);
+            showReportInterface();
+        }
+
+        document.getElementById("generateReportBtn").addEventListener("click", () => {
+            if (kspace.length === 0) {
+                showNotification("No cases available. Load samples or create a case first.", "warning");
+                return;
+            }
+
+            // Show case selector for report generation
+            const caseList = kspace.map(c =>
+                `<div class="case-item" onclick="generateProfessionalReport('${c.id}')" style="cursor:pointer;">
+          <strong>${c.meta?.type?.toUpperCase() || 'LEGACY'}</strong>: ${c.problem.substring(0, 80)}...
+          <div style="font-size:0.8rem; color:#666;">ID: ${c.id}</div>
+        </div>`
+            ).join('');
+
+            document.getElementById("resultsContainer").innerHTML = `
+        <div class="case-item">
+          <strong>📄 Generate Professional Report</strong>
+          <p>Select a case to generate a consultancy-quality PDF report:</p>
+          ${caseList}
+        </div>
+      `;
+        });
+
+        function renderProfessionalReport(caseData) {
+            const c = caseData;
+            const m = c.meta || {};
+
+            document.getElementById("caseTitle").textContent = c.id.replace(/_/g, ' ').toUpperCase();
+            document.getElementById("reportContainer").innerHTML = `
+        <section class="report-section">
+          <h3>🧭 POP Analysis</h3>
+          <div class="pop-grid">
+            <div><h4>Problem</h4><p>${c.problem}</p></div>
+            <div><h4>Obstacle</h4><p>${c.obstacle}</p></div>
+            <div><h4>Path</h4><p>${c.path}</p></div>
+          </div>
+        </section>
+
+        <section class="report-section">
+          <h3>🔄 TPS Breakdown</h3>
+          <div class="tps-grid">
+            <div><h4>Emotional</h4><p>${m.narrative?.tps_breakdown?.emotional || 'Not specified'}</p></div>
+            <div><h4>Logical</h4><p>${m.narrative?.tps_breakdown?.logical || 'Not specified'}</p></div>
+            <div><h4>Holding</h4><p>${m.narrative?.tps_breakdown?.holding || 'Not specified'}</p></div>
+          </div>
+        </section>
+
+        <section class="report-section">
+          <h3>🌌 Ripple Lesson</h3>
+          <div class="callout">${m.narrative?.ripple_lesson || 'Not specified'}</div>
+        </section>
+
+        <section class="report-section">
+          <h3>💡 Consultancy Insight</h3>
+          <div class="callout">${m.narrative?.consultancy_insight || 'Not specified'}</div>
+        </section>
+
+        <section class="report-section">
+          <h3>📚 Research Note</h3>
+          <div class="callout">${m.narrative?.research_note || 'Not specified'}</div>
+        </section>
+
+        <div class="report-tags">
+          ${(m.tags || []).map(t => `<span class="tag">${t}</span>`).join("")}
+        </div>
+        <div style="margin-top: 1rem;">
+          <strong>Impact:</strong> ${m.delta || '≈+0.00'} | <strong>Confidence:</strong> ${((m.confidence || 0.75)*100).toFixed(0)}% |
+          <strong>Domain:</strong> ${m.domain || 'general'} | <strong>Generated:</strong> ${new Date(m.timestamp || new Date()).toLocaleDateString()}
+        </div>
+      `;
+        }
+
+        function showReportInterface() {
+            document.querySelector('.main').style.display = 'none';
+            document.getElementById('reportWrapper').style.display = 'block';
+            document.getElementById('pdfControls').style.display = 'block';
+        }
+
+        function hideReport() {
+            document.querySelector('.main').style.display = 'flex';
+            document.getElementById('reportWrapper').style.display = 'none';
+            document.getElementById('pdfControls').style.display = 'none';
+        }
+
+        function downloadPDF(mode = "fit") {
+            const element = document.getElementById("reportWrapper");
+            const opt = {
+                margin: 0.5,
+                filename: "tpsai_case_report.pdf",
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: mode === "fit" ? 'a4' : 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // =========== FILE OPERATIONS ===========
+        document.getElementById("downloadJsonBtn").addEventListener("click", () => {
+            const blob = new Blob([JSON.stringify(kspace, null, 2)], { type: "application/json" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "tpsai-kspace-v3.json";
+            a.click();
+            showNotification("JSON exported successfully", "success");
+        });
+
+        document.getElementById("clearStorageBtn").addEventListener("click", () => {
+            if (confirm("Are you sure you want to clear ALL cases and statistics? This cannot be undone.")) {
+                kspace = [];
+                stats = { recombinations: 0, matches: 0, queries: 0, hybrids: 0, totalCases: 0 };
+                localStorage.removeItem("tpsai-kspace");
+                localStorage.removeItem("tpsai-stats");
+                refreshKspaceLog();
+                updateMetrics();
+                showNotification("All data cleared", "info");
+            }
+        });
+
+        // =========== INITIALIZE ===========
+        initializeKSpace();
+        showNotification("TPSai CBR System v3.0 Ready - 5 seeded cases loaded", "success");
+    </script>
+</body>
+</html>

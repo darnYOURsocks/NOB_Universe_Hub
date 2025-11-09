@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FOXP2 Anxiety Reset — Offline</title>
+<style>
+  :root{
+    --bg1:#0b0f17; --bg2:#0d1220; --panel:#111827; --panelB:#0f172a; --border:#334155;
+    --text:#ffffff; --muted:#cbd5e1; --muted2:#94a3b8; --whiteA:rgba(255,255,255,.15);
+    --whiteB:rgba(255,255,255,.20); --whiteC:rgba(255,255,255,.30);
+    --cy1:#22d3ee; --cy2:#06b6d4; --pu1:#a78bfa; --pu2:#7c3aed;
+    --em1:#34d399; --em2:#10b981; --rd1:#ef4444; --am1:#f59e0b;
+    --gr1:#10b981; --or1:#fb923c; --yl1:#fbbf24;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--text);
+    font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif;
+    background: radial-gradient(1200px 800px at 10% -10%, #0e172a 0%, #0b0f17 60%, #0a0d14 100%);
+    overflow-x:hidden;
+  }
+  .wrap{position:relative; padding:24px; max-width:1120px; margin:0 auto;}
+  .tech-lines{position:absolute; inset:0; opacity:.18; pointer-events:none}
+  .tech-lines .line{
+    position:absolute; width:1px; height:130px;
+    background:linear-gradient(to bottom, transparent, var(--cy1), transparent);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:.2} 50%{opacity:1} }
+
+  .hdr{text-align:center; margin-bottom:24px}
+  .row{display:grid; grid-template-columns:1fr; gap:16px}
+  @media(min-width:860px){ .row.grid4{grid-template-columns:repeat(4,1fr)} }
+  @media(min-width:860px){ .row.grid2{grid-template-columns:repeat(2,1fr)} }
+  .card{
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panelB) 100%);
+    border:1px solid var(--border); border-radius:14px; padding:16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  }
+  .kpi{ text-align:center }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    gap:8px; padding:10px 14px; border-radius:10px; font-weight:600;
+    border:0; cursor:pointer; color:#fff; transition:.2s transform, .2s filter, .2s background;
+  }
+  .btn:active{ transform: translateY(1px) }
+  .btn.blue{ background:#2563eb } .btn.blue:hover{ background:#1d4ed8 }
+  .btn.red{ background:#dc2626 } .btn.red:hover{ background:#b91c1c }
+  .btn.gray{ background:#475569 } .btn.gray:hover{ background:#364152 }
+  .btn.green{ background:#059669 } .btn.green:hover{ background:#047857 }
+  .range{ width:100% }
+  .tiny{ font-size:12px; color:var(--muted2) }
+  .muted{ color:var(--muted) }
+  .badge{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:var(--whiteB) }
+
+  .pill{padding:8px 10px; border-radius:10px; background:#0f172a; color:#cbd5e1; border:1px solid var(--border)}
+  .ex-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px }
+  @media(min-width:720px){ .ex-grid{ grid-template-columns:repeat(6,1fr) } }
+  .ex-item{
+    position:relative; padding:12px; border-radius:12px; text-align:center; font-weight:700;
+    border:1px solid var(--border); background:#1f2937; color:#e5e7eb; cursor:pointer; transition:.15s transform, .15s filter
+  }
+  .ex-item:hover{ filter:brightness(1.08) }
+  .ex-item.active{ transform:scale(1.03); color:#fff; border-color:transparent; box-shadow:0 6px 20px rgba(0,0,0,.35)}
+  .ex-ico{height:22px}
+  .check{
+    position:absolute; top:-6px; right:-6px; width:18px; height:18px;
+    color:#10b981; background:#0b1220; border-radius:50%; display:grid; place-items:center; font-size:14px
+  }
+
+  .grad-box{ border-radius:14px; padding:18px; box-shadow: 0 10px 30px rgba(0,0,0,.25) }
+  .grad-cyanblue{ background:linear-gradient(90deg, #06b6d4, #2563eb) }
+  .grad-purpleindigo{ background:linear-gradient(90deg, #a78bfa, #4f46e5) }
+  .grad-emerteal{ background:linear-gradient(90deg, #10b981, #0d9488) }
+  .grad-orangeRed{ background:linear-gradient(90deg, #f97316, #ef4444) }
+  .grad-amber{ background:linear-gradient(90deg, #f59e0b, #d97706) }
+  .grad-indigoPurple{ background:linear-gradient(90deg, #6366f1, #7c3aed) }
+
+  .section-title{display:flex; align-items:center; gap:10px; margin:0 0 12px 0}
+  .steps .n{
+    width:22px; height:22px; border-radius:50%; background:var(--whiteB); display:grid; place-items:center; font-size:12px; font-weight:800; flex:0 0 auto; margin-top:2px
+  }
+  .steps .row{display:flex; gap:10px; align-items:flex-start; margin:8px 0; font-size:14px}
+  .mono{ font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace }
+
+  .progress-wrap{ background:var(--whiteB); border-radius:999px; height:16px; overflow:hidden }
+  .progress-bar{ height:100%; background:#fff; width:0% }
+
+  .dot { width:48px; height:48px; border-radius:50%; display:grid; place-items:center; font-weight:800; margin:0 auto 10px }
+  .bg-green{ background:#34d399 } .bg-yellow{ background:#fbbf24 } .bg-orange{ background:#fb923c }
+  .bg-red{ background:#ef4444 } .bg-red6{ background:#dc2626 } .bg-slate{ background:#334155; color:#cbd5e1 }
+
+  .grid7{ display:grid; grid-template-columns:repeat(7,1fr); gap:12px }
+  .lvlbtn{ width:100%; height:8px; border-radius:6px; background:#334155; border:0; cursor:pointer }
+  .lvlbtn:hover{ filter:brightness(1.15) }
+  .chip{ padding:8px; border-radius:10px; background:var(--whiteA); margin:4px 0; font-size:12px; cursor:default }
+
+  .quote{ font-style:italic; background:var(--whiteA); padding:12px; border-radius:12px; text-align:center }
+  .hide{ display:none !important }
+  .sr{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden }
+
+  .daybtn{
+    width:28px; height:28px; border-radius:6px; border:0; font-weight:800; cursor:pointer; color:#e2e8f0;
+    background:#334155; transition:.15s filter
+  }
+  .daybtn.active{ background:#0891b2 }
+  .daybtn:hover{ filter:brightness(1.1) }
+
+  .kbd{ font-family: ui-monospace,Menlo,Consolas,monospace; background:#0b1324; border:1px solid #23304a;
+        padding:2px 6px; border-radius:6px; color:#a5b4fc; }
+  .foot{ text-align:center; margin-top:18px; color:#94a3b8; font-size:12px }
+  .icon{ width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
+</style>
+</head>
+<body>
+<div class="tech-lines" id="tech-lines"></div>
+
+<div class="wrap">
+  <!-- Header -->
+  <div class="hdr">
+    <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:8px">
+      <svg class="icon" style="width:40px;height:40px;color:var(--cy1)" viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      <h1 style="font-size:32px; font-weight:800; background:linear-gradient(90deg,var(--cy1),var(--pu1)); -webkit-background-clip:text; background-clip:text; color:transparent">FOXP2 Anxiety Reset</h1>
+    </div>
+    <div class="muted" style="font-size:18px">Neural Training for Young Adults (18–24)</div>
+    <div class="tiny">10–15 min daily protocol for study/work/relationship stress</div>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="row grid4">
+    <div class="card kpi">
+      <div style="font-size:22px; font-weight:800; color:var(--cy1); margin-bottom:6px">Day <span id="trainingDay">1</span></div>
+      <div class="tiny" style="margin-bottom:10px">Training Session</div>
+      <div style="display:flex; justify-content:center; gap:6px" id="dayButtons"></div>
+    </div>
+
+    <div class="card kpi">
+      <div id="todayPct" style="font-size:22px; font-weight:800; color:#c084fc; margin-bottom:6px">0%</div>
+      <div class="tiny" style="margin-bottom:8px">Today's Reset</div>
+      <div class="progress-wrap"><div id="todayBar" class="progress-bar" style="background:linear-gradient(90deg,#a78bfa,#22d3ee)"></div></div>
+    </div>
+
+    <div class="card kpi">
+      <div id="sessionsDone" style="font-size:22px; font-weight:800; color:var(--gr1); margin-bottom:6px">0</div>
+      <div class="tiny">Sessions Completed</div>
+      <div class="tiny" style="color:#86efac">Building Resilience</div>
+    </div>
+
+    <div class="card kpi">
+      <div id="todayAnx" style="font-size:22px; font-weight:800; color:var(--am1); margin-bottom:6px">?</div>
+      <div class="tiny">Today's Anxiety</div>
+      <div class="tiny" style="color:var(--am1)">1–5 Scale</div>
+    </div>
+  </div>
+
+  <!-- Exercise Navigation -->
+  <div class="card" style="margin-top:16px">
+    <h3 style="text-align:center; margin:0 0 12px 0; font-weight:700">Neural Reset Protocol (10–15 minutes)</h3>
+    <div class="ex-grid" id="exerciseGrid"></div>
+  </div>
+
+  <!-- Current Exercise -->
+  <div id="exercisePanel" class="grad-box grad-cyanblue" style="margin-top:16px">
+    <div class="row grid2">
+      <div>
+        <div class="section-title">
+          <span id="exerciseIcon"></span>
+          <div>
+            <div id="exerciseTitle" style="font-size:22px; font-weight:800">—</div>
+            <div id="exerciseSubtitle" class="muted">—</div>
+          </div>
+        </div>
+
+        <div class="steps" id="instructionList"></div>
+
+        <div id="extraBlocks"></div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; justify-content:center">
+        <div class="kpi" style="margin-bottom:18px">
+          <div id="clock" class="mono" style="font-size:36px; margin-bottom:6px">0:00</div>
+          <div class="tiny">Reset Time</div>
+        </div>
+
+        <div class="kpi" style="margin-bottom:12px">
+          <div id="repText" style="font-size:20px; font-weight:800; margin-bottom:12px">Rep 0/0</div>
+          <div class="progress-wrap" style="height:18px; margin-bottom:10px"><div id="repBar" class="progress-bar"></div></div>
+          <div id="coachBadge" class="badge hide"><svg class="icon" viewBox="0 0 24 24"><path d="M12 1v22M5 8h14M5 16h14"/></svg> Neural Coach Active</div>
+        </div>
+
+        <div id="quote" class="quote">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="card" style="margin-top:16px">
+    <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:16px">
+      <button class="btn green" id="testAudioBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M9 18V5a3 3 0 1 1 6 0v13M5 11v2a7 7 0 0 0 14 0v-2"/><path d="M12 19v3"/></svg>
+        Test Audio
+      </button>
+
+      <button class="btn blue" id="startPauseBtn">
+        <svg class="icon" id="startIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="icon hide" id="pauseIcon" viewBox="0 0 24 24"><path d="M10 4h3v16h-3zM4 4h3v16H4z" /></svg>
+        <span id="startPauseText">Start Neural Reset</span>
+      </button>
+
+      <button class="btn gray" id="resetBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg>
+        Reset
+      </button>
+    </div>
+
+    <div class="row grid2">
+      <div>
+        <label class="tiny" style="display:block; margin-bottom:6px">Coach Speech Rate (Neural Training Speed)</label>
+        <input type="range" min="0.7" max="1.2" step="0.1" value="0.9" class="range" id="speechRate">
+        <div class="tiny"><span id="speechRateVal">0.9</span>x (0.8–0.9x optimal for anxiety reset)</div>
+      </div>
+      <div>
+        <label class="tiny" style="display:block; margin-bottom:6px">Volume Level</label>
+        <input type="range" min="0.4" max="1.0" step="0.1" value="0.8" class="range" id="volumeRange">
+        <div class="tiny"><span id="volumeVal">80</span>% (Clear coaching voice)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Anxiety Level Tracking -->
+  <div class="card" style="margin-top:16px">
+    <h3 class="section-title" style="margin-bottom:12px"><svg class="icon" style="color:var(--cy1)" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M19 9l-5 5-4-4-6 6"/></svg> Daily Anxiety Tracking</h3>
+    <div class="grid7" id="anxietyGrid"></div>
+    <div class="tiny" style="text-align:center; margin-top:8px">Click bars to log: 1=Low, 2=Mild, 3=Moderate, 4=High, 5=Severe</div>
+  </div>
+
+  <!-- Science -->
+  <div class="card" style="margin-top:16px">
+    <h3 class="muted" style="margin-top:0">Anxiety Cancellation Science</h3>
+    <div class="row grid2" style="font-size:14px">
+      <div>
+        <h4 style="color:var(--cy1); margin:10px 0">Young Adult Brain Targets</h4>
+        <div class="muted">
+          <p><b>Prefrontal Control:</b> Still developing until 25 – prime time for training</p>
+          <p><b>HRV Regulation:</b> Breath control directly affects cortisol levels</p>
+          <p><b>Catastrophic Loops:</b> <span class="mono">A(t) = A₀ · e^rt</span> – exponential growth without intervention</p>
+          <p><b>Identity Stability:</b> Anchor core self during dissociative panic</p>
+          <p><b>Energy Transformation:</b> Redirect fight-or-flight into productive focus</p>
+        </div>
+      </div>
+      <div>
+        <h4 style="color:#c084fc; margin:10px 0">FOXP2 Anxiety Training</h4>
+        <div class="pill" style="margin-bottom:10px; background:#0b1324; border:1px solid #23304a">
+          <code class="mono" style="color:#22d3ee; display:block; margin-bottom:6px">S_cancel(t) = -k × A_loop(t)</code>
+          <code class="mono" style="color:#c084fc; display:block; margin-bottom:6px">HRV ↑ ⟹ Cortisol ↓</code>
+          <code class="mono" style="color:#10b981">Worry - Word = Small</code>
+          <div class="tiny" style="margin-top:6px">Cancellation prevents exponential anxiety growth</div>
+        </div>
+        <div class="muted">
+          <p><b>Week 1–2:</b> Conscious anxiety interruption</p>
+          <p><b>Week 3–4:</b> Automatic stabilizing responses</p>
+          <p><b>Week 5+:</b> Unconscious resilience reflexes</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grad-box grad-purpleindigo" style="margin-top:12px">
+      <h4 style="margin:0 0 6px 0">🎯 Training Outcome</h4>
+      <p style="font-size:14px"><b>Goal:</b> Build FOXP2 circuits that automatically cancel anxiety loops before they escalate. Transform nervous energy into focused drive.</p>
+    </div>
+
+    <div class="pill" style="margin-top:10px">
+      <h4 style="margin:0 0 6px 0; color:#fbbf24">📱 Modern Application</h4>
+      <p class="muted" style="margin:0; font-size:14px"><b>Quick Access:</b> Use during study breaks, before presentations, after difficult conversations, or whenever stress spikes.</p>
+    </div>
+  </div>
+
+  <div class="foot">Offline build • Uses your browser’s <span class="kbd">speechSynthesis</span> API. Best in Chrome/Edge.</div>
+</div>
+
+<script>
+/* ---------- Ambient tech lines ---------- */
+(function(){
+  const c = document.getElementById('tech-lines');
+  for(let i=0;i<10;i++){
+    const d = document.createElement('div');
+    d.className='line';
+    d.style.top = (Math.random()*80)+'%';
+    d.style.left = (Math.random()*90)+'%';
+    d.style.animationDelay = (i*0.4)+'s';
+    c.appendChild(d);
+  }
+})();
+
+/* ---------- State ---------- */
+let currentExercise = 'breathlock';
+let isRunning = false;
+let exerciseTime = 0;
+let currentRep = 0;
+let speechRate = 0.9;
+let volume = 0.8;
+let trainingDay = 1;
+let weeklyProgress = {};     // key: day{n}_{exercise} -> true
+let anxietyLevels = {};      // key: day{n} -> 1..5
+let intervalRef = null;
+let speakActive = false;
+let speechUtter = null;
+
+const exercises = {
+  breathlock: {
+    title: "Breath Lock-In",
+    subtitle: "Break the short-breath anxiety spiral",
+    duration: 60, reps: 3, theme:'grad-cyanblue',
+    icon:'zap',
+    instructions:[
+      "Inhale for 4 counts (break the shallow breathing)",
+      "Hold for 2 counts (reset nervous system)",
+      "Exhale for 6 counts (activate parasympathetic)",
+      "Whisper: ‘I choose calm’",
+      "HRV ↑ → Cortisol ↓ (measurable effect)",
+      "This stops the breath-cortisol spiral immediately"
+    ],
+    guidance:"Let’s reset your nervous system. Inhale deep for four… one, two, three, four. Hold it… one, two. Long exhale for six… one, two, three, four, five, six. Now whisper: ‘I choose calm.’ Feel your heart rate already slowing down."
+  },
+  anxietynaming:{
+    title:"Anxiety Naming",
+    subtitle:"Separate YOU from the symptoms",
+    duration:150, reps:5, theme:'grad-purpleindigo',
+    icon:'brain',
+    instructions:[
+      "Name exactly what you’re experiencing",
+      "Be specific: ‘chest tight,’ ‘thoughts racing’",
+      "After each, say: ‘I see it’",
+      "This creates observer distance from symptoms",
+      "Removes the ‘unknown threat’ amplification",
+      "You are not your anxiety - you observe it"
+    ],
+    commonSymptoms:[
+      "My chest feels tight and constricted",
+      "My thoughts are racing and jumping around",
+      "My stomach has that sinking feeling",
+      "My heart is beating too fast",
+      "I feel like something bad will happen",
+      "I can’t focus or concentrate properly"
+    ],
+    guidance:"Time to get some distance from these symptoms. Name what you’re feeling specifically: ‘My chest feels tight.’ Good. Now say: ‘I see it.’ You’re not your anxiety - you’re the one observing it. This simple shift gives you back control."
+  },
+  cancellation:{
+    title:"Catastrophic Loop Cancellation",
+    subtitle:"Replace runaway thoughts with stability",
+    duration:240, reps:8, theme:'grad-emerteal',
+    icon:'target',
+    instructions:[
+      "Catch catastrophic thought patterns",
+      "Flip each one with a realistic counter",
+      "Deliver slower than the anxious thought",
+      "Break exponential anxiety growth: A(t) = A₀ · e^rt",
+      "Your cancellation: S_cancel = -k · A_loop",
+      "Build automatic stability responses"
+    ],
+    cancellations:[
+      "‘I can’t handle this’ → ‘I can handle one step at a time’",
+      "‘Everyone’s judging me’ → ‘Most people aren’t even watching’",
+      "‘I’m going to fail’ → ‘I can prepare and learn from this’",
+      "‘I’m not good enough’ → ‘I’m learning and growing every day’",
+      "‘This is a disaster’ → ‘This is a challenge I can work through’",
+      "‘I’m losing control’ → ‘I can focus on what I can control’"
+    ],
+    guidance:"Catastrophic thoughts grow exponentially if we don’t stop them. When you catch yourself thinking ‘I can’t handle this,’ immediately counter with: ‘I can handle one step at a time.’ Say it slower and steadier than the panic thought. You’re literally rewiring your brain’s response patterns."
+  },
+  anchorphrase:{
+    title:"Identity Anchor",
+    subtitle:"Ground yourself when panic detaches you",
+    duration:120, reps:5, theme:'grad-orangeRed',
+    icon:'shield',
+    instructions:[
+      "Choose one unchanging truth about yourself",
+      "Say it slowly with your name",
+      "This grounds your identity during dissociation",
+      "Repeat 5 times with conviction",
+      "Your core self remains stable",
+      "Anxiety can’t change who you fundamentally are"
+    ],
+    anchorOptions:[
+      "I am [name]. I am safe in this moment.",
+      "I am [name]. I am capable and learning.",
+      "I am [name]. I am exactly where I need to be.",
+      "I am [name]. I am stronger than my anxiety.",
+      "I am [name]. I choose how to respond."
+    ],
+    guidance:"When anxiety makes you feel like you’re disappearing, we anchor you back. Say your name and your truth: ‘I am [your name]. I am safe in this moment.’ Feel yourself coming back to center. Your identity is solid - anxiety is just weather passing through."
+  },
+  empowerment:{
+    title:"Energy Transformation",
+    subtitle:"Turn fear energy into drive energy",
+    duration:150, reps:5, theme:'grad-amber',
+    icon:'trend',
+    instructions:[
+      "Stand tall, hand on chest",
+      "Feel the energy anxiety creates",
+      "Reframe it as fuel, not threat",
+      "Engage FOXP2 + motor circuits for confidence",
+      "Transform nervous energy into focused drive",
+      "This is evolutionary fight-or-flight channeled productively"
+    ],
+    empowermentPhrases:[
+      "This energy can fuel my focus",
+      "I turn nerves into strength and determination",
+      "My sensitivity is my superpower",
+      "This intensity means I care deeply",
+      "I channel this energy into action"
+    ],
+    guidance:"Stand up tall and put your hand on your chest. Feel that energy anxiety creates? That’s not your enemy - that’s fuel. Say: ‘This energy can fuel my focus.’ Your nervous system is trying to help you perform. Let’s redirect it into drive and determination."
+  },
+  cooldown:{
+    title:"Signal Clear",
+    subtitle:"Tune out the static, find the clear channel",
+    duration:120, reps:1, theme:'grad-indigoPurple',
+    icon:'phones',
+    instructions:[
+      "Picture anxiety like radio static",
+      "Visualize slowly tuning the dial",
+      "Static fades to clear, calm silence",
+      "Your mind finds its clear channel",
+      "Say once: ‘Signal clear’",
+      "Lock in this calm frequency"
+    ],
+    guidance:"Close your eyes and picture your anxiety like static on a radio… slowly turn the dial until you find that clear, calm channel. Say: ‘Signal clear.’"
+  }
+};
+
+let selectedAnchor = "I am safe";
+
+/* ---------- Helpers ---------- */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+function formatTime(s){
+  const m = Math.floor(s/60), ss = s%60;
+  return m + ':' + String(ss).padStart(2,'0');
+}
+
+function iconSvg(name){
+  const p = {
+    zap:'M13 2L3 14h7l-1 8 10-12h-7l1-8z',
+    brain:'M17 8a3 3 0 0 0-3-3 3 3 0 0 0-6 0 3 3 0 0 0-3 3 4 4 0 0 0 4 4v6h4v-6a4 4 0 0 0 4-4z',
+    target:'M12 2v4m0 12v4M2 12h4m12 0h4M7 7l10 10M7 17L17 7',
+    shield:'M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z',
+    trend:'M3 17l6-6 4 4 7-7M21 21H3',
+    phones:'M6 2h4v20H6zM14 2h4v20h-4z'
+  }[name] || 'M12 2v20';
+  return `<svg class="icon" viewBox="0 0 24 24"><path d="${p}"/></svg>`;
+}
+
+function setPanelTheme(){
+  const panel = document.getElementById('exercisePanel');
+  panel.className = 'grad-box ' + (exercises[currentExercise].theme || 'grad-cyanblue');
+}
+
+function speak(text, opts={}){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = opts.rate || speechRate;
+  u.volume = opts.volume ?? volume;
+  u.pitch = opts.pitch || 0.7;
+  u.onstart = ()=>{ speakActive=true; $('#coachBadge').classList.remove('hide'); };
+  u.onend = u.onerror = ()=>{ speakActive=false; if(!isRunning) $('#coachBadge').classList.add('hide'); };
+  speechUtter = u;
+  window.speechSynthesis.speak(u);
+}
+
+/* ---------- UI Builders ---------- */
+function renderExerciseButtons(){
+  const order = ['breathlock','anxietynaming','cancellation','anchorphrase','empowerment','cooldown'];
+  const grid = document.getElementById('exerciseGrid');
+  grid.innerHTML = '';
+  order.forEach((key, idx)=>{
+    const e = exercises[key];
+    const btn = document.createElement('button');
+    btn.className = 'ex-item' + (currentExercise===key?' active':'');
+    btn.innerHTML = `
+      <div class="ex-ico">${iconSvg(e.icon)}</div>
+      <div style="font-size:12px; font-weight:800; margin-top:6px">${idx+1}. ${e.title}</div>
+      <div class="tiny">${Math.round(e.duration/60)}min</div>
+      ${weeklyProgress[`day${trainingDay}_${key}`] ? `<div class="check">✓</div>` : '' }
+    `;
+    btn.onclick = ()=>{
+      currentExercise = key;
+      resetExercise();
+      renderAll();
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function renderHeader(){
+  $('#trainingDay').textContent = trainingDay;
+  const wrap = document.getElementById('dayButtons');
+  wrap.innerHTML = '';
+  for(let d=1; d<=7; d++){
+    const b = document.createElement('button');
+    b.className = 'daybtn' + (trainingDay===d?' active':'');
+    b.textContent = d;
+    b.onclick = ()=>{ trainingDay=d; renderAll(); };
+    wrap.appendChild(b);
+  }
+  const order = ['breathlock','anxietynaming','cancellation','anchorphrase','empowerment','cooldown'];
+  const doneToday = order.filter(k => weeklyProgress[`day${trainingDay}_${k}`]).length;
+  const pct = Math.round( (doneToday/order.length)*100 );
+  $('#todayPct').textContent = pct + '%';
+  $('#todayBar').style.width = pct + '%';
+  const totalSessions = Object.keys(weeklyProgress).filter(k=>weeklyProgress[k]).length;
+  $('#sessionsDone').textContent = totalSessions;
+  $('#todayAnx').textContent = anxietyLevels[`day${trainingDay}`] || '?';
+}
+
+function renderExercisePanel(){
+  const e = exercises[currentExercise];
+  $('#exerciseTitle').textContent = e.title;
+  $('#exerciseSubtitle').textContent = e.subtitle;
+  $('#exerciseIcon').innerHTML = iconSvg(e.icon);
+  setPanelTheme();
+
+  // steps
+  const box = document.getElementById('instructionList');
+  box.innerHTML = '<h4 style="margin:6px 0; font-weight:700">Neural Training Method:</h4>';
+  e.instructions.forEach((t,i)=>{
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.style = 'display:flex; gap:10px; align-items:flex-start; margin:6px 0; font-size:14px';
+    row.innerHTML = `<div class="n">${i+1}</div><div>${t}</div>`;
+    box.appendChild(row);
+  });
+
+  // exercise-specific blocks
+  const extra = document.getElementById('extraBlocks');
+  extra.innerHTML = '';
+  if(currentExercise==='anxietynaming' && e.commonSymptoms){
+    const s = document.createElement('div');
+    s.className='pill';
+    s.innerHTML = '<h5 style="margin:0 0 6px 0; font-weight:700">Common Anxiety Symptoms to Name:</h5>' +
+      e.commonSymptoms.map(x=>`<div class="chip">• ${x}</div>`).join('');
+    extra.appendChild(s);
+  }
+  if(currentExercise==='cancellation' && e.cancellations){
+    const s = document.createElement('div');
+    s.className='pill';
+    s.innerHTML = '<h5 style="margin:0 0 6px 0; font-weight:700">Catastrophic Loop Cancellations:</h5>' +
+      e.cancellations.map(x=>`<div class="chip">• ${x}</div>`).join('');
+    extra.appendChild(s);
+  }
+  if(currentExercise==='anchorphrase' && e.anchorOptions){
+    const s = document.createElement('div');
+    s.className='pill';
+    s.innerHTML = '<h5 style="margin:0 0 6px 0; font-weight:700">Identity Anchor Options:</h5>' +
+      e.anchorOptions.map((x,i)=>`<button data-anchor="${i}" class="chip" style="width:100%; text-align:left">• ${x}</button>`).join('');
+    extra.appendChild(s);
+    extra.querySelectorAll('[data-anchor]').forEach(btn=>{
+      btn.onclick = ()=>{ selectedAnchor = btn.textContent.replace('• ',''); renderExercisePanel(); };
+      if(btn.textContent.includes(selectedAnchor)) btn.style.background='rgba(255,255,255,.30)';
+    });
+  }
+  if(currentExercise==='empowerment' && e.empowermentPhrases){
+    const s = document.createElement('div');
+    s.className='pill';
+    s.innerHTML = '<h5 style="margin:0 0 6px 0; font-weight:700">Energy Transformation Phrases:</h5>' +
+      e.empowermentPhrases.map(x=>`<div class="chip">• ${x}</div>`).join('');
+    extra.appendChild(s);
+  }
+
+  $('#clock').textContent = formatTime(exerciseTime);
+  $('#repText').textContent = `Rep ${currentRep}/${e.reps}`;
+  const progress = (currentRep/e.reps)*100;
+  $('#repBar').style.width = progress + '%';
+  $('#quote').textContent = e.guidance;
+  if(!speakActive) $('#coachBadge').classList.add('hide');
+}
+
+function renderAnxietyGrid(){
+  const g = document.getElementById('anxietyGrid');
+  g.innerHTML = '';
+  for(let day=1; day<=7; day++){
+    const level = anxietyLevels[`day${day}`] || 0;
+    const box = document.createElement('div');
+    box.innerHTML = `
+      <div class="tiny" style="text-align:center; margin-bottom:6px; ${trainingDay===day?'color:#22d3ee':''}">Day ${day}</div>
+      <div class="dot ${level===0?'bg-slate': level===1?'bg-green': level===2?'bg-yellow': level===3?'bg-orange': level===4?'bg-red': 'bg-red6'}">${level||'?'}</div>
+      <div style="display:grid; gap:6px">
+        ${[1,2,3,4,5].map(l=>`<button class="lvlbtn" data-log="${day}-${l}" title="Day ${day} - Anxiety Level ${l}" style="${level===l ? 'background:'+(
+          l===1?'#34d399': l===2?'#fbbf24': l===3?'#fb923c': l===4?'#ef4444':'#dc2626'
+        ):''}"></button>`).join('')}
+      </div>
+    `;
+    g.appendChild(box);
+  }
+  g.querySelectorAll('[data-log]').forEach(b=>{
+    b.onclick = ()=>{
+      const [d,l] = b.getAttribute('data-log').split('-').map(Number);
+      anxietyLevels[`day${d}`] = l;
+      renderAll();
+    }
+  });
+}
+
+/* ---------- Timer / Flow ---------- */
+function startExercise(){
+  isRunning = true;
+  exerciseTime = 0;
+  currentRep = 0;
+  const e = exercises[currentExercise];
+  speak(`Starting ${e.title}. ${e.subtitle}. Let's reset your system and build resilience.`, { rate: 0.9 });
+  clearInterval(intervalRef);
+  intervalRef = setInterval(()=>{
+    exerciseTime++;
+    $('#clock').textContent = formatTime(exerciseTime);
+  }, 1000);
+
+  // kick first rep after small intro
+  setTimeout(()=>runNextRep(), 1200);
+  // UI
+  $('#startIcon').classList.add('hide');
+  $('#pauseIcon').classList.remove('hide');
+  $('#startPauseText').textContent = 'Pause Reset';
+}
+
+function runNextRep(){
+  const e = exercises[currentExercise];
+  if(currentRep < e.reps && isRunning){
+    speak(e.guidance, { rate: speechRate });
+    currentRep++;
+    $('#repText').textContent = `Rep ${currentRep}/${e.reps}`;
+    $('#repBar').style.width = (currentRep/e.reps*100) + '%';
+    const repDuration = e.duration / e.reps;
+    setTimeout(()=>{
+      if(currentRep < e.reps && isRunning) runNextRep();
+      else if(currentRep >= e.reps && isRunning) completeExercise();
+    }, repDuration*1000);
+  }
+}
+
+function completeExercise(){
+  const e = exercises[currentExercise];
+  speak(`${e.title} complete. Your neural pathways are getting stronger. Anxiety has less power over you now.`, { rate: 0.8 });
+  isRunning = false;
+  clearInterval(intervalRef);
+  weeklyProgress[`day${trainingDay}_${currentExercise}`] = true;
+  $('#coachBadge').classList.add('hide');
+  // UI
+  $('#startIcon').classList.remove('hide');
+  $('#pauseIcon').classList.add('hide');
+  $('#startPauseText').textContent = 'Start Neural Reset';
+  renderAll();
+}
+
+function stopExercise(){
+  isRunning = false;
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  clearInterval(intervalRef);
+  $('#coachBadge').classList.add('hide');
+  $('#startIcon').classList.remove('hide');
+  $('#pauseIcon').classList.add('hide');
+  $('#startPauseText').textContent = 'Start Neural Reset';
+}
+
+function resetExercise(){
+  stopExercise();
+  exerciseTime = 0;
+  currentRep = 0;
+}
+
+/* ---------- Events ---------- */
+document.getElementById('testAudioBtn').onclick = ()=>{
+  speak("Audio check. Your FOXP2 anxiety reset coach is ready. Let's build some neural resilience.", { rate: speechRate });
+};
+document.getElementById('startPauseBtn').onclick = ()=>{
+  if(isRunning) stopExercise(); else startExercise();
+};
+document.getElementById('resetBtn').onclick = ()=>{ resetExercise(); renderAll(); };
+
+document.getElementById('speechRate').oninput = (e)=>{
+  speechRate = parseFloat(e.target.value);
+  document.getElementById('speechRateVal').textContent = speechRate.toFixed(1);
+};
+document.getElementById('volumeRange').oninput = (e)=>{
+  volume = parseFloat(e.target.value);
+  document.getElementById('volumeVal').textContent = Math.round(volume*100);
+};
+
+/* ---------- Initial Render ---------- */
+function renderAll(){
+  renderHeader();
+  renderExerciseButtons();
+  renderExercisePanel();
+  renderAnxietyGrid();
+}
+renderAll();
+
+/* ---------- Graceful cleanup ---------- */
+window.addEventListener('beforeunload', ()=>{ try{ window.speechSynthesis.cancel(); }catch{} });
+
+</script>
+</body>
+</html>

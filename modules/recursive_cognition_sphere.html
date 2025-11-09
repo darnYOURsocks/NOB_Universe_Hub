@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Recursive Cognition Sphere</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle, #0a0a0a, #1a1a1a);
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            color: #ffd700;
+            pointer-events: none;
+        }
+        
+        .movement-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+        
+        .control-btn {
+            padding: 15px 25px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            border: none;
+            border-radius: 50px;
+            color: #1a1a1a;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #ffd700;
+        }
+        
+        .control-btn.active {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+        }
+        
+        .axis-labels {
+            position: absolute;
+            color: #ffd700;
+            font-size: 14px;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        .teaching-panel {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            width: 300px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 20px;
+            color: #ffd700;
+            display: none;
+            z-index: 100;
+        }
+        
+        .avatar {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .journey-tracker {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            color: #ffd700;
+            font-size: 12px;
+            z-index: 100;
+        }
+        
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="ui-overlay">
+            <h2>🧠 Recursive Cognition Sphere</h2>
+            <p>Axis of Inquiry: Center Point</p>
+            <p>Current Mode: <span id="current-mode">Exploration</span></p>
+        </div>
+        
+        <div class="axis-labels" style="top: 20px; left: 50%; transform: translateX(-50%);">
+            Y-Axis: Emotion ↑
+        </div>
+        <div class="axis-labels" style="bottom: 20px; left: 50%; transform: translateX(-50%);">
+            Y-Axis: Logic ↓
+        </div>
+        <div class="axis-labels" style="top: 50%; left: 20px; transform: translateY(-50%);">
+            ← X-Axis: Past
+        </div>
+        <div class="axis-labels" style="top: 50%; right: 20px; transform: translateY(-50%);">
+            X-Axis: Future →
+        </div>
+        
+        <div class="journey-tracker">
+            <strong>Journey Path:</strong>
+            <div id="journey-log">→ Entry Point</div>
+        </div>
+        
+        <div class="teaching-panel" id="teaching-panel">
+            <div class="avatar" id="avatar">ツ</div>
+            <div id="teaching-content">
+                <h3>Teaching Node</h3>
+                <p>Welcome to the recursive learning space...</p>
+            </div>
+        </div>
+        
+        <canvas id="canvas"></canvas>
+        
+        <div class="movement-controls">
+            <button class="control-btn" id="explore-btn" onclick="setMovementMode('explore')">
+                FORWARD<br><small>Explore</small>
+            </button>
+            <button class="control-btn" id="reflect-btn" onclick="setMovementMode('reflect')">
+                REVERSE<br><small>Reflect</small>
+            </button>
+            <button class="control-btn active" id="clarify-btn" onclick="setMovementMode('clarify')">
+                STOP<br><small>Clarify</small>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Global variables
+        let scene, camera, renderer, sphere, triangles = [];
+        let currentMode = 'clarify';
+        let journeyPath = ['Entry Point'];
+        let animationFrame;
+        let selectedTriangle = null;
+        
+        // Teaching content database
+        const teachingNodes = {
+            confusion: {
+                avatar: "(?_?)",
+                title: "Confusion Node",
+                content: "Confusion is the birthplace of clarity. When we don't understand, we're positioned to learn. This triangle represents the sacred space of not-knowing—the fertile ground of inquiry."
+            },
+            context: {
+                avatar: "(◕‿◕)",
+                title: "Context Node", 
+                content: "Context gives meaning to isolated facts. Like a coin has two sides, every concept exists in relationship. This node teaches us to see connections and relationships."
+            },
+            clarity: {
+                avatar: "(✧∀✧)",
+                title: "Clarity Node",
+                content: "Clarity emerges from the dance between confusion and context. It's not a destination but a moment of understanding that opens new questions. The recursive cycle continues."
+            }
+        };
+        
+        // Initialize the 3D environment
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({canvas: document.getElementById('canvas'), antialias: true});
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x0a0a0a);
+            
+            // Create sphere geometry with golden mesh
+            const sphereGeometry = new THREE.IcosahedronGeometry(5, 2);
+            
+            // Create coin-like texture
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            
+            // Draw coin texture
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(0, 0, 512, 512);
+            ctx.fillStyle = '#ffed4e';
+            ctx.beginPath();
+            ctx.arc(256, 256, 200, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#1a1a1a';
+            ctx.font = 'bold 48px serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('LIBERTY', 256, 200);
+            ctx.fillText('COGNITION', 256, 320);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            
+            // Main sphere material
+            const sphereMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffd700,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            scene.add(sphere);
+            
+            // Create triangular teaching nodes
+            createTeachingTriangles();
+            
+            // Add coordinate axes
+            createAxes();
+            
+            // Position camera
+            camera.position.set(0, 0, 15);
+            camera.lookAt(0, 0, 0);
+            
+            // Add mouse interaction
+            addMouseInteraction();
+            
+            // Start render loop
+            animate();
+        }
+        
+        function createTeachingTriangles() {
+            const triangleGeometry = new THREE.RingGeometry(0.5, 1, 3, 1);
+            
+            // Create multiple teaching triangles around the sphere
+            const positions = [
+                {pos: [3, 3, 3], type: 'confusion'},
+                {pos: [-3, 3, -3], type: 'context'},
+                {pos: [3, -3, 0], type: 'clarity'},
+                {pos: [-3, -3, 3], type: 'confusion'},
+                {pos: [0, 3, -3], type: 'context'},
+                {pos: [4, 0, 2], type: 'clarity'}
+            ];
+            
+            positions.forEach((item, index) => {
+                const material = new THREE.MeshBasicMaterial({
+                    color: getTriangleColor(item.type),
+                    transparent: true,
+                    opacity: 0.7,
+                    side: THREE.DoubleSide
+                });
+                
+                const triangle = new THREE.Mesh(triangleGeometry, material);
+                triangle.position.set(...item.pos);
+                triangle.userData = {type: item.type, index: index};
+                triangle.lookAt(0, 0, 0);
+                
+                triangles.push(triangle);
+                scene.add(triangle);
+            });
+        }
+        
+        function getTriangleColor(type) {
+            switch(type) {
+                case 'confusion': return 0xff6b6b;
+                case 'context': return 0x4ecdc4;
+                case 'clarity': return 0xffd700;
+                default: return 0xffffff;
+            }
+        }
+        
+        function createAxes() {
+            const axisLength = 8;
+            
+            // X-axis (Time: Past to Future)
+            const xGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(-axisLength, 0, 0),
+                new THREE.Vector3(axisLength, 0, 0)
+            ]);
+            const xMaterial = new THREE.LineBasicMaterial({color: 0xff0000, opacity: 0.5, transparent: true});
+            const xAxis = new THREE.Line(xGeometry, xMaterial);
+            scene.add(xAxis);
+            
+            // Y-axis (Emotion to Logic)
+            const yGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, -axisLength, 0),
+                new THREE.Vector3(0, axisLength, 0)
+            ]);
+            const yMaterial = new THREE.LineBasicMaterial({color: 0x00ff00, opacity: 0.5, transparent: true});
+            const yAxis = new THREE.Line(yGeometry, yMaterial);
+            scene.add(yAxis);
+            
+            // Z-axis (Depth of Understanding)
+            const zGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, -axisLength),
+                new THREE.Vector3(0, 0, axisLength)
+            ]);
+            const zMaterial = new THREE.LineBasicMaterial({color: 0x0000ff, opacity: 0.5, transparent: true});
+            const zAxis = new THREE.Line(zGeometry, zMaterial);
+            scene.add(zAxis);
+        }
+        
+        function addMouseInteraction() {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            
+            function onMouseClick(event) {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(triangles);
+                
+                if (intersects.length > 0) {
+                    selectTriangle(intersects[0].object);
+                }
+            }
+            
+            window.addEventListener('click', onMouseClick);
+        }
+        
+        function selectTriangle(triangle) {
+            selectedTriangle = triangle;
+            const nodeData = teachingNodes[triangle.userData.type];
+            
+            // Update teaching panel
+            document.getElementById('avatar').textContent = nodeData.avatar;
+            document.getElementById('teaching-content').innerHTML = `
+                <h3>${nodeData.title}</h3>
+                <p>${nodeData.content}</p>
+                <small>Triangle ${triangle.userData.index + 1} • Type: ${triangle.userData.type}</small>
+            `;
+            
+            document.getElementById('teaching-panel').style.display = 'block';
+            
+            // Add to journey log
+            addToJourney(nodeData.title);
+            
+            // Animate triangle selection
+            animateTriangleSelection(triangle);
+        }
+        
+        function addToJourney(nodeName) {
+            journeyPath.push(nodeName);
+            const journeyLog = document.getElementById('journey-log');
+            journeyLog.innerHTML = journeyPath.map(node => `→ ${node}`).join('<br>');
+        }
+        
+        function animateTriangleSelection(triangle) {
+            const originalScale = triangle.scale.clone();
+            
+            // Pulse animation
+            let pulsePhase = 0;
+            const pulseAnimation = () => {
+                pulsePhase += 0.1;
+                const scale = 1 + 0.2 * Math.sin(pulsePhase);
+                triangle.scale.set(scale, scale, scale);
+                
+                if (pulsePhase < Math.PI * 4) {
+                    requestAnimationFrame(pulseAnimation);
+                } else {
+                    triangle.scale.copy(originalScale);
+                }
+            };
+            pulseAnimation();
+        }
+        
+        function setMovementMode(mode) {
+            currentMode = mode;
+            document.getElementById('current-mode').textContent = 
+                mode.charAt(0).toUpperCase() + mode.slice(1);
+            
+            // Update button states
+            document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(mode === 'explore' ? 'explore-btn' : 
+                                 mode === 'reflect' ? 'reflect-btn' : 'clarify-btn').classList.add('active');
+            
+            // Hide teaching panel when changing modes
+            if (mode !== 'clarify') {
+                document.getElementById('teaching-panel').style.display = 'none';
+            }
+            
+            // Apply movement behavior
+            applyMovementMode(mode);
+        }
+        
+        function applyMovementMode(mode) {
+            const rotationSpeed = {
+                explore: 0.01,
+                reflect: -0.005,
+                clarify: 0
+            };
+            
+            const triangleOpacity = {
+                explore: 0.9,
+                reflect: 0.5,
+                clarify: 0.7
+            };
+            
+            // Update sphere rotation
+            sphere.userData.rotationSpeed = rotationSpeed[mode];
+            
+            // Update triangle visibility
+            triangles.forEach(triangle => {
+                triangle.material.opacity = triangleOpacity[mode];
+            });
+        }
+        
+        function animate() {
+            animationFrame = requestAnimationFrame(animate);
+            
+            // Rotate sphere based on movement mode
+            if (sphere.userData.rotationSpeed) {
+                sphere.rotation.y += sphere.userData.rotationSpeed;
+                sphere.rotation.x += sphere.userData.rotationSpeed * 0.5;
+            }
+            
+            // Animate triangles
+            triangles.forEach((triangle, index) => {
+                triangle.rotation.z += 0.005 * (index % 2 === 0 ? 1 : -1);
+                
+                // Breathing effect
+                const breathe = 1 + 0.1 * Math.sin(Date.now() * 0.001 + index);
+                triangle.scale.set(breathe, breathe, breathe);
+            });
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>

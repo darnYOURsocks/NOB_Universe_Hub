@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ŊOB Pattern DB — NOB Universe</title>
+<link rel="stylesheet" href="../styles/project.css"/>
+</head>
+<body>
+<header>
+  <a href="../index.html" class="back">← Hub</a>
+  <h1>ŊOB Pattern DB</h1>
+  <p class="desc">Core cross‑domain pattern nodes & queries.</p>
+</header>
+<main>
+  <section class="wire">
+    <h2>Module Wiring</h2>
+    <p>This project is wired to the Hub via <code>projects.json</code>. Replace this page with your app, or embed modules below:</p>
+    <div class="iframe-grid" id="embeds"></div>
+  </section>
+</main>
+<script>
+// Simple example: embed selected modules by query (?modules=a,b)
+const params = new URLSearchParams(location.search);
+const picks = (params.get('modules')||'').split(',').filter(Boolean);
+const embeds = document.getElementById('embeds');
+if (picks.length) {
+  for (const m of picks) {
+    const f = document.createElement('iframe');
+    f.src = '../' + decodeURIComponent(m);
+    f.loading = 'lazy';
+    f.referrerPolicy = 'no-referrer';
+    embeds.appendChild(f);
+  }
+} else {
+  const p = document.createElement('p');
+  p.textContent = 'Tip: add ?modules=' +
+    encodeURIComponent('modules/kaleidoscope_optics.html') + ',' +
+    encodeURIComponent('modules/tps_ripple_animation.html');
+  document.querySelector('.wire').appendChild(p);
+}
+</script>
+</body>
+</html>

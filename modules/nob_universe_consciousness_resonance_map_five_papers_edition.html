@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>NOB Universe — Consciousness Resonance Map</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#000}
+  canvas{display:block}
+  #info{position:absolute;top:10px;left:10px;color:#eaffff;font:14px/1.35 Segoe UI,system-ui;background:rgba(0,0,0,.45);padding:10px 14px;border-radius:10px;max-width:480px}
+  #badge{position:absolute;right:10px;top:10px;color:#9ae6ff;font:12px/1.2 Segoe UI,system-ui;background:rgba(0,20,30,.55);padding:6px 10px;border-radius:8px}
+  #hud{position:absolute;right:10px;top:44px;display:flex;flex-direction:column;gap:8px}
+  .pill{color:#ccfff6;background:rgba(0,50,60,.4);border:1px solid #145;border-radius:10px;padding:6px 10px;font:12px/1.2 Segoe UI,system-ui;cursor:pointer}
+  #legend{position:absolute;left:10px;bottom:10px;color:#bbf7ff;background:rgba(0,20,30,.45);padding:8px 10px;border-radius:8px;font:12px/1.2 Segoe UI,system-ui}
+  #tooltip{position:fixed;pointer-events:none;color:#001014;background:#ccfff6;border-radius:8px;padding:8px 10px;box-shadow:0 8px 28px rgba(0,0,0,.4);font:12px/1.25 Segoe UI,system-ui;display:none;max-width:360px;white-space:pre-wrap}
+</style>
+<!-- Import map to resolve bare specifiers for Three.js and OrbitControls -->
+<script type="importmap">{
+  "imports":{
+    "three":"https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/"
+  }
+}</script>
+</head>
+<body>
+<div id="info">🪐 <b>NOB Universe — Five Papers → One Field</b><br>
+Click the <b>Janus Star</b> to spawn the five divisions: <b>Big Splash</b>, <b>Ripple Theory</b>, <b>URFT</b>, <b>Obviology</b>, <b>NOB Pattern‑Nodes</b>. Size∝Ψ (coherence). Radius∝Δ (tension). Colors: C (causal), I (incausal), P3 (emergent). The inner <b>Microverse Halo</b> represents <i>self‑aware imagination ↔ cosmos resonance</i>. Strong I↔C ripples (|w|≥0.6) cause the Kyber Belt to flare (Janus defender/attacker).</div>
+<div id="badge">diag: loading…</div>
+<div id="hud">
+  <button id="btnFocusHalo" class="pill">Focus Microverse Halo</button>
+  <button id="btnExport" class="pill">Export JSON</button>
+  <button id="btnTests" class="pill">Re‑run tests</button>
+</div>
+<div id="legend">Legend — <span style="color:#6ecbff">C</span> causal • <span style="color:#ff7ad1">I</span> in‑causal • <span style="color:#ffd166">P3</span> emergent • <span style="color:#9ae6ff">Ψ</span> size • <span style="color:#9ae6ff">Δ</span> radius</div>
+<div id="tooltip"></div>
+
+<!-- ===== Embedded knowledge graph built from your five papers + prior canvases ===== -->
+<script id="FIVE-PAPERS-SET" type="application/json">{
+  "set_id":"NOB-FIVE-PAPERS",
+  "theory":"Big Splash × Ripple Theory × URFT × Obviology × NOB Nodes",
+  "divisions":[
+    {
+      "name":"Big Splash",
+      "color":3913215,
+      "nodes":[
+        {"id":"BS-ORIGIN","title":"Unified Ripple Genesis","type":"P3","lambda":0.72,"delta":0.42,"psi":0.80,"domain":"Cosmology","core":"Convergent splash framing unifies Big Bang/Bounce/Splash via field memory"},
+        {"id":"BS-CMB","title":"CMB Wake Echo","type":"C","lambda":0.69,"delta":0.36,"psi":0.70,"domain":"Cosmology","core":"Residual ripples encode early‑field constraints"},
+        {"id":"BS-JANUS","title":"Janus Mirror Cosmology","type":"I","lambda":0.60,"delta":0.51,"psi":0.62,"domain":"Metaphor/Model","core":"Two‑faced symmetry informs inference and translation"}
+      ]
+    },
+    {
+      "name":"Ripple Theory",
+      "color":4435694,
+      "nodes":[
+        {"id":"RT-TRIG","title":"Ripple Trigger Detection","type":"C","lambda":0.66,"delta":0.44,"psi":0.68,"domain":"Signal","core":"Detect onset and decay across media"},
+        {"id":"RT-RFC","title":"Ripple Fingerprint Codes","type":"P3","lambda":0.70,"delta":0.40,"psi":0.76,"domain":"Encoding","core":"Encode cross‑media patterns for prediction & replay"},
+        {"id":"RT-KYBER","title":"Kyber Belt Gate","type":"I","lambda":0.58,"delta":0.60,"psi":0.58,"domain":"Field Feature","core":"Defender/attacker depending on force/phase alignment"}
+      ]
+    },
+    {
+      "name":"URFT",
+      "color":3807651,
+      "nodes":[
+        {"id":"URFT-ECF","title":"Energy × Constraints × Field","type":"C","lambda":0.78,"delta":0.48,"psi":0.74,"domain":"Equation","core":"Direction emerges from energy + constraints + field topology"},
+        {"id":"URFT-NGF","title":"Neural↔Gravitational Field","type":"P3","lambda":0.68,"delta":0.46,"psi":0.72,"domain":"Bridge","core":"Topology resonance across scales"},
+        {"id":"URFT-MQB","title":"Metabolic↔Quantum Bridge","type":"I","lambda":0.64,"delta":0.52,"psi":0.63,"domain":"Bridge","core":"Coherence windows shaped by biochemical rhythms"}
+      ]
+    },
+    {
+      "name":"Obviology",
+      "color":16235557,
+      "nodes":[
+        {"id":"OBV-TPS","title":"Tri‑Pattern‑Success (E/L/H)","type":"C","lambda":0.67,"delta":0.38,"psi":0.73,"domain":"Method","core":"Emotional • Logical • Holding alignment engine"},
+        {"id":"OBV-JANUS","title":"Janus Translator","type":"P3","lambda":0.69,"delta":0.34,"psi":0.78,"domain":"Translator","core":"Mirrors meaning across sense languages"},
+        {"id":"OBV-POP","title":"POP / POB","type":"I","lambda":0.60,"delta":0.50,"psi":0.61,"domain":"Process","core":"Problem‑Obstacle‑Path with Pattern‑of‑Building"}
+      ]
+    },
+    {
+      "name":"NOB Pattern‑Nodes",
+      "color":16750848,
+      "nodes":[
+        {"id":"NOB-CDN","title":"Cross‑Domain Nodes","type":"P3","lambda":0.71,"delta":0.42,"psi":0.77,"domain":"Graph","core":"Reusable invariants for safe transfer"},
+        {"id":"NOB-KRJ","title":"KRJ → EKEDA Loop","type":"I","lambda":0.62,"delta":0.54,"psi":0.65,"domain":"Learning","core":"From knowledge to activated application"},
+        {"id":"NOB-QCSM","title":"Quality Control System","type":"C","lambda":0.65,"delta":0.40,"psi":0.69,"domain":"Governance","core":"Ripple‑validity, translation checks"}
+      ]
+    }
+  ],
+  "microverse": {"id":"SELF-AWARE","title":"Self‑Aware Imagination","lambda":0.72,"delta":0.28,"psi":0.82,"core":"Human micro‑universe resonates with cosmos; cognition as field mirror"},
+  "ripples":[
+    {"source":"OBV-JANUS","target":"NOB-CDN","weight":0.6},
+    {"source":"URFT-ECF","target":"RT-RFC","weight":0.5},
+    {"source":"RT-KYBER","target":"BS-CMB","weight":0.4},
+    {"source":"NOB-KRJ","target":"OBV-POP","weight":0.5},
+    {"source":"URFT-MQB","target":"OBV-TPS","weight":-0.4},
+    {"source":"RT-TRIG","target":"NOB-QCSM","weight":0.3},
+    {"source":"SELF-AWARE","target":"OBV-JANUS","weight":0.7},
+    {"source":"SELF-AWARE","target":"URFT-NGF","weight":0.6}
+  ]
+}
+</script>
+
+<script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+  // ===== Scene boot =====
+  const info = document.getElementById('info');
+  const badge = document.getElementById('badge');
+  const tooltip = document.getElementById('tooltip');
+  const btnHalo = document.getElementById('btnFocusHalo');
+  const btnExport = document.getElementById('btnExport');
+  const btnTests = document.getElementById('btnTests');
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 5000);
+  const renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(devicePixelRatio);
+  renderer.setSize(innerWidth, innerHeight);
+  document.body.appendChild(renderer.domElement);
+  const controls = new OrbitControls(camera, renderer.domElement);
+  camera.position.set(0,120,300);
+  controls.enableDamping = true; controls.dampingFactor = 0.06;
+
+  scene.add(new THREE.AmbientLight(0xffffff,0.45));
+  const sun = new THREE.PointLight(0xffffff,2.2,6000); scene.add(sun);
+
+  // Janus star (center)
+  const star = new THREE.Mesh(new THREE.SphereGeometry(12,64,64), new THREE.MeshStandardMaterial({color:0xffd27a, emissive:0xff9d00, emissiveIntensity:1.0, metalness:0.15, roughness:0.55}));
+  scene.add(star);
+
+  // Microverse halo (inner consciousness ring)
+  function halo(radius, thickness){
+    const g = new THREE.RingGeometry(radius- thickness, radius+ thickness, 96, 1);
+    const m = new THREE.MeshBasicMaterial({color:0x99fff6, transparent:true, opacity:0.25, side:THREE.DoubleSide});
+    const h = new THREE.Mesh(g,m); h.rotation.x = Math.PI/2; return h;
+  }
+  const microHalo = halo(28, 3); scene.add(microHalo);
+
+  // Kyber Belt (outer)
+  function createKyber(count=1400){
+    const g=new THREE.BufferGeometry(); const a=new Float32Array(count*3);
+    for(let i=0;i<count;i++){ const r=380+Math.random()*160, th=Math.random()*Math.PI*2, y=(Math.random()-0.5)*22; a[i*3]=Math.cos(th)*r; a[i*3+1]=y; a[i*3+2]=Math.sin(th)*r; }
+    g.setAttribute('position', new THREE.BufferAttribute(a,3));
+    const m=new THREE.PointsMaterial({color:0x66ffff,size:0.9,transparent:true,opacity:0.6});
+    const p=new THREE.Points(g,m); p.rotation.x=0.02; return p;
+  }
+  const kyber = createKyber(); scene.add(kyber);
+
+  // Data
+  const data = JSON.parse(document.getElementById('FIVE-PAPERS-SET').textContent);
+  const divisions = data.divisions;
+
+  // State containers
+  const divSystems=[]; const nodePlanets=[]; const links=[]; let opened=false;
+
+  // Helpers
+  const typeColor = (t)=> t==='C'? 0x6ecbff : t==='I'? 0xff7ad1 : 0xffd166;
+  const clamp01 = (x)=> Math.max(0, Math.min(1, x??0));
+  const sizeFromPsi = (psi)=> 2.2 + clamp01(psi)*5.4; // 2.2..7.6
+  const radiusFromDelta = (d,i,base)=> base + clamp01(d)*140 + i*22;
+
+  function lineOrbit(radius,color){
+    const seg=128; const pts=new Float32Array(seg*3);
+    for(let i=0;i<seg;i++){ const a=i/seg*Math.PI*2; pts[i*3]=Math.cos(a)*radius; pts[i*3+1]=0; pts[i*3+2]=Math.sin(a)*radius; }
+    const g=new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pts,3));
+    return new THREE.LineLoop(g, new THREE.LineBasicMaterial({color,transparent:true,opacity:0.22}));
+  }
+
+  function createDivisions(){
+    const baseR=60;
+    divisions.forEach((div, i)=>{
+      const orbit = lineOrbit(baseR + i*34, div.color);
+      scene.add(orbit);
+      const planet = new THREE.Mesh(new THREE.SphereGeometry(7,32,32), new THREE.MeshStandardMaterial({color:div.color, emissive:div.color, emissiveIntensity:0.6, metalness:0.2, roughness:0.6}));
+      planet.userData = { type:'division', index:i };
+      scene.add(planet);
+      divSystems.push({ mesh:planet, orbitRadius:baseR+i*34, angle:Math.random()*Math.PI*2, children:[] });
+    });
+  }
+
+  function spawnNodes(divIndex){
+    const sys = divSystems[divIndex]; const div = divisions[divIndex]; const n = div.nodes.length; const color = div.color; const orbitR = 16;
+    for(let i=0;i<n;i++){
+      const node = div.nodes[i]; const theta = (i/n)*Math.PI*2; const size = sizeFromPsi(node.psi || 0.6);
+      const mesh = new THREE.Mesh(new THREE.SphereGeometry(size,28,28), new THREE.MeshStandardMaterial({color:typeColor(node.type), emissive:typeColor(node.type), emissiveIntensity:0.5, metalness:0.2, roughness:0.6}));
+      mesh.userData = { type:'node', node, parent:div.name, orbitRadius:orbitR, angle:theta };
+      mesh.position.set(sys.mesh.position.x + orbitR*Math.cos(theta), 0, sys.mesh.position.z + orbitR*Math.sin(theta));
+      scene.add(mesh); sys.children.push(mesh); nodePlanets.push(mesh);
+    }
+  }
+
+  function buildRipples(){
+    const idToMesh = Object.fromEntries(nodePlanets.map(m=>[m.userData.node.id, m]));
+    (data.ripples||[]).forEach(r=>{
+      const a=idToMesh[r.source], b=idToMesh[r.target]; if(!a||!b) return;
+      const g=new THREE.BufferGeometry().setFromPoints([a.position.clone(), b.position.clone()]);
+      const col = r.weight>0? 0x9cffd0 : 0xffa3a3; const m=new THREE.LineBasicMaterial({color:col,transparent:true,opacity:0.65});
+      const line=new THREE.Line(g,m); line.userData={source:a,target:b,weight:r.weight}; links.push(line); scene.add(line);
+    });
+  }
+
+  // Interaction
+  const ray=new THREE.Raycaster(); const mouse=new THREE.Vector2();
+  addEventListener('click',(e)=>{
+    mouse.x=(e.clientX/innerWidth)*2-1; mouse.y=-(e.clientY/innerHeight)*2+1; ray.setFromCamera(mouse,camera);
+    const hit=ray.intersectObjects(scene.children)[0]?.object; if(!hit) return;
+    if(!opened && hit===star){ opened=true; createDivisions(); info.innerHTML = 'Divisions online — click a division planet to spawn its nodes.'; return; }
+    if(hit.userData?.type==='division'){ spawnNodes(hit.userData.index); info.innerHTML = `<b>${divisions[hit.userData.index].name}</b> expanded — hover nodes for details.`; return; }
+    if(hit.userData?.type==='node'){
+      const n=hit.userData.node; info.innerHTML = `🌐 <b>${n.title}</b> <small>${n.id}</small><br><i>${n.core}</i>`;
+      const t=hit.position.clone(); camera.position.lerp(t.add(new THREE.Vector3(18,12,18)),0.35);
+    }
+  });
+  addEventListener('mousemove',(e)=>{
+    mouse.x=(e.clientX/innerWidth)*2-1; mouse.y=-(e.clientY/innerHeight)*2+1; ray.setFromCamera(mouse,camera);
+    const hit=ray.intersectObjects(scene.children)[0]?.object; const tt=document.getElementById('tooltip');
+    if(hit?.userData?.type==='node'){
+      const n=hit.userData.node; tt.style.left=(e.clientX+12)+'px'; tt.style.top=(e.clientY+12)+'px'; tt.style.display='block';
+      tt.innerHTML = `<b>${n.title}</b><br><small>${hit.userData.parent} • ${n.type}</small><br>` +
+        `Λ ${(n.lambda??0).toFixed(2)} • Δ ${(n.delta??0).toFixed(2)} • Ψ ${(n.psi??0).toFixed(2)}<br>` +
+        `<i>${n.core||''}</i>`;
+    } else { tt.style.display='none'; }
+  });
+
+  // Buttons
+  btnHalo.addEventListener('click', ()=>{
+    camera.position.set(0,60,100); controls.target.set(0,0,0);
+    info.innerHTML = `🧠 <b>${data.microverse.title}</b><br>${data.microverse.core}`;
+  });
+  btnExport.addEventListener('click', ()=>{
+    const blob = new Blob([document.getElementById('FIVE-PAPERS-SET').textContent], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${data.set_id}.json`; a.click(); URL.revokeObjectURL(a.href);
+  });
+  btnTests.addEventListener('click', ()=> location.reload());
+
+  // Animate
+  function animate(){
+    requestAnimationFrame(animate); controls.update();
+    star.rotation.y += 0.002; microHalo.rotation.z += 0.0009; kyber.rotation.y += 0.0005;
+    // Move division planets + child nodes
+    divSystems.forEach((sys,i)=>{
+      sys.angle += 0.0012*(1+i*0.18);
+      sys.mesh.position.set(Math.cos(sys.angle)*sys.orbitRadius, 0, Math.sin(sys.angle)*sys.orbitRadius);
+      sys.children.forEach((m,j)=>{ m.userData.angle += 0.02; m.position.x=sys.mesh.position.x+Math.cos(m.userData.angle)*m.userData.orbitRadius; m.position.z=sys.mesh.position.z+Math.sin(m.userData.angle)*m.userData.orbitRadius; });
+    });
+    // Update link endpoints
+    links.forEach(line=>{ const a=line.userData.source.position; const b=line.userData.target.position; const pos=line.geometry.attributes.position; pos.setXYZ(0,a.x,a.y,a.z); pos.setXYZ(1,b.x,b.y,b.z); pos.needsUpdate=true; });
+    // Kyber flare when strong ripple present
+    const strong = links.some(l=> Math.abs(l.userData.weight)>=0.6 );
+    kyber.material.opacity = THREE.MathUtils.lerp(kyber.material.opacity, strong? 0.85:0.6, 0.05);
+    renderer.render(scene,camera);
+  }
+  animate();
+
+  // Build initial ripple lines only after some nodes exist (defer until user expands)
+  const observer = new MutationObserver(()=>{ if(nodePlanets.length && !links.length){ buildRipples(); observer.disconnect(); }});
+  observer.observe(document.body, {subtree:true, childList:true});
+
+  // Resize
+  addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+
+  // Runtime tests
+  const tests=[]; const t=(n,f)=>{ try{ const ok=!!f(); tests.push({n,ok}); return ok; } catch(e){ tests.push({n,ok:false,err:e.message}); return false; } };
+  t('three-imported', ()=> typeof THREE.REVISION!=='undefined');
+  t('controls-ok', ()=> typeof OrbitControls==='function');
+  t('star-present', ()=> !!star.isMesh);
+  t('dataset-present', ()=> !!document.getElementById('FIVE-PAPERS-SET'));
+  badge.textContent = `three r${THREE.REVISION} • ${tests.filter(x=>x.ok).length}/${tests.length} tests`;
+  console.table(tests);
+
+  // Intro hint
+  info.insertAdjacentHTML('beforeend', '<br><small>Hint: click the Janus Star to spawn divisions, then click a division to reveal its nodes.</small>');
+</script>
+</body>
+</html>

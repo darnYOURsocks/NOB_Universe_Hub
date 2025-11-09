@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Cold Calling Mastery Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: all 0.8s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Dynamic atmosphere backgrounds */
+        body.atmosphere-cold {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+
+        body.atmosphere-warming {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        body.atmosphere-hot {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        body.atmosphere-critical {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        /* Ambient particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .game-container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+            transition: all 0.5s ease;
+        }
+
+        .game-container.pulsing {
+            animation: containerPulse 1s ease-in-out;
+            box-shadow: 0 30px 60px rgba(52, 152, 219, 0.4);
+        }
+
+        @keyframes containerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* Energy wave system */
+        .energy-wave {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, transparent, #3498db, transparent);
+            animation: energyFlow 2s ease-in-out infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .energy-wave.active {
+            opacity: 1;
+        }
+
+        .energy-wave.success {
+            background: linear-gradient(90deg, transparent, #27ae60, transparent);
+            animation: energyFlowSuccess 1s ease-out;
+        }
+
+        .energy-wave.critical {
+            background: linear-gradient(90deg, transparent, #e74c3c, transparent);
+            animation: energyFlowCritical 0.5s ease-out infinite;
+        }
+
+        @keyframes energyFlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes energyFlowSuccess {
+            0% { transform: translateX(-100%) scaleY(1); }
+            50% { transform: translateX(50%) scaleY(2); }
+            100% { transform: translateX(100%) scaleY(1); }
+        }
+
+        @keyframes energyFlowCritical {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #3498db, #9b59b6);
+            background-size: 200% 200%;
+            animation: gradientShift 4s ease infinite;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 25px;
+        }
+
+        /* Advanced metrics dashboard */
+        .metrics-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card.improving {
+            animation: metricImprove 0.6s ease-out;
+            background: rgba(39, 174, 96, 0.3);
+        }
+
+        .metric-card.declining {
+            animation: metricDecline 0.6s ease-out;
+            background: rgba(231, 76, 60, 0.3);
+        }
+
+        @keyframes metricImprove {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes metricDecline {
+            0% { transform: scale(1); }
+            25% { transform: rotate(-2deg); }
+            75% { transform: rotate(2deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .metric-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .metric-change {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        /* Prospect profile system */
+        .prospect-profile {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prospect-profile::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #9b59b6, #e74c3c);
+        }
+
+        .prospect-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: white;
+            margin-right: 25px;
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        .prospect-avatar.engaged {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            animation: avatarGlow 2s ease-in-out infinite;
+        }
+
+        .prospect-avatar.resistant {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            animation: avatarShake 0.5s ease-in-out;
+        }
+
+        @keyframes avatarGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(39, 174, 96, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(39, 174, 96, 0.8); }
+        }
+
+        @keyframes avatarShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-2deg); }
+            75% { transform: translateX(5px) rotate(2deg); }
+        }
+
+        .prospect-details {
+            flex: 1;
+        }
+
+        .prospect-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .prospect-type {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .prospect-intel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .intel-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .intel-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 3px;
+        }
+
+        .intel-value {
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        /* Conversation mood indicator */
+        .conversation-mood {
+            text-align: center;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        .mood-freezing {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            animation: freezingPulse 2s ease-in-out infinite;
+        }
+
+        .mood-cold {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .mood-warming {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .mood-hot {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            animation: hotPulse 1.5s ease-in-out infinite;
+        }
+
+        .mood-critical {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            animation: criticalFlash 1s ease-in-out infinite;
+        }
+
+        @keyframes freezingPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes hotPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes criticalFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .game-content {
+            padding: 30px;
+        }
+
+        .round-header {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .round-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #27ae60);
+            border-radius: 0 0 12px 12px;
+            transition: width 0.5s ease;
+        }
+
+        /* Enhanced conversation section */
+        .conversation-area {
+            background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 25px 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .conversation-area.positive-energy {
+            background: linear-gradient(135deg, #d5f4e6, #a3e4d1);
+            border-left: 6px solid #27ae60;
+        }
+
+        .conversation-area.negative-energy {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-left: 6px solid #e74c3c;
+        }
+
+        .prospect-statement {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-style: italic;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .prospect-statement::before {
+            content: '"';
+            font-size: 60px;
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            color: #bdc3c7;
+        }
+
+        .prospect-statement::after {
+            content: '"';
+            font-size: 60px;
+            position: absolute;
+            bottom: -30px;
+            right: 20px;
+            color: #bdc3c7;
+        }
+
+        /* Real-time coaching hints */
+        .coaching-hint {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            position: relative;
+            animation: hintAppear 0.5s ease-out;
+        }
+
+        @keyframes hintAppear {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .coaching-hint::before {
+            content: '🎯';
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .coaching-hint h4 {
+            margin-bottom: 10px;
+        }
+
+        /* Advanced choice system */
+        .choices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .choice-card {
+            border: 3px solid;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: white;
+        }
+
+        .choice-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.4s ease;
+        }
+
+        .choice-card:hover::before {
+            left: 100%;
+        }
+
+        .choice-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .choice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .choice-type {
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: white;
+        }
+
+        .choice-effectiveness {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .choice-text {
+            font-size: 15px;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .choice-impact {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        /* Personality-based choice styling */
+        .guardian-approach {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #fdf2f2, #f8d7da);
+        }
+
+        .guardian-approach .choice-type {
+            background: #e74c3c;
+        }
+
+        .comfort-approach {
+            border-color: #f39c12;
+            background: linear-gradient(135deg, #fef9e7, #fff3cd);
+        }
+
+        .comfort-approach .choice-type {
+            background: #f39c12;
+        }
+
+        .legacy-approach {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #eafaf1, #d5f4e6);
+        }
+
+        .legacy-approach .choice-type {
+            background: #27ae60;
+        }
+
+        .universal-approach {
+            border-color: #8e44ad;
+            background: linear-gradient(135deg, #f4f1f7, #e8e6f0);
+        }
+
+        .universal-approach .choice-type {
+            background: #8e44ad;
+        }
+
+        .place-trigger {
+            border-color: #17a2b8;
+            background: linear-gradient(135deg, #e6f3f7, #bee5eb);
+            position: relative;
+        }
+
+        .place-trigger .choice-type {
+            background: #17a2b8;
+        }
+
+        .place-trigger::after {
+            content: '🎯';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            animation: targetPulse 2s ease-in-out infinite;
+        }
+
+        .misdirection-play {
+            border-color: #e67e22;
+            background: linear-gradient(135deg, #fef5e7, #fde7cc);
+            animation: misdirectionGlow 3s ease-in-out infinite;
+        }
+
+        .misdirection-play .choice-type {
+            background: #e67e22;
+        }
+
+        @keyframes misdirectionGlow {
+            0%, 100% { box-shadow: 0 0 0 rgba(230, 126, 34, 0); }
+            50% { box-shadow: 0 0 20px rgba(230, 126, 34, 0.4); }
+        }
+
+        /* Advanced feedback system */
+        .feedback-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 6px solid #3498db;
+            animation: feedbackSlide 0.6s ease-out;
+            position: relative;
+        }
+
+        @keyframes feedbackSlide {
+            0% { opacity: 0; transform: translateX(-30px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        .feedback-panel.excellent {
+            border-left-color: #27ae60;
+            background: linear-gradient(135deg, #d5f4e6, #a3e4d1);
+        }
+
+        .feedback-panel.warning {
+            border-left-color: #f39c12;
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        }
+
+        .feedback-panel.critical {
+            border-left-color: #e74c3c;
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .feedback-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .feedback-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .feedback-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #34495e;
+            margin-bottom: 15px;
+        }
+
+        .prospect-reaction {
+            background: rgba(255,255,255,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            font-style: italic;
+            border-left: 4px solid #3498db;
+        }
+
+        /* Action buttons */
+        .action-button {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 15px auto;
+            display: block;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.4s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .action-button:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .action-button.success {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        .action-button.success:hover {
+            box-shadow: 0 12px 25px rgba(39, 174, 96, 0.4);
+        }
+
+        /* Game completion */
+        .completion-analysis {
+            background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+
+        .analysis-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 5px solid #3498db;
+        }
+
+        .analysis-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .analysis-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #34495e;
+        }
+
+        .skill-meter {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .skill-label {
+            min-width: 120px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .skill-bar {
+            flex: 1;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 15px;
+        }
+
+        .skill-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #f39c12, #27ae60);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .skill-score {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .game-container {
+                margin: 10px;
+            }
+            
+            .metrics-dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .prospect-profile {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .prospect-avatar {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+            
+            .choices-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .prospect-intel {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="atmosphere-cold">
+    <!-- Ambient particle system -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Energy wave feedback -->
+    <div class="energy-wave" id="energy-wave"></div>
+    
+    <div class="game-container" id="game-container">
+        <div class="header">
+            <h1>🎯 Ultimate Cold Calling Mastery Platform</h1>
+            <p class="subtitle">Advanced Multi-Sensory Training • Real-Time Coaching • Personality Analysis</p>
+            
+            <!-- Real-time metrics dashboard -->
+            <div class="metrics-dashboard" id="metrics-dashboard">
+                <div class="metric-card" id="rapport-metric">
+                    <div class="metric-label">Rapport Level</div>
+                    <div class="metric-value" id="rapport-value">COLD</div>
+                    <div class="metric-change" id="rapport-change">Starting point</div>
+                </div>
+                <div class="metric-card" id="curiosity-metric">
+                    <div class="metric-label">Curiosity</div>
+                    <div class="metric-value" id="curiosity-value">5</div>
+                    <div class="metric-change" id="curiosity-change">Baseline</div>
+                </div>
+                <div class="metric-card" id="comfort-metric">
+                    <div class="metric-label">Comfort</div>
+                    <div class="metric-value" id="comfort-value">5</div>
+                    <div class="metric-change" id="comfort-change">Baseline</div>
+                </div>
+                <div class="metric-card" id="urgency-metric">
+                    <div class="metric-label">Urgency</div>
+                    <div class="metric-value" id="urgency-value">3</div>
+                    <div class="metric-change" id="urgency-change">Low</div>
+                </div>
+                <div class="metric-card" id="resistance-metric">
+                    <div class="metric-label">Resistance</div>
+                    <div class="metric-value" id="resistance-value">7</div>
+                    <div class="metric-change" id="resistance-change">High</div>
+                </div>
+                <div class="metric-card" id="energy-metric">
+                    <div class="metric-label">Conversation Energy</div>
+                    <div class="metric-value" id="energy-value">45%</div>
+                    <div class="metric-change" id="energy-change">Building...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-content" id="game-content">
+            <!-- Dynamic game content will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        class UltimateColdCallingTrainer {
+            constructor() {
+                this.currentRound = 1;
+                this.maxRounds = 5;
+                this.gameOver = false;
+                
+                // Enhanced scoring system
+                this.metrics = {
+                    rapport: 1, // 1=Cold, 2=Warming, 3=Hot
+                    curiosity: 5,
+                    comfort: 5,
+                    urgency: 3,
+                    resistance: 7,
+                    energy: 45
+                };
+                
+                // Advanced tracking
+                this.placesUsed = [];
+                this.correctTypeIdentified = false;
+                this.misdirectionUsed = false;
+                this.personalityMatches = 0;
+                this.recoveryAttempts = 0;
+                
+                // Generate comprehensive prospect
+                this.generateAdvancedProspect();
+                this.createParticleSystem();
+                this.init();
+            }
+
+            generateAdvancedProspect() {
+                const prospectTypes = [
+                    {
+                        type: 'Guardian Protector',
+                        avatar: '🛡️',
+                        name: this.getRandomName(),
+                        primaryDrive: 'Family Security',
+                        secondaryTraits: ['Analytical', 'Risk-Averse', 'Detail-Oriented'],
+                        painPoints: ['Coverage gaps', 'Financial uncertainty', 'Family vulnerability'],
+                        frequentPlaces: ['First National Bank', 'Home Depot', 'Local Insurance Office'],
+                        communicationStyle: 'Direct, fact-based, seeks guarantees',
+                        decisionFactors: ['Safety', 'Reliability', 'Track record'],
+                        closingStyle: 'Needs detailed information and proof',
+                        energyLevel: 'Moderate',
+                        trustFactors: ['Credentials', 'References', 'Documentation']
+                    },
+                    {
+                        type: 'Comfort Seeker',
+                        avatar: '😌',
+                        name: this.getRandomName(),
+                        primaryDrive: 'Peace of Mind',
+                        secondaryTraits: ['Relationship-Focused', 'Trusting', 'Simplicity-Seeking'],
+                        painPoints: ['Complexity', 'Overwhelming choices', 'Stress about money'],
+                        frequentPlaces: ['Starbucks Coffee', 'Community Center', 'Local Spa'],
+                        communicationStyle: 'Warm, personal, values relationships',
+                        decisionFactors: ['Trust', 'Simplicity', 'Personal attention'],
+                        closingStyle: 'Responds to care and personal service',
+                        energyLevel: 'Calm',
+                        trustFactors: ['Personal connection', 'Referrals', 'Comfort level']
+                    },
+                    {
+                        type: 'Legacy Builder',
+                        avatar: '🏆',
+                        name: this.getRandomName(),
+                        primaryDrive: 'Wealth Growth',
+                        secondaryTraits: ['Strategic', 'Ambitious', 'Future-Focused'],
+                        painPoints: ['Tax inefficiency', 'Missed opportunities', 'Suboptimal planning'],
+                        frequentPlaces: ['Executive Country Club', 'Investment Firm', 'Private Banking'],
+                        communicationStyle: 'Strategic, results-oriented, time-conscious',
+                        decisionFactors: ['ROI', 'Growth potential', 'Tax advantages'],
+                        closingStyle: 'Wants comprehensive analysis and projections',
+                        energyLevel: 'High',
+                        trustFactors: ['Expertise', 'Track record', 'Sophistication']
+                    },
+                    {
+                        type: 'Skeptical Analyst',
+                        avatar: '🤔',
+                        name: this.getRandomName(),
+                        primaryDrive: 'Due Diligence',
+                        secondaryTraits: ['Questioning', 'Research-Heavy', 'Cautious'],
+                        painPoints: ['Being sold to', 'Incomplete information', 'High pressure'],
+                        frequentPlaces: ['Library', 'University', 'Research Institute'],
+                        communicationStyle: 'Questioning, analytical, seeks evidence',
+                        decisionFactors: ['Data', 'Research', 'Independent verification'],
+                        closingStyle: 'Needs time to research and compare',
+                        energyLevel: 'Measured',
+                        trustFactors: ['Transparency', 'Education', 'No pressure']
+                    }
+                ];
+
+                this.prospect = prospectTypes[Math.floor(Math.random() * prospectTypes.length)];
+                this.conversationContext = this.generateContext();
+            }
+
+            getRandomName() {
+                const names = [
+                    'Jennifer Martinez', 'Robert Chen', 'Maria Rodriguez', 'David Thompson',
+                    'Sarah Johnson', 'Michael Brown', 'Lisa Wilson', 'James Davis',
+                    'Amanda Taylor', 'Christopher Garcia', 'Jessica Miller', 'Daniel Jones',
+                    'Rachel Kim', 'Mark Anderson', 'Nicole White', 'Steven Lee'
+                ];
+                return names[Math.floor(Math.random() * names.length)];
+            }
+
+            generateContext() {
+                const timeOfDay = ['morning', 'afternoon', 'evening'][Math.floor(Math.random() * 3)];
+                const dayOfWeek = ['Tuesday', 'Wednesday', 'Thursday'][Math.floor(Math.random() * 3)];
+                const weather = ['sunny', 'rainy', 'pleasant'][Math.floor(Math.random() * 3)];
+                const neighborhood = ['Maple Heights', 'Oak Valley', 'Pine Ridge', 'Cedar Hills'][Math.floor(Math.random() * 4)];
+                
+                return {
+                    timeOfDay,
+                    dayOfWeek,
+                    weather,
+                    neighborhood,
+                    recentActivity: this.generateRecentActivity()
+                };
+            }
+
+            generateRecentActivity() {
+                const activities = [
+                    'just got home from work',
+                    'was working in the garden',
+                    'was making dinner',
+                    'was helping kids with homework',
+                    'was on a work call',
+                    'was reading the news',
+                    'was organizing some paperwork'
+                ];
+                return activities[Math.floor(Math.random() * activities.length)];
+            }
+
+            createParticleSystem() {
+                const particlesContainer = document.getElementById('particles');
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (6 + Math.random() * 3) + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            init() {
+                this.updateAllFeedback();
+                this.renderRound();
+            }
+
+            updateAllFeedback() {
+                this.updateMetricsDisplay();
+                this.updateAtmosphere();
+                this.updateEnergyWave();
+            }
+
+            updateMetricsDisplay() {
+                const rapportLevels = ['COLD', 'WARMING', 'HOT'];
+                document.getElementById('rapport-value').textContent = rapportLevels[this.metrics.rapport - 1];
+                document.getElementById('curiosity-value').textContent = this.metrics.curiosity;
+                document.getElementById('comfort-value').textContent = this.metrics.comfort;
+                document.getElementById('urgency-value').textContent = this.metrics.urgency;
+                document.getElementById('resistance-value').textContent = this.metrics.resistance;
+                document.getElementById('energy-value').textContent = this.metrics.energy + '%';
+                
+                // Update change indicators
+                this.updateMetricChanges();
+            }
+
+            updateMetricChanges() {
+                // This would track changes from previous round
+                const changes = {
+                    'rapport-change': this.getChangeText('rapport'),
+                    'curiosity-change': this.getChangeText('curiosity'),
+                    'comfort-change': this.getChangeText('comfort'),
+                    'urgency-change': this.getChangeText('urgency'),
+                    'resistance-change': this.getChangeText('resistance'),
+                    'energy-change': this.getChangeText('energy')
+                };
+
+                Object.keys(changes).forEach(id => {
+                    document.getElementById(id).textContent = changes[id];
+                });
+            }
+
+            getChangeText(metric) {
+                // Simplified change tracking
+                if (this.metrics[metric] >= 7) return 'Strong';
+                if (this.metrics[metric] >= 5) return 'Moderate';
+                if (this.metrics[metric] >= 3) return 'Weak';
+                return 'Critical';
+            }
+
+            updateAtmosphere() {
+                const body = document.body;
+                const totalScore = this.metrics.curiosity + this.metrics.comfort + this.metrics.urgency - this.metrics.resistance;
+                
+                body.className = '';
+                if (totalScore >= 18) {
+                    body.classList.add('atmosphere-hot');
+                } else if (totalScore >= 12) {
+                    body.classList.add('atmosphere-warming');
+                } else if (totalScore <= 5) {
+                    body.classList.add('atmosphere-critical');
+                } else {
+                    body.classList.add('atmosphere-cold');
+                }
+            }
+
+            updateEnergyWave() {
+                const energyWave = document.getElementById('energy-wave');
+                energyWave.className = 'energy-wave';
+                
+                if (this.metrics.energy >= 70) {
+                    energyWave.classList.add('active', 'success');
+                } else if (this.metrics.energy <= 30) {
+                    energyWave.classList.add('active', 'critical');
+                } else if (this.metrics.energy >= 50) {
+                    energyWave.classList.add('active');
+                }
+            }
+
+            getRoundContent() {
+                const rounds = {
+                    1: {
+                        title: "Round 1: Cold Approach & First Impression",
+                        objective: "Break the ice, identify personality type, establish familiarity",
+                        context: `It's a ${this.conversationContext.weather} ${this.conversationContext.dayOfWeek} ${this.conversationContext.timeOfDay} in ${this.conversationContext.neighborhood}. ${this.prospect.name} ${this.conversationContext.recentActivity} when you knock.`,
+                        prospectResponse: this.getProspectResponse(1),
+                        coachingHint: this.getCoachingHint(1)
+                    },
+                    2: {
+                        title: "Round 2: Building Rapport & Discovery",
+                        objective: "Deepen connection, uncover pain points, match communication style",
+                        context: `The conversation continues. You can sense their ${this.prospect.energyLevel.toLowerCase()} energy level.`,
+                        prospectResponse: this.getProspectResponse(2),
+                        coachingHint: this.getCoachingHint(2)
+                    },
+                    3: {
+                        title: "Round 3: Credibility & Social Proof",
+                        objective: "Establish trust, use place triggers, build authority",
+                        context: `They're showing signs of ${this.getEngagementLevel()}. Time to build credibility.`,
+                        prospectResponse: this.getProspectResponse(3),
+                        coachingHint: this.getCoachingHint(3)
+                    },
+                    4: {
+                        title: "Round 4: Creating Urgency & Value",
+                        objective: "Generate desire, create urgency, position benefits",
+                        context: `The conversation is at a critical juncture. Their body language suggests ${this.getBodyLanguage()}.`,
+                        prospectResponse: this.getProspectResponse(4),
+                        coachingHint: this.getCoachingHint(4)
+                    },
+                    5: {
+                        title: "Round 5: The Close & Commitment",
+                        objective: "Secure the appointment, handle objections, lock in time",
+                        context: `This is the moment of truth. Everything builds to this close.`,
+                        prospectResponse: this.getProspectResponse(5),
+                        coachingHint: this.getCoachingHint(5)
+                    }
+                };
+                return rounds[this.currentRound];
+            }
+
+            getEngagementLevel() {
+                if (this.metrics.comfort >= 7) return 'genuine interest';
+                if (this.metrics.comfort >= 5) return 'cautious curiosity';
+                return 'polite skepticism';
+            }
+
+            getBodyLanguage() {
+                const totalScore = this.metrics.curiosity + this.metrics.comfort + this.metrics.urgency - this.metrics.resistance;
+                if (totalScore >= 15) return 'they\'re leaning in and engaged';
+                if (totalScore >= 10) return 'they\'re still listening but guarded';
+                return 'they\'re getting ready to end the conversation';
+            }
+
+            getProspectResponse(round) {
+                const responses = {
+                    'Guardian Protector': [
+                        "Yes? I hope this isn't a sales pitch. I'm very careful about who I give my time to.",
+                        "Alright, I'm listening, but I need to know exactly what this is about. I don't like surprises when it comes to my family's security.",
+                        "You seem to know the area. But I still need a lot more information before I trust anyone with something this important.",
+                        "I'm interested in protecting my family, but I need guarantees. What proof do you have this actually works?",
+                        "If this is really going to help my family, I need to see documentation. When exactly would this meeting be?"
+                    ],
+                    'Comfort Seeker': [
+                        "Oh, hello there! You seem nice. What brings you by our neighborhood?",
+                        "That sounds interesting. I do worry about these things sometimes, but I don't want anything too complicated.",
+                        "You know those places? That makes me feel better about talking with you. You understand our community.",
+                        "I like what you're saying, but I hope this won't be stressful or overwhelming. I value my peace of mind.",
+                        "This sounds helpful. As long as it's simple and you'll take good care of us, I'm interested in learning more."
+                    ],
+                    'Legacy Builder': [
+                        "Good afternoon. I'm always interested in opportunities that can enhance my family's financial position.",
+                        "Excellent, I'm very focused on building wealth and optimizing our financial strategy. What kind of returns are we talking about?",
+                        "Those are exactly the caliber of institutions I work with. You clearly understand my demographic and goals.",
+                        "I'm interested in maximizing every opportunity. What kind of growth potential and tax advantages does this offer?",
+                        "If this can significantly impact our wealth-building strategy, let's discuss it. What's your earliest availability?"
+                    ],
+                    'Skeptical Analyst': [
+                        "I suppose you can talk, but I should warn you - I research everything thoroughly before making any decisions.",
+                        "I appreciate the information, but I'll need to verify all of this independently. What sources can you provide?",
+                        "Those are reputable places. I assume you have credentials and references I can check before we proceed further?",
+                        "This is interesting, but I never make quick decisions. What kind of documentation and third-party validation do you have?",
+                        "I'll need time to analyze this thoroughly. Can you send me detailed information first, then we'll see about meeting?"
+                    ]
+                };
+                return responses[this.prospect.type][round - 1];
+            }
+
+            getCoachingHint(round) {
+                const hints = {
+                    1: {
+                        title: "First Impression Critical Moment",
+                        content: `${this.prospect.type}s typically ${this.prospect.communicationStyle.toLowerCase()}. Look for opportunities to mention ${this.prospect.frequentPlaces.join(' or ')} to build instant familiarity.`
+                    },
+                    2: {
+                        title: "Pain Point Discovery",
+                        content: `Their primary drive is ${this.prospect.primaryDrive}. Their pain points include: ${this.prospect.painPoints.join(', ')}. Match their energy level and communication style.`
+                    },
+                    3: {
+                        title: "Trust Building Phase",
+                        content: `They value ${this.prospect.trustFactors.join(', ')}. Use place triggers and establish credibility through ${this.prospect.decisionFactors.join(' and ')}.`
+                    },
+                    4: {
+                        title: "Value Creation",
+                        content: `Focus on their decision factors: ${this.prospect.decisionFactors.join(', ')}. Remember their closing style: ${this.prospect.closingStyle.toLowerCase()}.`
+                    },
+                    5: {
+                        title: "Commitment Moment",
+                        content: `Time to close! They respond to ${this.prospect.closingStyle.toLowerCase()}. Don't forget their trust factors: ${this.prospect.trustFactors.join(' and ')}.`
+                    }
+                };
+                return hints[round];
+            }
+
+            renderRound() {
+                if (this.gameOver) return;
+
+                const content = this.getRoundContent();
+                const gameContent = document.getElementById('game-content');
+
+                let html = `
+                    <div class="round-header">
+                        <h2>${content.title}</h2>
+                        <p><strong>Objective:</strong> ${content.objective}</p>
+                        <p><strong>Context:</strong> ${content.context}</p>
+                        <div class="round-progress" style="width: ${(this.currentRound / this.maxRounds) * 100}%"></div>
+                    </div>
+
+                    <div class="prospect-profile">
+                        <div class="prospect-avatar" id="prospect-avatar">${this.prospect.avatar}</div>
+                        <div class="prospect-details">
+                            <div class="prospect-name">${this.prospect.name}</div>
+                            <div class="prospect-type">${this.prospect.type} • Primary Drive: ${this.prospect.primaryDrive}</div>
+                            <div class="prospect-intel">
+                                <div class="intel-item">
+                                    <div class="intel-label">Communication Style</div>
+                                    <div class="intel-value">${this.prospect.communicationStyle}</div>
+                                </div>
+                                <div class="intel-item">
+                                    <div class="intel-label">Decision Factors</div>
+                                    <div class="intel-value">${this.prospect.decisionFactors.join(', ')}</div>
+                                </div>
+                                <div class="intel-item">
+                                    <div class="intel-label">Frequent Places</div>
+                                    <div class="intel-value">${this.prospect.frequentPlaces.join(', ')}</div>
+                                </div>
+                                <div class="intel-item">
+                                    <div class="intel-label">Trust Factors</div>
+                                    <div class="intel-value">${this.prospect.trustFactors.join(', ')}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="conversation-mood" id="conversation-mood">
+                        ${this.getConversationMoodText()}
+                    </div>
+
+                    <div class="conversation-area" id="conversation-area">
+                        <div class="prospect-statement">${content.prospectResponse}</div>
+                    </div>
+
+                    <div class="coaching-hint">
+                        <h4>${content.coachingHint.title}</h4>
+                        <p>${content.coachingHint.content}</p>
+                    </div>
+
+                    <div class="choices-grid" id="choices-grid">
+                        ${this.generateChoices()}
+                    </div>
+                `;
+
+                gameContent.innerHTML = html;
+                this.updateConversationMood();
+            }
+
+            getConversationMoodText() {
+                const totalScore = this.metrics.curiosity + this.metrics.comfort + this.metrics.urgency - this.metrics.resistance;
+                
+                if (totalScore >= 18) return '🔥 CONVERSATION ON FIRE! They\'re completely engaged!';
+                if (totalScore >= 15) return '✨ EXCELLENT RAPPORT! Strong connection established!';
+                if (totalScore >= 12) return '🌡️ WARMING UP! They\'re showing interest!';
+                if (totalScore >= 8) return '😐 NEUTRAL TERRITORY! Need to build more connection!';
+                if (totalScore >= 5) return '😬 LOSING THEM! Recovery needed immediately!';
+                return '💀 CONVERSATION DYING! Critical intervention required!';
+            }
+
+            updateConversationMood() {
+                const moodElement = document.getElementById('conversation-mood');
+                const conversationArea = document.getElementById('conversation-area');
+                const avatar = document.getElementById('prospect-avatar');
+                
+                const totalScore = this.metrics.curiosity + this.metrics.comfort + this.metrics.urgency - this.metrics.resistance;
+                
+                // Reset classes
+                moodElement.className = 'conversation-mood';
+                conversationArea.className = 'conversation-area';
+                avatar.className = 'prospect-avatar';
+                
+                if (totalScore >= 18) {
+                    moodElement.classList.add('mood-hot');
+                    conversationArea.classList.add('positive-energy');
+                    avatar.classList.add('engaged');
+                } else if (totalScore >= 12) {
+                    moodElement.classList.add('mood-warming');
+                } else if (totalScore >= 8) {
+                    moodElement.classList.add('mood-cold');
+                } else if (totalScore >= 5) {
+                    moodElement.classList.add('mood-critical');
+                    conversationArea.classList.add('negative-energy');
+                    avatar.classList.add('resistant');
+                } else {
+                    moodElement.classList.add('mood-freezing');
+                    conversationArea.classList.add('negative-energy');
+                    avatar.classList.add('resistant');
+                }
+            }
+
+            generateChoices() {
+                const choices = [
+                    this.generatePersonalityChoice('Guardian Protector'),
+                    this.generatePersonalityChoice('Comfort Seeker'),
+                    this.generatePersonalityChoice('Legacy Builder'),
+                    this.generatePersonalityChoice('Skeptical Analyst'),
+                    this.generateUniversalChoice(),
+                    ...this.generatePlaceTriggerChoices(),
+                    this.generateMisdirectionChoice()
+                ];
+
+                return choices.map((choice, index) => `
+                    <div class="choice-card ${choice.styleClass}" onclick="game.makeChoice(${index})">
+                        <div class="choice-header">
+                            <span class="choice-type">${choice.type}</span>
+                            <span class="choice-effectiveness">${choice.effectiveness}</span>
+                        </div>
+                        <div class="choice-text">${choice.text}</div>
+                        <div class="choice-impact">${choice.impact}</div>
+                    </div>
+                `).join('');
+            }
+
+            generatePersonalityChoice(targetType) {
+                const choiceTemplates = {
+                    'Guardian Protector': {
+                        1: "Hi, I help families in this area identify and eliminate security gaps that could leave them vulnerable. I'd hate for you to have any blind spots.",
+                        2: "What keeps you up at night worrying about your family's financial safety? Most responsible parents have concerns they don't even realize.",
+                        3: "I've helped many families at First National Bank discover protection gaps they didn't know existed. Would you like to see if you have any?",
+                        4: "I can show you exactly how to eliminate your family's financial vulnerabilities and guarantee their security. The peace of mind is invaluable.",
+                        5: "I can provide you with documentation and a detailed analysis of how this protects your family. Can we schedule 45 minutes this week?"
+                    },
+                    'Comfort Seeker': {
+                        1: "Hi! I help make financial planning simple and stress-free for busy families like yours. No complicated jargon, just peace of mind.",
+                        2: "I completely understand that money matters can feel overwhelming. What if I could show you a simple way to take care of everything?",
+                        3: "I love helping people at Starbucks Coffee find simple solutions for their families. No stress, no pressure, just clarity and comfort.",
+                        4: "This will give you such peace of mind, knowing everything is taken care of simply and easily. You'll sleep so much better.",
+                        5: "I'll make this incredibly easy for you and handle everything personally. How about we grab coffee this week and I'll explain it all?"
+                    },
+                    'Legacy Builder': {
+                        1: "Good afternoon! I specialize in helping successful families like yours maximize wealth and create generational legacies that compound over time.",
+                        2: "I work with ambitious families who want to optimize their wealth transfer strategies and tax advantages. What are your legacy goals?",
+                        3: "I frequently work with executives at Executive Country Club on sophisticated wealth-building strategies. Are you maximizing your potential?",
+                        4: "This could significantly accelerate your wealth-building timeline and provide substantial tax advantages. The growth potential is impressive.",
+                        5: "I'd love to show you some advanced strategies that could add six figures to your family's legacy. When's your earliest availability?"
+                    },
+                    'Skeptical Analyst': {
+                        1: "Hi, I provide educational information about financial strategies. I'm happy to share resources with no pressure or sales pitch.",
+                        2: "I appreciate analytical people like yourself. Here are some third-party research studies you might find interesting to review.",
+                        3: "I work with several professors at the University who value thorough research. I can provide you with all the documentation you'd want.",
+                        4: "I have comprehensive data and independent studies you can review. Everything is transparent and fully documented for your analysis.",
+                        5: "I can send you detailed information first, then if you find it valuable, we could discuss it further. Would that approach work better?"
+                    }
+                };
+
+                const isCorrectType = targetType === this.prospect.type;
+                const text = choiceTemplates[targetType][this.currentRound];
+                
+                return {
+                    type: targetType.split(' ')[0].toUpperCase(),
+                    styleClass: this.getStyleClass(targetType),
+                    text: text,
+                    effectiveness: isCorrectType ? 'High Match' : 'Type Mismatch',
+                    impact: isCorrectType ? 'Strong rapport building' : 'May not resonate',
+                    targetType: targetType,
+                    isCorrect: isCorrectType
+                };
+            }
+
+            getStyleClass(type) {
+                const styleMap = {
+                    'Guardian Protector': 'guardian-approach',
+                    'Comfort Seeker': 'comfort-approach',
+                    'Legacy Builder': 'legacy-approach',
+                    'Skeptical Analyst': 'universal-approach'
+                };
+                return styleMap[type] || 'universal-approach';
+            }
+
+            generateUniversalChoice() {
+                const universalTemplates = {
+                    1: "Hi there! I help families in this area with their financial planning and protection needs. Do you have a few minutes to chat?",
+                    2: "I work with people to help them achieve their financial goals and protect what matters most. What's most important to your family?",
+                    3: "I've been working with several families in the neighborhood on their financial planning. Are you satisfied with your current situation?",
+                    4: "This could really benefit your family's financial situation and give you some great options to consider for the future.",
+                    5: "I'd like to show you some options that might benefit your family. Could we set up a brief meeting sometime this week?"
+                };
+
+                return {
+                    type: 'UNIVERSAL',
+                    styleClass: 'universal-approach',
+                    text: universalTemplates[this.currentRound],
+                    effectiveness: 'Safe Choice',
+                    impact: 'Works with anyone but less targeted',
+                    targetType: 'Universal',
+                    isCorrect: false
+                };
+            }
+
+            generatePlaceTriggerChoices() {
+                return this.prospect.frequentPlaces
+                    .filter(place => !this.placesUsed.includes(place))
+                    .slice(0, 2)
+                    .map(place => ({
+                        type: 'PLACE TRIGGER',
+                        styleClass: 'place-trigger',
+                        text: this.getPlaceTriggerText(place),
+                        effectiveness: 'Instant Familiarity',
+                        impact: 'Creates immediate trust and connection',
+                        targetType: 'Place Trigger',
+                        place: place,
+                        isCorrect: true
+                    }));
+            }
+
+            getPlaceTriggerText(place) {
+                const templates = {
+                    1: `Actually, I was just at ${place} and your name came up in conversation. Small world! Mind if I ask you something?`,
+                    2: `Funny thing - I was at ${place} yesterday and someone mentioned you might be interested in what I do. Were you expecting me?`,
+                    3: `I do a lot of work with people from ${place}. In fact, I was just there this morning. Do you know Sarah there?`,
+                    4: `Since you know ${place} well, you'll appreciate that I work with several members there. They'd probably recommend we meet.`,
+                    5: `The folks at ${place} speak very highly of you. They suggested I should definitely include you in this opportunity.`
+                };
+                return templates[this.currentRound];
+            }
+
+            generateMisdirectionChoice() {
+                const misdirectionTemplates = {
+                    1: "You know what, I can see you're busy and I really don't want to be a bother. I should probably just leave you alone.",
+                    2: "I can tell this isn't really resonating with you and I don't want to waste your time. Maybe I should just go.",
+                    3: "You know what, I think I'm probably bothering you. I don't want to be pushy. Maybe this just isn't the right fit.",
+                    4: "I completely understand if you want to think about it. I don't want to pressure you. Maybe I should give you some space.",
+                    5: "You know what, I think I should let you think about this on your own. I don't want to rush you into anything."
+                };
+
+                return {
+                    type: 'MISDIRECTION',
+                    styleClass: 'misdirection-play',
+                    text: misdirectionTemplates[this.currentRound],
+                    effectiveness: 'Reverse Psychology',
+                    impact: 'Can trigger chase reflex if timed right',
+                    targetType: 'Misdirection',
+                    isCorrect: false
+                };
+            }
+
+            makeChoice(choiceIndex) {
+                const choices = this.getCurrentChoices();
+                const choice = choices[choiceIndex];
+                
+                this.processChoice(choice);
+                this.showFeedback(choice);
+            }
+
+            getCurrentChoices() {
+                return [
+                    this.generatePersonalityChoice('Guardian Protector'),
+                    this.generatePersonalityChoice('Comfort Seeker'),
+                    this.generatePersonalityChoice('Legacy Builder'),
+                    this.generatePersonalityChoice('Skeptical Analyst'),
+                    this.generateUniversalChoice(),
+                    ...this.generatePlaceTriggerChoices(),
+                    this.generateMisdirectionChoice()
+                ].filter(choice => choice); // Remove any undefined choices
+            }
+
+            processChoice(choice) {
+                // Track choice types
+                if (choice.isCorrect && choice.targetType === this.prospect.type) {
+                    this.correctTypeIdentified = true;
+                    this.personalityMatches++;
+                }
+
+                if (choice.place) {
+                    this.placesUsed.push(choice.place);
+                }
+
+                if (choice.targetType === 'Misdirection') {
+                    this.misdirectionUsed = true;
+                }
+
+                // Apply score changes
+                this.applyChoiceImpact(choice);
+                
+                // Update rapport level
+                this.updateRapportLevel(choice);
+                
+                // Update all visual feedback
+                this.updateAllFeedback();
+            }
+
+            applyChoiceImpact(choice) {
+                let impact = {
+                    curiosity: 0,
+                    comfort: 0,
+                    urgency: 0,
+                    resistance: 0,
+                    energy: 0
+                };
+
+                if (choice.isCorrect && choice.targetType === this.prospect.type) {
+                    // Perfect personality match
+                    impact = { curiosity: 2, comfort: 2, urgency: 1, resistance: -2, energy: 15 };
+                } else if (choice.place) {
+                    // Place trigger
+                    impact = { curiosity: 1, comfort: 3, urgency: 0, resistance: -2, energy: 12 };
+                } else if (choice.targetType === 'Universal') {
+                    // Safe universal choice
+                    impact = { curiosity: 1, comfort: 1, urgency: 0, resistance: 0, energy: 5 };
+                } else if (choice.targetType === 'Misdirection') {
+                    // Misdirection play
+                    impact = { curiosity: 2, comfort: -1, urgency: 0, resistance: -1, energy: 8 };
+                } else {
+                    // Wrong personality type
+                    impact = { curiosity: 0, comfort: -1, urgency: 0, resistance: 1, energy: -5 };
+                }
+
+                // Apply the impact
+                Object.keys(impact).forEach(metric => {
+                    if (metric === 'energy') {
+                        this.metrics[metric] = Math.max(0, Math.min(100, this.metrics[metric] + impact[metric]));
+                    } else {
+                        this.metrics[metric] = Math.max(0, Math.min(10, this.metrics[metric] + impact[metric]));
+                    }
+                });
+
+                // Animate metric changes
+                this.animateMetricChanges(impact);
+            }
+
+            animateMetricChanges(impact) {
+                Object.keys(impact).forEach(metric => {
+                    if (impact[metric] !== 0) {
+                        const metricElement = document.getElementById(metric + '-metric');
+                        if (metricElement) {
+                            if (impact[metric] > 0) {
+                                metricElement.classList.add('improving');
+                            } else {
+                                metricElement.classList.add('declining');
+                            }
+                            
+                            setTimeout(() => {
+                                metricElement.classList.remove('improving', 'declining');
+                            }, 600);
+                        }
+                    }
+                });
+            }
+
+            updateRapportLevel(choice) {
+                if (choice.isCorrect && choice.targetType === this.prospect.type) {
+                    this.metrics.rapport = Math.min(3, this.metrics.rapport + 1);
+                } else if (choice.place) {
+                    this.metrics.rapport = Math.min(3, this.metrics.rapport + 1);
+                } else if (choice.targetType === 'Misdirection' && this.metrics.comfort >= 4) {
+                    // Misdirection works better with some existing rapport
+                    this.metrics.rapport = Math.min(3, this.metrics.rapport + 0.5);
+                }
+            }
+
+            showFeedback(choice) {
+                const gameContent = document.getElementById('game-content');
+                
+                let feedbackClass = 'feedback-panel';
+                let feedbackIcon = '💡';
+                let feedbackTitle = 'Choice Analysis';
+                let feedbackContent = this.getFeedbackContent(choice);
+                let prospectReaction = this.getProspectReaction(choice);
+
+                if (choice.isCorrect && choice.targetType === this.prospect.type) {
+                    feedbackClass += ' excellent';
+                    feedbackIcon = '🎯';
+                    feedbackTitle = 'Perfect Type Match!';
+                } else if (choice.place) {
+                    feedbackClass += ' excellent';
+                    feedbackIcon = '🏢';
+                    feedbackTitle = 'Place Trigger Activated!';
+                } else if (choice.targetType === 'Misdirection') {
+                    feedbackClass += ' warning';
+                    feedbackIcon = '🎭';
+                    feedbackTitle = 'Misdirection Play';
+                } else if (!choice.isCorrect && choice.targetType !== 'Universal') {
+                    feedbackClass += ' critical';
+                    feedbackIcon = '⚠️';
+                    feedbackTitle = 'Type Mismatch';
+                }
+
+                const feedbackHtml = `
+                    <div class="${feedbackClass}">
+                        <div class="feedback-header">
+                            <span class="feedback-icon">${feedbackIcon}</span>
+                            <span class="feedback-title">${feedbackTitle}</span>
+                        </div>
+                        <div class="feedback-content">${feedbackContent}</div>
+                        <div class="prospect-reaction">
+                            <strong>Prospect's Internal Reaction:</strong> "${prospectReaction}"
+                        </div>
+                    </div>
+                `;
+
+                // Add continue button
+                const continueButton = `
+                    <button class="action-button ${this.shouldShowSuccessButton(choice) ? 'success' : ''}" onclick="game.nextRound()">
+                        ${this.currentRound === this.maxRounds ? 'See Training Results' : 'Continue to Next Round'}
+                    </button>
+                `;
+
+                gameContent.innerHTML += feedbackHtml + continueButton;
+
+                // Trigger visual effects
+                this.triggerVisualEffects(choice);
+            }
+
+            getFeedbackContent(choice) {
+                if (choice.isCorrect && choice.targetType === this.prospect.type) {
+                    return `Excellent! You correctly identified them as a ${this.prospect.type} and matched their communication style perfectly. Your approach resonated with their ${this.prospect.primaryDrive.toLowerCase()} drive and addressed their key decision factors.`;
+                } else if (choice.place) {
+                    return `Outstanding use of place trigger! Mentioning "${choice.place}" created instant familiarity and trust. This is a powerful technique that makes you feel like an insider to their world.`;
+                } else if (choice.targetType === 'Misdirection') {
+                    return `Interesting misdirection play! This reverse psychology technique can be effective when timed right, especially if you've built some rapport first. Watch their reaction carefully.`;
+                } else if (choice.targetType === 'Universal') {
+                    return `Safe universal approach. This works with anyone but doesn't create the deep connection that comes from personality-specific messaging. It's a good fallback option.`;
+                } else {
+                    return `Type mismatch! This approach works better for ${choice.targetType}s. ${this.prospect.type}s respond better to ${this.getCorrectApproachHint()}.`;
+                }
+            }
+
+            getCorrectApproachHint() {
+                const hints = {
+                    'Guardian Protector': 'security-focused language and risk mitigation',
+                    'Comfort Seeker': 'relationship building and stress-free solutions',
+                    'Legacy Builder': 'growth opportunities and strategic planning',
+                    'Skeptical Analyst': 'educational information and no-pressure approaches'
+                };
+                return hints[this.prospect.type];
+            }
+
+            getProspectReaction(choice) {
+                if (choice.isCorrect && choice.targetType === this.prospect.type) {
+                    return "Finally, someone who really gets what I'm about! They understand my priorities and speak my language.";
+                } else if (choice.place) {
+                    return `Oh wow, they know ${choice.place}! They must understand people like me. I can trust them.`;
+                } else if (choice.targetType === 'Misdirection') {
+                    return "Wait, they're leaving? Most salespeople are pushier than this. Maybe I was too quick to judge...";
+                } else if (choice.targetType === 'Universal') {
+                    return "They seem nice enough, but this feels pretty generic. Do they really understand what I need?";
+                } else {
+                    return "This doesn't really apply to me. They don't seem to understand what I'm actually looking for.";
+                }
+            }
+
+            shouldShowSuccessButton(choice) {
+                return choice.isCorrect || choice.place || this.metrics.rapport >= 3;
+            }
+
+            triggerVisualEffects(choice) {
+                const container = document.getElementById('game-container');
+                const energyWave = document.getElementById('energy-wave');
+
+                if (choice.isCorrect && choice.targetType === this.prospect.type) {
+                    container.classList.add('pulsing');
+                    energyWave.className = 'energy-wave active success';
+                    setTimeout(() => {
+                        container.classList.remove('pulsing');
+                        energyWave.className = 'energy-wave';
+                    }, 1000);
+                } else if (choice.place) {
+                    energyWave.className = 'energy-wave active success';
+                    setTimeout(() => energyWave.className = 'energy-wave', 1000);
+                } else if (!choice.isCorrect && choice.targetType !== 'Universal' && choice.targetType !== 'Misdirection') {
+                    energyWave.className = 'energy-wave active critical';
+                    setTimeout(() => energyWave.className = 'energy-wave', 500);
+                }
+            }
+
+            nextRound() {
+                if (this.currentRound >= this.maxRounds) {
+                    this.endGame();
+                } else {
+                    this.currentRound++;
+                    this.renderRound();
+                }
+            }
+
+            endGame() {
+                const appointmentSecured = this.determineAppointmentSuccess();
+                const gameContent = document.getElementById('game-content');
+
+                const resultHtml = `
+                    <div class="completion-analysis">
+                        <h2 style="text-align: center; color: ${appointmentSecured ? '#27ae60' : '#e74c3c'}; margin-bottom: 25px;">
+                            ${appointmentSecured ? '🎯 APPOINTMENT SECURED!' : '📞 No Appointment'}
+                        </h2>
+                        
+                        <div style="text-align: center; font-size: 18px; margin-bottom: 30px; font-style: italic;">
+                            "${this.getFinalProspectResponse(appointmentSecured)}" - ${this.prospect.name}
+                        </div>
+
+                        ${this.generatePerformanceAnalysis()}
+                        ${this.generateSkillAssessment()}
+                        ${this.generatePersonalizedRecommendations()}
+                        ${this.generateNextSteps()}
+
+                        <button class="action-button" onclick="game.restart()" style="margin-top: 25px;">
+                            🔄 Train with New Prospect
+                        </button>
+                    </div>
+                `;
+
+                gameContent.innerHTML = resultHtml;
+                this.gameOver = true;
+            }
+
+            determineAppointmentSuccess() {
+                const totalScore = this.metrics.curiosity + this.metrics.comfort + this.metrics.urgency - this.metrics.resistance;
+                const hasGoodRapport = this.metrics.rapport >= 2;
+                const hasPersonalityMatch = this.correctTypeIdentified;
+                const hasPlaceTrigger = this.placesUsed.length > 0;
+
+                return totalScore >= 15 && (hasGoodRapport || hasPersonalityMatch || hasPlaceTrigger);
+            }
+
+            getFinalProspectResponse(success) {
+                if (success) {
+                    const responses = [
+                        "You know what, I like your approach. Let's set up a time to talk more about this.",
+                        "I'm impressed by how well you understand what I'm looking for. When can we meet?",
+                        "You've definitely got my attention. I'd like to learn more about this opportunity.",
+                        "I appreciate that you took the time to really understand my situation. Let's schedule something."
+                    ];
+                    return responses[Math.floor(Math.random() * responses.length)];
+                } else {
+                    const responses = [
+                        "Thanks for the information, but I'm not really interested right now.",
+                        "I appreciate you stopping by, but this isn't the right fit for us.",
+                        "I need to think about it more. Maybe contact me in a few months.",
+                        "I'm just not ready to make any decisions about this right now."
+                    ];
+                    return responses[Math.floor(Math.random() * responses.length)];
+                }
+            }
+
+            generatePerformanceAnalysis() {
+                return `
+                    <div class="analysis-section">
+                        <div class="analysis-title">📊 Performance Analysis</div>
+                        <div class="analysis-content">
+                            <strong>Final Metrics:</strong><br>
+                            • Rapport Level: ${['Cold', 'Warming', 'Hot'][this.metrics.rapport - 1]}<br>
+                            • Curiosity: ${this.metrics.curiosity}/10<br>
+                            • Comfort: ${this.metrics.comfort}/10<br>
+                            • Urgency: ${this.metrics.urgency}/10<br>
+                            • Resistance: ${this.metrics.resistance}/10<br>
+                            • Conversation Energy: ${this.metrics.energy}%<br><br>
+                            
+                            <strong>Technique Usage:</strong><br>
+                            • Personality Matches: ${this.personalityMatches}<br>
+                            • Place Triggers Used: ${this.placesUsed.length} (${this.placesUsed.join(', ') || 'None'})<br>
+                            • Misdirection Attempted: ${this.misdirectionUsed ? 'Yes' : 'No'}<br>
+                            • Type Identification: ${this.correctTypeIdentified ? 'Successful' : 'Missed'}
+                        </div>
+                    </div>
+                `;
+            }
+
+            generateSkillAssessment() {
+                const skills = {
+                    'Type Reading': this.correctTypeIdentified ? 9 : 3,
+                    'Rapport Building': Math.min(10, this.metrics.rapport * 3),
+                    'Trust Creation': this.placesUsed.length > 0 ? 8 : 4,
+                    'Conversation Flow': Math.min(10, this.metrics.energy / 10),
+                    'Objection Prevention': Math.max(1, 10 - this.metrics.resistance)
+                };
+
+                let skillsHtml = `
+                    <div class="analysis-section">
+                        <div class="analysis-title">🎓 Skill Assessment</div>
+                        <div class="analysis-content">
+                `;
+
+                Object.entries(skills).forEach(([skill, score]) => {
+                    skillsHtml += `
+                        <div class="skill-meter">
+                            <div class="skill-label">${skill}:</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" style="width: ${score * 10}%"></div>
+                            </div>
+                            <div class="skill-score">${score}/10</div>
+                        </div>
+                    `;
+                });
+
+                skillsHtml += `
+                        </div>
+                    </div>
+                `;
+
+                return skillsHtml;
+            }
+
+            generatePersonalizedRecommendations() {
+                const recommendations = [];
+                
+                if (!this.correctTypeIdentified) {
+                    recommendations.push(`🎯 <strong>Type Identification:</strong> Practice reading personality clues. ${this.prospect.type}s typically ${this.prospect.communicationStyle.toLowerCase()}.`);
+                }
+                
+                if (this.placesUsed.length === 0) {
+                    recommendations.push(`🏢 <strong>Place Triggers:</strong> Use familiar locations to build instant trust. Mentioning ${this.prospect.frequentPlaces[0]} would have been powerful.`);
+                }
+                
+                if (this.metrics.rapport < 2) {
+                    recommendations.push(`🤝 <strong>Rapport Building:</strong> Focus on matching their energy and communication style. Mirror their pace and tone.`);
+                }
+                
+                if (this.metrics.resistance > 6) {
+                    recommendations.push(`🛡️ <strong>Resistance Management:</strong> You triggered their sales defenses. Be more consultative and less direct initially.`);
+                }
+                
+                if (this.metrics.energy < 50) {
+                    recommendations.push(`⚡ <strong>Energy Management:</strong> Keep the conversation momentum flowing. Ask engaging questions and show genuine interest.`);
+                }
+
+                return `
+                    <div class="analysis-section">
+                        <div class="analysis-title">💡 Personalized Recommendations</div>
+                        <div class="analysis-content">
+                            ${recommendations.join('<br><br>')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            generateNextSteps() {
+                let focus = '';
+                
+                if (!this.correctTypeIdentified && this.placesUsed.length === 0) {
+                    focus = 'Master both personality identification AND place trigger usage for maximum impact.';
+                } else if (!this.correctTypeIdentified) {
+                    focus = 'Focus on reading personality types and matching communication styles.';
+                } else if (this.placesUsed.length === 0) {
+                    focus = 'Practice incorporating place mentions for instant familiarity and trust.';
+                } else if (this.metrics.rapport < 3) {
+                    focus = 'Work on conversation flow and energy management.';
+                } else {
+                    focus = 'Excellent performance! Try training with different personality types to master all approaches.';
+                }
+
+                return `
+                    <div class="analysis-section" style="background: linear-gradient(135deg, #3498db, #2980b9); color: white;">
+                        <div class="analysis-title" style="color: white;">🎯 Next Training Focus</div>
+                        <div class="analysis-content" style="color: white;">
+                            ${focus}
+                        </div>
+                    </div>
+                `;
+            }
+
+            restart() {
+                // Reset all game state
+                this.currentRound = 1;
+                this.gameOver = false;
+                this.metrics = {
+                    rapport: 1,
+                    curiosity: 5,
+                    comfort: 5,
+                    urgency: 3,
+                    resistance: 7,
+                    energy: 45
+                };
+                
+                this.placesUsed = [];
+                this.correctTypeIdentified = false;
+                this.misdirectionUsed = false;
+                this.personalityMatches = 0;
+                this.recoveryAttempts = 0;
+                
+                // Generate new prospect
+                this.generateAdvancedProspect();
+                
+                // Reset visual state
+                document.body.className = 'atmosphere-cold';
+                document.getElementById('energy-wave').className = 'energy-wave';
+                document.getElementById('game-container').className = 'game-container';
+                
+                this.init();
+            }
+        }
+
+        // Initialize the ultimate training system
+        const game = new UltimateColdCallingTrainer();
+
+        // Advanced features for enhanced training experience
+        class TrainingEnhancements {
+            static addKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key >= '1' && e.key <= '7') {
+                        const choiceIndex = parseInt(e.key) - 1;
+                        const choices = document.querySelectorAll('.choice-card');
+                        if (choices[choiceIndex]) {
+                            choices[choiceIndex].click();
+                        }
+                    }
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        const continueBtn = document.querySelector('.action-button');
+                        if (continueBtn) continueBtn.click();
+                    }
+                });
+            }
+
+            static addProgressiveHints() {
+                // Add subtle hints that appear after 30 seconds of no action
+                let hintTimer;
+                document.addEventListener('click', () => {
+                    clearTimeout(hintTimer);
+                    hintTimer = setTimeout(() => {
+                        const hint = document.createElement('div');
+                        hint.style.cssText = `
+                            position: fixed; top: 20px; right: 20px; 
+                            background: rgba(52,152,219,0.9); color: white; 
+                            padding: 10px 15px; border-radius: 8px; 
+                            font-size: 12px; z-index: 1000;
+                            animation: fadeInOut 3s ease-in-out;
+                        `;
+                        hint.textContent = 'Tip: Use keyboard numbers 1-7 to select choices quickly!';
+                        document.body.appendChild(hint);
+                        setTimeout(() => hint.remove(), 3000);
+                    }, 30000);
+                });
+            }
+
+            static addPerformanceTracking() {
+                // Track session data for improvement analytics
+                if (!localStorage.getItem('coldCallTrainingStats')) {
+                    localStorage.setItem('coldCallTrainingStats', JSON.stringify({
+                        sessionsCompleted: 0,
+                        appointmentsSecured: 0,
+                        averageRapport: 0,
+                        bestPersonalityType: null,
+                        improvementAreas: []
+                    }));
+                }
+            }
+        }
+
+        // Initialize enhancements
+        TrainingEnhancements.addKeyboardShortcuts();
+        TrainingEnhancements.addProgressiveHints();
+        TrainingEnhancements.addPerformanceTracking();
+
+        // Add CSS animations for enhanced feedback
+        const additionalStyles = document.createElement('style');
+        additionalStyles.textContent = `
+            @keyframes fadeInOut {
+                0%, 100% { opacity: 0; transform: translateY(-10px); }
+                20%, 80% { opacity: 1; transform: translateY(0); }
+            }
+
+            .choice-card:nth-child(1)::before { content: '1'; }
+            .choice-card:nth-child(2)::before { content: '2'; }
+            .choice-card:nth-child(3)::before { content: '3'; }
+            .choice-card:nth-child(4)::before { content: '4'; }
+            .choice-card:nth-child(5)::before { content: '5'; }
+            .choice-card:nth-child(6)::before { content: '6'; }
+            .choice-card:nth-child(7)::before { content: '7'; }
+
+            .choice-card::before {
+                position: absolute;
+                top: 5px;
+                left: 5px;
+                background: rgba(0,0,0,0.6);
+                color: white;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 11px;
+                font-weight: bold;
+            }
+
+            .training-complete {
+                background: linear-gradient(135deg, #2ecc71, #27ae60);
+                color: white;
+                padding: 20px;
+                border-radius: 15px;
+                text-align: center;
+                margin: 20px 0;
+                animation: completionCelebration 2s ease-in-out;
+            }
+
+            @keyframes completionCelebration {
+                0%, 100% { transform: scale(1); }
+                25% { transform: scale(1.02); }
+                50% { transform: scale(1); }
+                75% { transform: scale(1.01); }
+            }
+        `;
+        document.head.appendChild(additionalStyles);
+    </script>
+</body>
+</html>

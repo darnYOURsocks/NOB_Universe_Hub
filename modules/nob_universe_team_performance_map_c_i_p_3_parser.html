@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>NOB Universe — Team Performance Map</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#000}
+  canvas{display:block}
+  #info{position:absolute;top:10px;left:10px;color:#eaffff;font:14px/1.35 Segoe UI,system-ui;background:rgba(0,0,0,.45);padding:10px 14px;border-radius:10px;max-width:420px}
+  #hud{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+  .pill{color:#ccfff6;background:rgba(0,40,45,.5);border:1px solid #164;box-shadow:0 0 0 1px rgba(0,0,0,.2) inset;border-radius:10px;padding:6px 10px;font:12px/1.2 Segoe UI,system-ui;cursor:pointer}
+  #badge{color:#9ae6ff;background:rgba(0,20,30,.55);border:0}
+  #panel{position:absolute;left:10px;bottom:10px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+  #src{width:420px;height:120px;background:rgba(0,20,24,.55);color:#cfffff;border:1px solid #144;border-radius:8px;padding:8px;font:12px/1.3 ui-monospace,consolas,monaco}
+  #tooltip{position:fixed;pointer-events:none;color:#001014;background:#ccfff6;border-radius:8px;padding:8px 10px;box-shadow:0 8px 28px rgba(0,0,0,.4);font:12px/1.25 Segoe UI,system-ui;display:none;max-width:360px;white-space:pre-wrap}
+  #legend{position:absolute;right:10px;bottom:10px;color:#bbf7ff;background:rgba(0,20,30,.45);padding:8px 10px;border-radius:8px;font:12px/1.2 Segoe UI,system-ui}
+</style>
+<!-- Import map fixes bare specifier errors and loads OrbitControls correctly -->
+<script type="importmap">{
+  "imports":{
+    "three":"https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/"
+  }
+}</script>
+</head>
+<body>
+<div id="info">🪐 <b>NOB Universe — Team Performance Map</b><br>Click the star to load the <b>seed team set</b> from conversation context. Paste more chat into the box, then <b>Parse → Merge</b> to grow nodes. Size∝Ψ, Radius∝Δ. Kyber Belt flares when strong I↔C ripples (|w|≥0.6) are active.</div>
+<div id="hud">
+  <button id="btnSeed" class="pill">Load Seed Set</button>
+  <button id="btnParse" class="pill">Parse → Merge</button>
+  <button id="btnReset" class="pill">Reset View</button>
+  <button id="btnTests" class="pill">Re-run tests</button>
+  <span id="badge" class="pill">diag: loading…</span>
+</div>
+<div id="panel">
+  <textarea id="src" placeholder="Paste team/staff conversation here (e.g., Aaron frustrated; Umber didn’t help; Alfie supportive; boss Adnan involved; personal comment hurt mood; shift readiness; leads; conversions; wages; ROI…)"></textarea>
+  <button id="btnHint" class="pill" title="Insert example from context">Insert Example</button>
+</div>
+<div id="legend">Legend: <span style="color:#6ecbff">C</span> causal (KPIs) • <span style="color:#ff7ad1">I</span> in‑causal (social/behavior) • <span style="color:#ffd166">P3</span> emergent (outcomes)</div>
+<div id="tooltip"></div>
+
+<!-- ===== Seed dataset built from conversation context (heuristic values; editable) ===== -->
+<script id="TEAM-SEED" type="application/json">{
+  "set_id":"TEAM-SET-001",
+  "theory":"NOB Parse — Staff & Performance (C/I/P3)",
+  "nodes":[
+    {"id":"PERF-RAW-LEADS","title":"Raw Leads","domain":"Door-Flow KPIs","type":"C","core_pattern":"Lead generation rate drives pipeline","vars":["leads_per_hr","route_density"],"lambda":0.70,"delta":0.50,"psi":0.60,"sense_balance":{"E":2,"L":7,"H":1},"janus":"Trigger ↔ Capacity","timestamp":"2025-11-09T12:00:00Z"},
+    {"id":"PERF-CONVERSIONS","title":"Conversions","domain":"Door-Flow KPIs","type":"C","core_pattern":"Appointment/close ratio follows script+context","vars":["book_rate","close_rate"],"lambda":0.68,"delta":0.48,"psi":0.62,"sense_balance":{"E":3,"L":6,"H":1},"janus":"Sequence ↔ Field","timestamp":"2025-11-09T12:00:00Z"},
+    {"id":"PERF-WAGE-ROI","title":"Wage ROI","domain":"Ops Finance","type":"C","core_pattern":"Net value per hour from canvassing mix","vars":["wage","revenue","hours"],"lambda":0.64,"delta":0.42,"psi":0.61,"sense_balance":{"E":2,"L":7,"H":1},"janus":"Cost ↔ Yield","timestamp":"2025-11-09T12:00:00Z"},
+
+    {"id":"I-AARON-FRUSTRATION","title":"Aaron — Frustration Morning","domain":"Team Dynamics","type":"I","core_pattern":"Early negativity + personal comment raises tension","vars":["mood","comment_intensity"],"lambda":0.45,"delta":0.70,"psi":0.40,"sense_balance":{"E":6,"L":2,"H":2},"janus":"Threat Response ↔ Curiosity","timestamp":"2025-11-08T10:00:00Z"},
+    {"id":"I-UMBER-SUPPORT-GAP","title":"Umber — Support Gap","domain":"Team Dynamics","type":"I","core_pattern":"Low assist during peer low → cohesion drop","vars":["assist_rate","peer_awareness"],"lambda":0.50,"delta":0.60,"psi":0.46,"sense_balance":{"E":4,"L":3,"H":3},"janus":"Burden ↔ Belonging","timestamp":"2025-11-08T10:05:00Z"},
+    {"id":"I-ALFIE-ALLY","title":"Alfie — Ally Signal","domain":"Team Dynamics","type":"I","core_pattern":"Pre-brief + empathy dampens conflict","vars":["ally_signal","timing"],"lambda":0.58,"delta":0.38,"psi":0.66,"sense_balance":{"E":5,"L":3,"H":2},"janus":"Soothe ↔ Stabilize","timestamp":"2025-11-08T10:05:00Z"},
+    {"id":"I-ADNAN-BOSS","title":"Adnan — Boss Framing","domain":"Leadership","type":"I","core_pattern":"Attribution & role clarity set tone","vars":["role_clarity","feedback_style"],"lambda":0.62,"delta":0.44,"psi":0.60,"sense_balance":{"E":3,"L":5,"H":2},"janus":"Authority ↔ Safety","timestamp":"2025-11-08T10:10:00Z"},
+
+    {"id":"P3-SHIFT-READINESS","title":"Shift Readiness Index","domain":"Emergence","type":"P3","core_pattern":"E/L/H + mood + prep converge to readiness","vars":["sleep","prep","mood","clarity"],"lambda":0.66,"delta":0.36,"psi":0.74,"sense_balance":{"E":4,"L":4,"H":2},"janus":"Energy ↔ Constraint","timestamp":"2025-11-08T10:30:00Z"},
+    {"id":"P3-COHERENCE","title":"Team Coherence","domain":"Emergence","type":"P3","core_pattern":"Ally signals + role clarity reduce drift","vars":["ally_index","role_clarity"],"lambda":0.70,"delta":0.32,"psi":0.78,"sense_balance":{"E":4,"L":4,"H":2},"janus":"Identity ↔ Evidence","timestamp":"2025-11-08T10:35:00Z"}
+  ],
+  "ripples":[
+    {"source":"I-AARON-FRUSTRATION","target":"P3-SHIFT-READINESS","effect":"readiness_down","weight":-0.6},
+    {"source":"I-UMBER-SUPPORT-GAP","target":"P3-COHERENCE","effect":"coherence_down","weight":-0.6},
+    {"source":"I-ALFIE-ALLY","target":"P3-COHERENCE","effect":"coherence_up","weight":0.5},
+    {"source":"I-ADNAN-BOSS","target":"PERF-CONVERSIONS","effect":"script_alignment","weight":0.3},
+    {"source":"P3-SHIFT-READINESS","target":"PERF-RAW-LEADS","effect":"throughput_up","weight":0.4},
+    {"source":"P3-COHERENCE","target":"PERF-WAGE-ROI","effect":"roi_up","weight":0.5}
+  ]
+}
+</script>
+
+<script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+  // UI refs
+  const info = document.getElementById('info');
+  const tooltip = document.getElementById('tooltip');
+  const badge = document.getElementById('badge');
+  const btnSeed = document.getElementById('btnSeed');
+  const btnParse = document.getElementById('btnParse');
+  const btnReset = document.getElementById('btnReset');
+  const btnTests = document.getElementById('btnTests');
+  const btnHint = document.getElementById('btnHint');
+  const src = document.getElementById('src');
+
+  // Scene
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 4000);
+  const renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(devicePixelRatio);
+  renderer.setSize(innerWidth, innerHeight);
+  document.body.appendChild(renderer.domElement);
+  const controls = new OrbitControls(camera, renderer.domElement);
+  camera.position.set(0,120,300);
+  controls.enableDamping = true; controls.dampingFactor = 0.06;
+
+  // Lights & star
+  scene.add(new THREE.AmbientLight(0xffffff,0.45));
+  const sun = new THREE.PointLight(0xffffff,2.2,5000); scene.add(sun);
+  const star = new THREE.Mesh(new THREE.SphereGeometry(12,64,64), new THREE.MeshStandardMaterial({color:0xffd27a,emissive:0xff9d00,emissiveIntensity:1.0,metalness:0.15,roughness:0.55}));
+  scene.add(star);
+
+  // Kyber belt
+  function createKyber(count=1100){
+    const g=new THREE.BufferGeometry(); const a=new Float32Array(count*3);
+    for(let i=0;i<count;i++){const r=360+Math.random()*140, th=Math.random()*Math.PI*2, y=(Math.random()-0.5)*16; a[i*3]=Math.cos(th)*r; a[i*3+1]=y; a[i*3+2]=Math.sin(th)*r;}
+    g.setAttribute('position', new THREE.BufferAttribute(a,3));
+    const m=new THREE.PointsMaterial({color:0x66ffff,size:0.9,transparent:true,opacity:0.6});
+    const p=new THREE.Points(g,m); p.rotation.x=0.02; return p;
+  }
+  const kyber = createKyber(); scene.add(kyber);
+
+  // State
+  let dataset=null; const orbits=[], planets=[], links=[]; let opened=false;
+  const typeColor = (t)=> t==='C'? 0x6ecbff : t==='I'? 0xff7ad1 : 0xffd166;
+  const clamp01 = (x)=> Math.max(0, Math.min(1, x??0));
+  const sizeFromPsi = (psi)=> 2.2 + clamp01(psi)*5.0; // 2.2..7.2
+  const radiusFromDelta = (d,i)=> 60 + clamp01(d)*140 + i*24;
+
+  function clearAll(){[...orbits,...planets,...links].forEach(o=>{scene.remove(o);o.geometry?.dispose?.();o.material?.dispose?.();}); orbits.length=0; planets.length=0; links.length=0;}
+
+  function ring(radius,color){
+    const seg=128; const pts=new Float32Array(seg*3);
+    for(let i=0;i<seg;i++){const a=i/seg*Math.PI*2; pts[i*3]=Math.cos(a)*radius; pts[i*3+1]=0; pts[i*3+2]=Math.sin(a)*radius;}
+    const g=new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pts,3));
+    return new THREE.LineLoop(g, new THREE.LineBasicMaterial({color,transparent:true,opacity:0.22}));
+  }
+
+  function loadSeed(){ dataset = JSON.parse(document.getElementById('TEAM-SEED').textContent); build(); }
+
+  function build(){
+    clearAll(); opened=true;
+    dataset.nodes.forEach((n,idx)=>{
+      const color=typeColor(n.type); const size=sizeFromPsi(n.psi); const radius=radiusFromDelta(n.delta, idx);
+      const planet=new THREE.Mesh(new THREE.SphereGeometry(size,28,28), new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:0.5,metalness:0.2,roughness:0.6}));
+      planet.userData={type:'node',node:n,orbitRadius:radius,angle:Math.random()*Math.PI*2};
+      const orbit=ring(radius,color); scene.add(orbit); orbits.push(orbit);
+      scene.add(planet); planets.push(planet);
+    });
+
+    const byId=Object.fromEntries(dataset.nodes.map(n=>[n.id,n]));
+    (dataset.ripples||[]).forEach(r=>{
+      const si=dataset.nodes.findIndex(n=>n.id===r.source); const ti=dataset.nodes.findIndex(n=>n.id===r.target);
+      if(si<0||ti<0) return; const a=planets[si], b=planets[ti];
+      const g=new THREE.BufferGeometry().setFromPoints([a.position.clone(), b.position.clone()]);
+      const col = r.weight>0? 0x9cffd0 : 0xffa3a3; const m=new THREE.LineBasicMaterial({color:col,transparent:true,opacity:0.6});
+      const line=new THREE.Line(g,m); line.userData={source:si,target:ti,weight:r.weight}; links.push(line); scene.add(line);
+    });
+
+    info.innerHTML=`🧭 <b>${dataset.set_id}</b> — ${dataset.theory}<br>Nodes: ${dataset.nodes.length} • Ripples: ${(dataset.ripples||[]).length}<br><small>Tip: hover a planet for Λ/Δ/Ψ + Janus. Click to focus.</small>`;
+  }
+
+  // Simple NOB text → node-pattern parser (heuristic)
+  function nobParse(text){
+    const names = ['Aaron','Umber','Alfie','Adnan','Adam','Scott','Arian','Dave','James'];
+    const out = { nodes:[], ripples:[] };
+    const addNode=(id,title,type,domain,core,lambda,delta,psi,sb)=>{
+      if(out.nodes.some(n=>n.id===id)) return; out.nodes.push({id,title,type,domain,core_pattern:core,vars:[],lambda,delta,psi,sense_balance:sb,janus:'',timestamp:new Date().toISOString()});
+    };
+    const lower=text.toLowerCase();
+    // People to I-nodes
+    names.forEach(nm=>{ if(lower.includes(nm.toLowerCase())){
+      const mood = /frustrat|angry|bad morning|upset/.test(lower)? {E:6,L:2,H:2} : {E:4,L:3,H:3};
+      const d = /frustrat|angry|personal comment|pop at/.test(lower)? 0.65 : 0.45;
+      const p = 0.5 - (d-0.5)*0.3; const l = 0.55;
+      addNode(`I-${nm.toUpperCase()}`, `${nm} — Mentioned`, 'I', 'Team Dynamics', 'Conversation reference indicates social ripple', l, d, p, mood);
+    }});
+    // Performance cues to C-nodes
+    if(/lead|conversion|close|wage|roi|appointment|book/.test(lower)){
+      addNode('PERF-AUTO','Auto KPIs','C','Door-Flow KPIs','Performance cues detected in text',0.66,0.48,0.60,{E:2,L:7,H:1});
+    }
+    // Ready/shift
+    if(/readiness|shift|prep|sleep/.test(lower)){
+      addNode('P3-AUTO-READINESS','Auto Shift Readiness','P3','Emergence','Readiness inferred from prep/mood cues',0.64,0.40,0.70,{E:4,L:4,H:2});
+    }
+    // Basic ripples between adjacent people mentions
+    const mentioned = names.filter(nm=>lower.includes(nm.toLowerCase()));
+    for(let i=0;i<mentioned.length-1;i++){
+      out.ripples.push({source:`I-${mentioned[i].toUpperCase()}`, target:`I-${mentioned[i+1].toUpperCase()}`, effect:'co-mention', weight:0.3});
+    }
+    return out;
+  }
+
+  function mergeDataset(add){
+    const idSet = new Set(dataset.nodes.map(n=>n.id));
+    add.nodes.forEach(n=>{ if(!idSet.has(n.id)){ dataset.nodes.push(n); idSet.add(n.id);} });
+    (add.ripples||[]).forEach(r=>{ dataset.ripples = dataset.ripples || []; dataset.ripples.push(r); });
+  }
+
+  // Interaction
+  const ray=new THREE.Raycaster(); const mouse=new THREE.Vector2();
+  addEventListener('click',(e)=>{
+    mouse.x=(e.clientX/innerWidth)*2-1; mouse.y=-(e.clientY/innerHeight)*2+1; ray.setFromCamera(mouse,camera);
+    const hit=ray.intersectObjects(scene.children)[0]?.object; if(!hit) return;
+    if(!opened && hit===star){ loadSeed(); return; }
+    if(hit.userData?.type==='node'){
+      const n=hit.userData.node; info.innerHTML = `🌐 <b>${n.title}</b> <small>${n.id}</small><br>${n.core_pattern||''}`;
+      const t=hit.position.clone(); camera.position.lerp(t.add(new THREE.Vector3(18,12,18)),0.35);
+    }
+  });
+  addEventListener('mousemove',(e)=>{
+    mouse.x=(e.clientX/innerWidth)*2-1; mouse.y=-(e.clientY/innerHeight)*2+1; ray.setFromCamera(mouse,camera);
+    const hit=ray.intersectObjects(scene.children)[0]?.object; const tt=document.getElementById('tooltip');
+    if(hit?.userData?.type==='node'){
+      const n=hit.userData.node; const sb=n.sense_balance||{};
+      tt.style.left=(e.clientX+12)+"px"; tt.style.top=(e.clientY+12)+"px"; tt.style.display='block';
+      tt.innerHTML = `<b>${n.title}</b><br><small>${n.domain}</small><br>`+
+        `Λ ${n.lambda?.toFixed(2)} • Δ ${n.delta?.toFixed(2)} • Ψ ${n.psi?.toFixed(2)}<br>`+
+        `E/L/H ${sb.E||0}/${sb.L||0}/${sb.H||0}`;
+    } else { tt.style.display='none'; }
+  });
+
+  // Buttons
+  btnSeed.addEventListener('click', loadSeed);
+  btnParse.addEventListener('click', ()=>{ if(!dataset) loadSeed(); const add=nobParse(src.value); mergeDataset(add); build(); src.value=''; });
+  btnReset.addEventListener('click', ()=>{ camera.position.set(0,120,300); controls.target.set(0,0,0); });
+  btnTests.addEventListener('click', ()=> location.reload());
+  btnHint.addEventListener('click', ()=>{
+    src.value = `Aaron had a bad morning and made a personal comment; Umber didn’t help; I pre-briefed Alfie to support. Spoke to boss Adnan about attribution. Focus today: shift readiness, leads, conversions, ROI.`;
+  });
+
+  // Animate
+  function animate(){
+    requestAnimationFrame(animate); controls.update(); star.rotation.y+=0.002; kyber.rotation.y+=0.0005;
+    planets.forEach((p,i)=>{ const sp=0.0015+i*0.00035; p.userData.angle+=sp; p.position.set(Math.cos(p.userData.angle)*p.userData.orbitRadius,0,Math.sin(p.userData.angle)*p.userData.orbitRadius); });
+    links.forEach(line=>{ const s=planets[line.userData.source]; const t=planets[line.userData.target]; const pos=line.geometry.attributes.position; pos.setXYZ(0,s.position.x,s.position.y,s.position.z); pos.setXYZ(1,t.position.x,t.position.y,t.position.z); pos.needsUpdate=true; });
+    // Kyber flare if strong ripple exists
+    if(dataset){ const strong=links.some(r=>Math.abs(r.userData.weight)>=0.6); const m=kyber.material; m.opacity=THREE.MathUtils.lerp(m.opacity,strong?0.85:0.6,0.05); }
+    renderer.render(scene,camera);
+  }
+  animate();
+
+  // Resize
+  addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+
+  // Runtime tests (kept minimal, never change unless wrong)
+  const tests=[]; const t=(n,f)=>{ try{ const ok=!!f(); tests.push({n,ok}); return ok; } catch(e){ tests.push({n,ok:false,err:e.message}); return false; } };
+  t('three-imported', ()=> typeof THREE.REVISION!=="undefined");
+  t('controls-ok', ()=> typeof OrbitControls==='function');
+  t('star-present', ()=> !!star.isMesh);
+  t('seed-present', ()=> !!document.getElementById('TEAM-SEED'));
+  document.getElementById('badge').textContent = `three r${THREE.REVISION} • ${tests.filter(x=>x.ok).length}/${tests.length} tests`;
+  console.table(tests);
+</script>
+</body>
+</html>

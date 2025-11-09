@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TPS-AI K-Space Recombinator App</title>
+<link rel="icon" href="/static/favicon.png">
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#f8fafc;}
+header{background:#1a365d;color:#fff;padding:1rem;text-align:center;}
+main{display:flex;flex-wrap:wrap;gap:1rem;padding:1rem;}
+.panel{flex:1 1 400px;background:#fff;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.1);padding:1rem;}
+textarea,input,select{width:100%;margin:.5rem 0;padding:.5rem;border:1px solid #cbd5e0;border-radius:6px;}
+button{background:#1a365d;color:#fff;border:none;padding:.5rem 1rem;border-radius:6px;cursor:pointer;}
+.metric{display:inline-block;background:#edf2f7;padding:.5rem 1rem;margin:.25rem;border-radius:6px;}
+.case-item{border-left:4px solid #3182ce;background:#f8fafc;margin:.5rem 0;padding:.75rem;border-radius:6px;}
+.tag{background:#e2e8f0;border-radius:4px;padding:.2rem .4rem;font-size:.75rem;margin-right:.25rem;}
+.notification{position:fixed;top:20px;right:20px;padding:.75rem 1rem;border-radius:8px;color:#fff;}
+</style>
+</head>
+<body>
+<header><h1>🧠 TPS-AI K-Space Recombinator</h1></header>
+<main>
+  <div class="panel">
+    <h2>Case Entry</h2>
+    <select id="caseType">
+      <option>consultancy</option><option>performance</option>
+      <option>code</option><option>leadership</option>
+    </select>
+    <textarea id="inProblem" placeholder="Problem"></textarea>
+    <textarea id="inObstacle" placeholder="Obstacle"></textarea>
+    <textarea id="inPath" placeholder="Path"></textarea>
+    <button onclick="saveCase()">💾 Save Case</button>
+    <div id="metrics">
+      <span class="metric" id="caseCount">📊 Cases: 0</span>
+      <span class="metric" id="recombinations">🔄 Recombinations: 0</span>
+    </div>
+    <pre id="kspaceLog">// Ready</pre>
+  </div>
+
+  <div class="panel">
+    <h2>Recombinator</h2>
+    <textarea id="queryInput" placeholder="Describe your challenge"></textarea>
+    <button onclick="runRecombine()">🔍 Recombine</button>
+    <div id="resultsContainer"></div>
+  </div>
+</main>
+
+<script>
+// ============ core data ============
+let kspace=[];let stats={cases:0,recombinations:0};
+function updateMetrics(){
+  document.getElementById('caseCount').textContent=`📊 Cases: ${kspace.length}`;
+  document.getElementById('recombinations').textContent=`🔄 Recombinations: ${stats.recombinations}`;
+}
+function refreshLog(){
+  document.getElementById('kspaceLog').textContent=
+    kspace.map(c=>`${c.meta.type.toUpperCase()} | ${c.problem}`).join('\n');
+  updateMetrics();
+  localStorage.setItem('tpsai-kspace',JSON.stringify(kspace));
+}
+function showNote(msg,color="#38a169"){
+  const n=document.createElement('div');n.className='notification';n.style.background=color;n.textContent=msg;
+  document.body.appendChild(n);setTimeout(()=>n.remove(),2500);
+}
+
+// ============ case creation ============
+function saveCase(){
+  const p=document.getElementById('inProblem').value.trim(),
+        o=document.getElementById('inObstacle').value.trim(),
+        path=document.getElementById('inPath').value.trim(),
+        t=document.getElementById('caseType').value;
+  if(!p||!o||!path){showNote("Fill all fields","#d69e2e");return;}
+  const c={id:"case_"+Date.now(),problem:p,obstacle:o,path:path,
+    meta:{type:t,timestamp:new Date().toISOString(),confidence:0.9,tags:extractTags(p+" "+o)}};
+  kspace.push(c);stats.cases++;refreshLog();showNote("Case saved");
+  document.querySelectorAll('textarea').forEach(t=>t.value="");
+}
+
+// ============ recombination ============
+function runRecombine(){
+  const q=document.getElementById('queryInput').value.trim();
+  if(!q){showNote("Enter a query","#d69e2e");return;}
+  const matches=kspace.map(c=>({c,score=>(calcSim(q,c.problem)+calcSim(q,c.obstacle))/2}))
+    .sort((a,b)=>b.score-a.score).slice(0,2);
+  const res=document.getElementById('resultsContainer');res.innerHTML="";
+  if(!matches.length){res.innerHTML="<p>No matches</p>";return;}
+  const hybrid=createHybrid(q,matches[0].c,matches[1]?.c);
+  kspace.push(hybrid);stats.recombinations++;refreshLog();
+  res.innerHTML=`<div class='case-item'><strong>🧬 Hybrid</strong>
+  <p>${hybrid.path}</p>${hybrid.meta.tags.map(t=>"<span class='tag'>"+t+"</span>").join("")}</div>`;
+  showNote("Recombined case created");
+}
+function calcSim(a,b){
+  const aw=a.toLowerCase().split(/\W+/),bw=b.toLowerCase().split(/\W+/);
+  const inter=aw.filter(x=>bw.includes(x));return inter.length/Math.max(aw.length,bw.length);
+}
+function createHybrid(q,c1,c2){
+  return{ id:"recombinant_"+Date.now(),problem:q,
+    obstacle:c1.obstacle||"",path:`${c1.path}${c2? " + "+c2.path:""}`,
+    meta:{type:"recombinant",tags:[...(c1.meta.tags||[]),...(c2?.meta.tags||[]),...extractTags(q)].slice(0,5),
+      timestamp:new Date().toISOString(),confidence:0.7}};
+}
+
+// ============ helpers ============
+function extractTags(t){
+  const tags=['performance','leadership','code','team','energy','process','focus','communication'];
+  return tags.filter(x=>t.toLowerCase().includes(x)).slice(0,3);
+}
+
+// ============ init ============
+try{kspace=JSON.parse(localStorage.getItem('tpsai-kspace')||"[]");}catch{}
+refreshLog();showNote("K-Space App Loaded");
+</script>
+</body>
+</html>
+e

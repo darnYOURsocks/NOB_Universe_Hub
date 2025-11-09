@@ -1,0 +1,248 @@
+[
+  {
+    "slug": "tpsaihub",
+    "title": "TPSaiHub Core",
+    "description": "The central Tri-Pattern-Success AI Hub that links all modules and data stores.",
+    "path": "projects/tpsaihub/index.html"
+  },
+  {
+    "slug": "urft-simulator",
+    "title": "URFT Simulator",
+    "description": "Unified Ripple Field Theory visual + math sandbox for wave/ripple mapping.",
+    "path": "projects/urft-simulator/index.html"
+  },
+  {
+    "slug": "janus-mirror",
+    "title": "Janus Mirror",
+    "description": "Dual-sense reflection engine (Emotional\u2194Logical) with mirror tests and visuals.",
+    "path": "projects/janus-mirror/index.html"
+  },
+  {
+    "slug": "ripple-codex",
+    "title": "Ripple Codex",
+    "description": "Spiral Codex visual memory system, resonance charts, and glyphic overlays.",
+    "path": "projects/ripple-codex/index.html"
+  },
+  {
+    "slug": "rfc-engine",
+    "title": "Ripple Fingerprint Codes",
+    "description": "Encode/decode RFC strings and render ripple diagrams.",
+    "path": "projects/rfc-engine/index.html"
+  },
+  {
+    "slug": "door-flow",
+    "title": "Door-Flow Ops",
+    "description": "Field canvassing toolkit: routes, scripts, ROI dashboards.",
+    "path": "projects/door-flow/index.html"
+  },
+  {
+    "slug": "phoenix-protocol",
+    "title": "Phoenix Protocol",
+    "description": "Rebirth cycles, pulse metrics, and self-reset routines.",
+    "path": "projects/phoenix-protocol/index.html"
+  },
+  {
+    "slug": "krj",
+    "title": "Knowledge Ripple Journal (KRJ)",
+    "description": "Daily learned knowledge with ripple effects and gaps.",
+    "path": "projects/krj/index.html"
+  },
+  {
+    "slug": "ekeda",
+    "title": "EKEDA",
+    "description": "Empowering Knowledge & Enabling Dynamic Application database.",
+    "path": "projects/ekeda/index.html"
+  },
+  {
+    "slug": "ai-tps",
+    "title": "AI\u2011TPS Initiator",
+    "description": "AIDave-initiated conversation tracker & question engine.",
+    "path": "projects/ai-tps/index.html"
+  },
+  {
+    "slug": "tps-brain-register",
+    "title": "TPS Brain Pattern Register",
+    "description": "100 neural\u2192TPS translations with POP/TPS mappings.",
+    "path": "projects/tps-brain-register/index.html"
+  },
+  {
+    "slug": "tps-lel",
+    "title": "TPS\u2011LEL (EL\u2194LE)",
+    "description": "Emotional Logic vs Logical Emotion patterns and switch.",
+    "path": "projects/tps-lel/index.html"
+  },
+  {
+    "slug": "tpsc-decoder",
+    "title": "TPS Decoder + Translator 2.0",
+    "description": "Ripple trigger detection and 5\u2011sense translation engine.",
+    "path": "projects/tpsc-decoder/index.html"
+  },
+  {
+    "slug": "tps-everyday",
+    "title": "TPS Everyday Patterns",
+    "description": "100 daily patterns stored for cross\u2011analysis.",
+    "path": "projects/tps-everyday/index.html"
+  },
+  {
+    "slug": "tps-inversion",
+    "title": "TPS Inversion Archive",
+    "description": "Pattern inversions for contrast teaching and testing.",
+    "path": "projects/tps-inversion/index.html"
+  },
+  {
+    "slug": "tps-repair",
+    "title": "TPS Repair Phrases & Pivots",
+    "description": "Resolution lines that repair emotional\u2011logic tension.",
+    "path": "projects/tps-repair/index.html"
+  },
+  {
+    "slug": "tps-memory-loop",
+    "title": "TPS Memory Loop Register",
+    "description": "Memory loop types and upgrade paths.",
+    "path": "projects/tps-memory-loop/index.html"
+  },
+  {
+    "slug": "tps-myth-mutation",
+    "title": "TPS Myth\u2011Mutation Map",
+    "description": "Story/fable mutations mapped to scientific patterns.",
+    "path": "projects/tps-myth-mutation/index.html"
+  },
+  {
+    "slug": "pob-tps",
+    "title": "POB TPS Builder",
+    "description": "Pattern of Building workflow paired with POP.",
+    "path": "projects/pob-tps/index.html"
+  },
+  {
+    "slug": "pop-db",
+    "title": "POP Database",
+    "description": "Problem\u2013Obstacle\u2013Path entries with predictive gaps.",
+    "path": "projects/pop-db/index.html"
+  },
+  {
+    "slug": "sonar-detector",
+    "title": "Sonar Detector",
+    "description": "Ripple lag detection and honesty drift calibration tools.",
+    "path": "projects/sonar-detector/index.html"
+  },
+  {
+    "slug": "live-fluid-radar",
+    "title": "Live Fluid Radar",
+    "description": "ASCII radar demo + emotional/logic alignment tracker.",
+    "path": "projects/live-fluid-radar/index.html"
+  },
+  {
+    "slug": "rwews",
+    "title": "Ripple\u2011Wake Early Warning System",
+    "description": "Hypothetical lives\u2011saved case studies and metrics.",
+    "path": "projects/rwews/index.html"
+  },
+  {
+    "slug": "janus-codex",
+    "title": "Janus Codex Poses",
+    "description": "Pose dictionary for mirror states and sense toggles.",
+    "path": "projects/janus-codex/index.html"
+  },
+  {
+    "slug": "tps-qcsm",
+    "title": "TPS\u2011QCSM",
+    "description": "Quality control system for structural integrity and sense validity.",
+    "path": "projects/tps-qcsm/index.html"
+  },
+  {
+    "slug": "tps-integration",
+    "title": "DB Integration Layer",
+    "description": "Cross\u2011link 7+ TPS databases for one query layer.",
+    "path": "projects/tps-integration/index.html"
+  },
+  {
+    "slug": "ai-lichen",
+    "title": "aiLICHEN Embodiment",
+    "description": "Da Vinci\u2011inspired embodiment and rhythm systems.",
+    "path": "projects/ai-lichen/index.html"
+  },
+  {
+    "slug": "blackbook-fusion",
+    "title": "BlackBook Fusion",
+    "description": "Hybrid AI\u2011human emotional logic engine integration.",
+    "path": "projects/blackbook-fusion/index.html"
+  },
+  {
+    "slug": "tiktok-effects",
+    "title": "TikTok Ripple Effects",
+    "description": "Effect House filters and sonic/visual ripple content.",
+    "path": "projects/tiktok-effects/index.html"
+  },
+  {
+    "slug": "nob-pattern-db",
+    "title": "\u014aOB Pattern DB",
+    "description": "Core cross\u2011domain pattern nodes & queries.",
+    "path": "projects/nob-pattern-db/index.html"
+  },
+  {
+    "slug": "nob-bridge",
+    "title": "URFT\u2013\u014aOB Bridge",
+    "description": "Physical\u2194cognitive mapping nodes and conversions.",
+    "path": "projects/nob-bridge/index.html"
+  },
+  {
+    "slug": "spiral-transport",
+    "title": "Spiral Codex Transport",
+    "description": "Resonance\u2011based spacetime travel design doc + sims.",
+    "path": "projects/spiral-transport/index.html"
+  },
+  {
+    "slug": "workpond",
+    "title": "WorkPOND ROI",
+    "description": "Phoenix ROI dashboards and ShiftReadiness metrics.",
+    "path": "projects/workpond/index.html"
+  },
+  {
+    "slug": "janus-translator",
+    "title": "TPS Universal Translator",
+    "description": "Janus mirrored meaning detector across senses.",
+    "path": "projects/janus-translator/index.html"
+  },
+  {
+    "slug": "ripple-visualizer",
+    "title": "Ripple Field Visualizer",
+    "description": "Dual half\u2011chart (sine/cosine) and blended view.",
+    "path": "projects/ripple-visualizer/index.html"
+  },
+  {
+    "slug": "door-flow-comedy",
+    "title": "Door\u2011to\u2011Door Comedy",
+    "description": "OBD comedic scripts and datasets.",
+    "path": "projects/door-flow-comedy/index.html"
+  },
+  {
+    "slug": "parables-db",
+    "title": "Parables Dataset",
+    "description": "Canonical parables mapped to \u014aOB nodes with \u039b/\u0394/\u03a8.",
+    "path": "projects/parables-db/index.html"
+  },
+  {
+    "slug": "rwe-lab",
+    "title": "Ripple Empirical Testing Suite",
+    "description": "Empirical tests for ripple logic & RFC renderer.",
+    "path": "projects/rwe-lab/index.html"
+  },
+  {
+    "slug": "nobviology",
+    "title": "\u014aobviology",
+    "description": "Merge \u014aOB with Obviology: grand theorem workspace.",
+    "path": "projects/nobviology/index.html"
+  },
+  {
+    "slug": "future-projects",
+    "title": "Future Projects DB",
+    "description": "Half\u2011formed ideas vault with auto\u2011reactivation.",
+    "path": "projects/future-projects/index.html"
+  },
+  {
+    "slug": "occam-noccam",
+    "title": "\u014aoccam\u2019s Razor",
+    "description": "Obviology critique/upgrade of Occam\u2019s Razor.",
+    "path": "projects/occam-noccam/index.html"
+  }
+]

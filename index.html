@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>NOB Universe Hub</title>
+<link rel="stylesheet" href="styles/hub.css"/>
+</head>
+<body>
+<header class="header">
+  <div class="logo">ŊOB Universe Hub <span class="badge">static</span></div>
+  <div class="search">
+    <input id="q" placeholder="Search modules & projects…" aria-label="Search"/>
+  </div>
+</header>
+<div class="wrap">
+  <aside class="sidebar">
+    <div class="section">
+      <h3>Modules from Context</h3>
+      <div id="modules" class="list"></div>
+    </div>
+    <div class="section">
+      <h3>Projects (40 wired)</h3>
+      <div id="projects" class="list"></div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="preview">
+      <iframe id="preview" title="Preview"></iframe>
+    </div>
+  </main>
+</div>
+<footer class="footer small">
+  Generated 2025-11-09 14:40 UTC · Drop this folder on GitHub Pages.  Edit <code>projects.json</code> and <code>modules.json</code> to grow.
+</footer>
+<script>
+async function loadJSON(path){ return fetch(path).then(r=>r.json()); }
+const modList = document.getElementById('modules');
+const projList = document.getElementById('projects');
+const frame = document.getElementById('preview');
+const q = document.getElementById('q');
+
+let modules=[], projects=[];
+
+function itemEl(label, path) {
+  const d = document.createElement('div');
+  d.className = 'item';
+  d.textContent = label;
+  d.addEventListener('click', () => {
+    frame.src = path;
+    history.replaceState(null, '', '#'+encodeURIComponent(path));
+  });
+  return d;
+}
+
+function renderLists(filter='') {
+  modList.innerHTML = '';
+  projList.innerHTML = '';
+  const f = filter.trim().toLowerCase();
+  for (const m of modules) {
+    if (!f || m.title.toLowerCase().includes(f)) {
+      modList.appendChild(itemEl('🔹 '+m.title, m.file));
+    }
+  }
+  for (const p of projects) {
+    if (!f || p.title.toLowerCase().includes(f)) {
+      projList.appendChild(itemEl('📁 '+p.title, p.path));
+    }
+  }
+}
+
+q.addEventListener('input', ()=>renderLists(q.value));
+
+Promise.all([loadJSON('modules.json'), loadJSON('projects.json')]).then(([mods, projs])=>{
+  modules = mods; projects = projs;
+  renderLists('');
+  // deep link
+  const hash = decodeURIComponent(location.hash.slice(1));
+  if (hash) frame.src = hash;
+});
+</script>
+</body>
+</html>

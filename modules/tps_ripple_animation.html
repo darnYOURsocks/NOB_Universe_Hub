@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TPS Ripple Engine Storyline Animation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+        
+        #chart {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #8e44ad, #3498db);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .frame-info {
+            font-size: 1.1em;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        
+        .story-line {
+            fill: none;
+            stroke: #e74c3c;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 5px rgba(231,76,60,0.5));
+        }
+        
+        .story-point {
+            fill: #f39c12;
+            stroke: #e67e22;
+            stroke-width: 2;
+            filter: drop-shadow(0 0 3px rgba(243,156,18,0.7));
+        }
+        
+        .story-label {
+            fill: white;
+            font-size: 12px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
+        
+        .grid-line {
+            stroke: rgba(255,255,255,0.3);
+            stroke-width: 1;
+        }
+        
+        .axis {
+            stroke: rgba(255,255,255,0.8);
+            stroke-width: 2;
+        }
+        
+        .axis text {
+            fill: white;
+            font-size: 12px;
+        }
+        
+        .axis-label {
+            fill: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 TPS Ripple Engine</h1>
+        <div class="subtitle">Storyline Animation</div>
+        
+        <div class="controls">
+            <button id="playBtn">▶️ Play Animation</button>
+            <button id="pauseBtn" disabled>⏸️ Pause</button>
+            <button id="resetBtn">🔄 Reset</button>
+            <button id="prevBtn">⏮️ Previous</button>
+            <button id="nextBtn">⏭️ Next</button>
+        </div>
+        
+        <div class="frame-info">
+            <span id="frameCounter">Frame: 0 / 10</span> | 
+            <span id="storyProgress">Story Progress: 0%</span>
+        </div>
+        
+        <div id="chart"></div>
+        
+        <div style="margin-top: 20px; opacity: 0.8;">
+            <p><strong>Story Arc:</strong> Follow the dramatic journey through coding challenges to ultimate resolution!</p>
+        </div>
+    </div>
+
+    <script>
+        // Story data
+        const storyData = [
+            [0, 2, "Quotes Battle"],
+            [1, 5, "Markdown Invaders"],
+            [2, 8, "Brace Wars"],
+            [3, 6, "Dependency Quest"],
+            [4, 7, "Phantom Listener"],
+            [5, 1, "Ripple Engine Restored"]
+        ];
+        
+        const xVals = storyData.map(d => d[0]);
+        const yVals = storyData.map(d => d[1]);
+        const labels = storyData.map(d => d[2]);
+        
+        // Animation settings
+        const totalFrames = 10;
+        let currentFrame = 0;
+        let isPlaying = false;
+        let animationInterval;
+        
+        // Chart dimensions
+        const margin = {top: 40, right: 50, bottom: 80, left: 80};
+        const width = 800 - margin.left - margin.right;
+        const height = 500 - margin.top - margin.bottom;
+        
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom);
+            
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+        
+        // Scales
+        const xScale = d3.scaleLinear()
+            .domain([-0.5, Math.max(...xVals) + 0.5])
+            .range([0, width]);
+            
+        const yScale = d3.scaleLinear()
+            .domain([0, Math.max(...yVals) + 2])
+            .range([height, 0]);
+        
+        // Create grid
+        const xGrid = g.append("g")
+            .attr("class", "grid")
+            .attr("transform", `translate(0,${height})`);
+            
+        const yGrid = g.append("g")
+            .attr("class", "grid");
+        
+        // Add grid lines
+        xGrid.selectAll("line")
+            .data(xScale.ticks())
+            .enter().append("line")
+            .attr("class", "grid-line")
+            .attr("x1", d => xScale(d))
+            .attr("x2", d => xScale(d))
+            .attr("y1", 0)
+            .attr("y2", -height);
+            
+        yGrid.selectAll("line")
+            .data(yScale.ticks())
+            .enter().append("line")
+            .attr("class", "grid-line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => yScale(d))
+            .attr("y2", d => yScale(d));
+        
+        // Axes
+        const xAxis = g.append("g")
+            .attr("class", "axis")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale));
+            
+        const yAxis = g.append("g")
+            .attr("class", "axis")
+            .call(d3.axisLeft(yScale));
+        
+        // Axis labels
+        g.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", `translate(${width/2},${height + 50})`)
+            .style("text-anchor", "middle")
+            .text("Story Progression (Panels)");
+            
+        g.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -50)
+            .attr("x", -height/2)
+            .style("text-anchor", "middle")
+            .text("Conflict/Resolution Intensity");
+        
+        // Line generator
+        const line = d3.line()
+            .x(d => xScale(d[0]))
+            .y(d => yScale(d[1]))
+            .curve(d3.curveMonotoneX);
+        
+        // Create path for line (initially empty)
+        const path = g.append("path")
+            .attr("class", "story-line");
+        
+        // Create groups for points and labels
+        const pointsGroup = g.append("g").attr("class", "points");
+        const labelsGroup = g.append("g").attr("class", "labels");
+        
+        // Control functions
+        function updateFrame(frameNumber) {
+            currentFrame = Math.max(0, Math.min(frameNumber, totalFrames - 1));
+            
+            const reveal = Math.floor((currentFrame / (totalFrames - 1)) * storyData.length);
+            const currentData = storyData.slice(0, reveal + 1);
+            
+            // Update line
+            path.datum(currentData)
+                .attr("d", line);
+            
+            // Update points
+            const points = pointsGroup.selectAll("circle")
+                .data(currentData);
+                
+            points.enter().append("circle")
+                .attr("class", "story-point")
+                .attr("r", 0)
+                .attr("cx", d => xScale(d[0]))
+                .attr("cy", d => yScale(d[1]))
+                .transition()
+                .duration(300)
+                .attr("r", 6);
+                
+            points.exit()
+                .transition()
+                .duration(200)
+                .attr("r", 0)
+                .remove();
+            
+            // Update labels
+            const labelElements = labelsGroup.selectAll("text")
+                .data(currentData);
+                
+            labelElements.enter().append("text")
+                .attr("class", "story-label")
+                .attr("x", d => xScale(d[0]))
+                .attr("y", d => yScale(d[1]) - 15)
+                .attr("text-anchor", "middle")
+                .style("opacity", 0)
+                .text(d => d[2])
+                .transition()
+                .duration(500)
+                .style("opacity", 1);
+                
+            labelElements.exit()
+                .transition()
+                .duration(200)
+                .style("opacity", 0)
+                .remove();
+            
+            // Update UI
+            document.getElementById("frameCounter").textContent = `Frame: ${currentFrame + 1} / ${totalFrames}`;
+            document.getElementById("storyProgress").textContent = `Story Progress: ${Math.round((reveal + 1) / storyData.length * 100)}%`;
+        }
+        
+        function playAnimation() {
+            if (isPlaying) return;
+            
+            isPlaying = true;
+            document.getElementById("playBtn").disabled = true;
+            document.getElementById("pauseBtn").disabled = false;
+            
+            animationInterval = setInterval(() => {
+                if (currentFrame >= totalFrames - 1) {
+                    pauseAnimation();
+                    return;
+                }
+                updateFrame(currentFrame + 1);
+            }, 800);
+        }
+        
+        function pauseAnimation() {
+            isPlaying = false;
+            document.getElementById("playBtn").disabled = false;
+            document.getElementById("pauseBtn").disabled = true;
+            
+            if (animationInterval) {
+                clearInterval(animationInterval);
+            }
+        }
+        
+        function resetAnimation() {
+            pauseAnimation();
+            updateFrame(0);
+        }
+        
+        // Event listeners
+        document.getElementById("playBtn").onclick = playAnimation;
+        document.getElementById("pauseBtn").onclick = pauseAnimation;
+        document.getElementById("resetBtn").onclick = resetAnimation;
+        document.getElementById("prevBtn").onclick = () => updateFrame(currentFrame - 1);
+        document.getElementById("nextBtn").onclick = () => updateFrame(currentFrame + 1);
+        
+        // Initialize
+        updateFrame(0);
+    </script>
+</body>
+</html>

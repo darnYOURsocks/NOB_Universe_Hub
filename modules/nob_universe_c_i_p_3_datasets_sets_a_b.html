@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>NOB Universe — C/I/P3 Datasets</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#000}
+  canvas{display:block}
+  #info{position:absolute;top:10px;left:10px;color:#eafaff;font:14px/1.35 Segoe UI,system-ui;background:rgba(0,0,0,.45);padding:10px 14px;border-radius:10px;max-width:460px}
+  #hud{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+  .pill{color:#cffffa;background:rgba(0,30,30,.5);border:1px solid #1a3a3a;border-radius:10px;padding:6px 10px;font:12px/1.2 Segoe UI,system-ui;cursor:pointer}
+  #badge{color:#9ae6ff;background:rgba(0,20,30,.55);border:0}
+  #legend{position:absolute;left:10px;bottom:10px;color:#bbf7ff;font:12px/1.2 Segoe UI,system-ui;background:rgba(0,20,30,.45);padding:8px 10px;border-radius:8px}
+  #tooltip{position:fixed;pointer-events:none;color:#001014;background:#ccfff6;border-radius:8px;padding:8px 10px;box-shadow:0 8px 28px rgba(0,0,0,.4);font:12px/1.25 Segoe UI,system-ui;display:none;max-width:360px;white-space:pre-wrap}
+</style>
+<!-- Import map (fixes bare specifier resolution for JSM helpers) -->
+<script type="importmap">{
+  "imports":{
+    "three":"https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/"
+  }
+}</script>
+</head>
+<body>
+<div id="info">🪐 <b>NOB Universe — CAUSEALITY (C) • INCAUSEALITY (I) • PATTERN‑3 (P3)</b><br>Click the star to load a set. Use the buttons (top‑right) to swap <b>Set A</b> (Hydrology) / <b>Set B</b> (Antibiotics). Hover for tooltips; click planets to focus. Kyber Belt shimmers where strong I↔C ripples (|w| ≥ 0.6) occur.</div>
+<div id="hud">
+  <button id="btnA" class="pill">Load Set A 🌧️</button>
+  <button id="btnB" class="pill">Load Set B 💊</button>
+  <button id="rerun" class="pill">Re-run tests</button>
+  <span id="badge" class="pill">diag: loading…</span>
+</div>
+<div id="legend">Legend: <span style="color:#6ecbff">C</span> causal • <span style="color:#ff7ad1">I</span> in‑causal • <span style="color:#ffd166">P3</span> emergent • size∝Ψ • radius∝Δ</div>
+<div id="tooltip"></div>
+
+<!-- Embedded datasets (A & B) -->
+<script id="NOB-SET-A" type="application/json">{
+  "set_id": "NOB-SET-A",
+  "theory": "URFT×NOB",
+  "nodes": [
+    {"id":"NOB-A-001","title":"Convective Rainfall Burst → Runoff","domain":"Hydrology","type":"C","core_pattern":"High-intensity rainfall over low-infiltration surfaces produces rapid runoff peaks","vars":["rain_rate","soil_saturation","impervious_pct","drainage_capacity"],"lambda":0.78,"delta":0.62,"psi":0.55,"sense_balance":{"E":1,"L":8,"H":1},"janus":"Trigger (rain) ↔ Field (surface/soil)","timestamp":"2025-11-09T12:00:00Z"},
+    {"id":"NOB-A-002","title":"Soil Moisture Memory","domain":"Hydrology","type":"C","core_pattern":"Antecedent moisture sets infiltration capacity and peak timing","vars":["soil_theta","hydraulic_conductivity","evap_deficit"],"lambda":0.74,"delta":0.38,"psi":0.67,"sense_balance":{"E":1,"L":7,"H":2},"janus":"State Memory ↔ Boundary Condition","timestamp":"2025-11-09T12:05:00Z"},
+    {"id":"NOB-A-003","title":"Drainage Network Bottleneck","domain":"Civil Hydraulics","type":"C","core_pattern":"Conduit capacity and choke points determine surcharge onset","vars":["pipe_diam","roughness","nodal_head","backwater"],"lambda":0.72,"delta":0.41,"psi":0.61,"sense_balance":{"E":1,"L":8,"H":1},"janus":"Capacity ↔ Resistance","timestamp":"2025-11-09T12:10:00Z"},
+    {"id":"NOB-A-101","title":"“We don’t need sandbags here”","domain":"Social Norms","type":"I","core_pattern":"Local myth of low risk reduces prep and compliance","vars":["norm_strength","prior_flood_salience","trust_authority"],"lambda":0.49,"delta":0.58,"psi":0.44,"sense_balance":{"E":6,"L":2,"H":2},"janus":"Myth Comfort ↔ Risk Reality","timestamp":"2025-11-09T12:15:00Z"},
+    {"id":"NOB-A-102","title":"Illicit Gully Blocking (Yard Debris)","domain":"Behavior","type":"I","core_pattern":"Unseen household actions block inlets; capacity lost before storm","vars":["inlet_blockage_prob","enforcement_visibility","effort_cost"],"lambda":0.46,"delta":0.54,"psi":0.47,"sense_balance":{"E":5,"L":3,"H":2},"janus":"Private Convenience ↔ Public Flow","timestamp":"2025-11-09T12:18:00Z"},
+    {"id":"NOB-A-103","title":"Maintenance Budget Rituals","domain":"Org Culture","type":"I","core_pattern":"Budget cadence prioritizes ‘visible’ fixes, defers subsurface cleaning","vars":["budget_cycle","PR_pressure","op_ex_cap_ex_ratio"],"lambda":0.55,"delta":0.50,"psi":0.48,"sense_balance":{"E":4,"L":4,"H":2},"janus":"Visibility Reward ↔ Hidden Necessity","timestamp":"2025-11-09T12:20:00Z"},
+    {"id":"NOB-A-201","title":"Flash-Flood Emergence Map","domain":"Hydro-Socio","type":"P3","core_pattern":"C×I coupling: same storm yields divergent outcomes by inlet culture and prep","vars":{"C":["NOB-A-001","NOB-A-002","NOB-A-003"],"I":["NOB-A-101","NOB-A-102","NOB-A-103"]},"lambda":0.68,"delta":0.66,"psi":0.71,"sense_balance":{"E":3,"L":5,"H":2},"janus":"Technical Limit ↔ Social Gate","timestamp":"2025-11-09T12:30:00Z"},
+    {"id":"NOB-A-202","title":"Adaptive Drainage Ritual","domain":"Hydro-Socio","type":"P3","core_pattern":"Ritualized pre-storm inlet checks + micro-incentives collapse blockage risk","vars":["incentive_size","checklist_adoption","peer_visibility"],"lambda":0.70,"delta":0.40,"psi":0.78,"sense_balance":{"E":5,"L":3,"H":2},"janus":"Ritual Burden ↔ Resilience Reward","timestamp":"2025-11-09T12:45:00Z"}
+  ],
+  "ripples": [
+    {"source":"NOB-A-101","target":"NOB-A-001","effect":"amplify","weight":0.6},
+    {"source":"NOB-A-102","target":"NOB-A-003","effect":"reduce_capacity","weight":-0.7},
+    {"source":"NOB-A-103","target":"NOB-A-003","effect":"roughness_up","weight":-0.5},
+    {"source":"NOB-A-002","target":"NOB-A-201","effect":"field_susceptibility","weight":0.4},
+    {"source":"NOB-A-202","target":"NOB-A-003","effect":"restore_capacity","weight":0.6},
+    {"source":"NOB-A-202","target":"NOB-A-201","effect":"coherence_up","weight":0.7}
+  ]
+}</script>
+<script id="NOB-SET-B" type="application/json">{
+  "set_id": "NOB-SET-B",
+  "theory": "URFT×NOB",
+  "nodes": [
+    {"id":"NOB-B-001","title":"High-Broad Spectrum Use → Selection","domain":"Epidemiology","type":"C","core_pattern":"Increased exposure raises selection for resistant strains","vars":["DDD_per_1000","drug_spectrum","exposure_days"],"lambda":0.76,"delta":0.60,"psi":0.56,"sense_balance":{"E":1,"L":8,"H":1},"janus":"Trigger (drug) ↔ Fitness Landscape","timestamp":"2025-11-09T13:00:00Z"},
+    {"id":"NOB-B-002","title":"Transmission in Wards","domain":"Infection Control","type":"C","core_pattern":"Contact & environment drive spread of selected strains","vars":["contact_rate","hand_hygiene","environment_load"],"lambda":0.71,"delta":0.52,"psi":0.60,"sense_balance":{"E":2,"L":7,"H":1},"janus":"Index Case ↔ Network","timestamp":"2025-11-09T13:05:00Z"},
+    {"id":"NOB-B-003","title":"Fitness Cost & Reversion","domain":"Microbiology","type":"C","core_pattern":"Resistance can wane without pressure; compensatory mutations modulate cost","vars":["MIC","fitness_cost","pressure_breaks"],"lambda":0.69,"delta":0.34,"psi":0.65,"sense_balance":{"E":1,"L":7,"H":2},"janus":"Cost ↔ Compensator","timestamp":"2025-11-09T13:10:00Z"},
+    {"id":"NOB-B-101","title":"“Patients expect antibiotics”","domain":"Prescribing Culture","type":"I","core_pattern":"Expectation & time pressure bias toward prescribing","vars":["patient_expect","consult_time","litigation_fear"],"lambda":0.48,"delta":0.57,"psi":0.45,"sense_balance":{"E":6,"L":2,"H":2},"janus":"Satisfaction Norm ↔ Stewardship","timestamp":"2025-11-09T13:12:00Z"},
+    {"id":"NOB-B-102","title":"Hierarchy Inertia","domain":"Org Culture","type":"I","core_pattern":"Junior prescribers mirror seniors; deviation carries social risk","vars":["senior_habit","role_modeling","psych_safety"],"lambda":0.52,"delta":0.49,"psi":0.47,"sense_balance":{"E":5,"L":3,"H":2},"janus":"Status Quo ↔ Innovation","timestamp":"2025-11-09T13:14:00Z"},
+    {"id":"NOB-B-103","title":"Pharmacy Gatekeeping Rituals","domain":"Process","type":"I","core_pattern":"Form defaults and audit cadence shape behavior silently","vars":["default_choice","audit_freq","feedback_latency"],"lambda":0.58,"delta":0.42,"psi":0.55,"sense_balance":{"E":3,"L":5,"H":2},"janus":"Friction ↔ Facilitation","timestamp":"2025-11-09T13:16:00Z"},
+    {"id":"NOB-B-201","title":"Resistance Surge Map","domain":"AMR Dynamics","type":"P3","core_pattern":"C×I coupling explains surges beyond drug volume alone","vars":{"C":["NOB-B-001","NOB-B-002","NOB-B-003"],"I":["NOB-B-101","NOB-B-102","NOB-B-103"]},"lambda":0.67,"delta":0.65,"psi":0.69,"sense_balance":{"E":3,"L":5,"H":2},"janus":"Exposure ↔ Expectation","timestamp":"2025-11-09T13:25:00Z"},
+    {"id":"NOB-B-202","title":"Stewardship Identity Flip","domain":"AMR Dynamics","type":"P3","core_pattern":"Reframing ‘good doctor’ = judicious prescribing + fast tests lowers pressure","vars":["identity_script","POCT_adoption","feedback_clarity"],"lambda":0.69,"delta":0.40,"psi":0.77,"sense_balance":{"E":6,"L":2,"H":2},"janus":"Status Signal ↔ Safety Signal","timestamp":"2025-11-09T13:40:00Z"}
+  ],
+  "ripples": [
+    {"source":"NOB-B-101","target":"NOB-B-001","effect":"selection_up","weight":0.6},
+    {"source":"NOB-B-102","target":"NOB-B-001","effect":"habit_lock_in","weight":0.5},
+    {"source":"NOB-B-103","target":"NOB-B-001","effect":"nudge_narrow","weight":-0.4},
+    {"source":"NOB-B-003","target":"NOB-B-201","effect":"surge_modulation","weight":0.3},
+    {"source":"NOB-B-202","target":"NOB-B-101","effect":"expectation_down","weight":-0.6},
+    {"source":"NOB-B-202","target":"NOB-B-201","effect":"coherence_up","weight":0.7}
+  ]
+}</script>
+
+<script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+  // ===== Scene boot =====
+  const info = document.getElementById('info');
+  const badge = document.getElementById('badge');
+  const tooltip = document.getElementById('tooltip');
+  const btnA = document.getElementById('btnA');
+  const btnB = document.getElementById('btnB');
+  const rerun = document.getElementById('rerun');
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 4000);
+  const renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(devicePixelRatio);
+  renderer.setSize(innerWidth, innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  camera.position.set(0,120,300);
+  controls.enableDamping = true; controls.dampingFactor = 0.06;
+
+  scene.add(new THREE.AmbientLight(0xffffff,0.45));
+  const sun = new THREE.PointLight(0xffffff,2.2,5000); scene.add(sun);
+
+  // Central star
+  const star = new THREE.Mesh(
+    new THREE.SphereGeometry(12,64,64),
+    new THREE.MeshStandardMaterial({color:0xffd27a, emissive:0xff9d00, emissiveIntensity:1.0, metalness:0.15, roughness:0.55})
+  );
+  scene.add(star);
+
+  // Kyber Belt
+  function createKyber(count=1100){
+    const g = new THREE.BufferGeometry();
+    const a = new Float32Array(count*3);
+    for(let i=0;i<count;i++){
+      const r=360+Math.random()*140, th=Math.random()*Math.PI*2, y=(Math.random()-0.5)*16;
+      a[i*3] = Math.cos(th)*r; a[i*3+1] = y; a[i*3+2] = Math.sin(th)*r;
+    }
+    g.setAttribute('position', new THREE.BufferAttribute(a,3));
+    const m = new THREE.PointsMaterial({color:0x66ffff,size:0.9,transparent:true,opacity:0.6});
+    const p = new THREE.Points(g,m); p.rotation.x=0.02; return p;
+  }
+  const kyber = createKyber(); scene.add(kyber);
+
+  // State
+  let opened=false, currentSet=null;
+  const orbits=[]; const planets=[]; const ripples=[];
+
+  // Helpers
+  const typeColor = (t)=> t==='C'? 0x6ecbff : t==='I'? 0xff7ad1 : 0xffd166;
+  const clamp01 = (x)=> Math.max(0, Math.min(1, x??0));
+  const sizeFromPsi = (psi)=> 2.2 + clamp01(psi)*5.0;
+  const radiusFromDelta = (d,i)=> 60 + clamp01(d)*140 + i*26; // Δ controls band; index spreads
+
+  function clearSet(){
+    [...orbits, ...planets, ...ripples].forEach(o=>{ scene.remove(o); o.geometry?.dispose?.(); o.material?.dispose?.(); });
+    orbits.length=0; planets.length=0; ripples.length=0;
+  }
+
+  function makeOrbit(radius,color){
+    const seg=128; const pts=new Float32Array(seg*3);
+    for(let i=0;i<seg;i++){ const a=i/seg*Math.PI*2; pts[i*3]=Math.cos(a)*radius; pts[i*3+1]=0; pts[i*3+2]=Math.sin(a)*radius; }
+    const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pts,3));
+    const l=new THREE.LineLoop(g,new THREE.LineBasicMaterial({color,transparent:true,opacity:0.2}));
+    return l;
+  }
+
+  function loadSet(id){
+    const raw = document.getElementById(id).textContent; currentSet = JSON.parse(raw);
+    clearSet(); opened=true;
+    // Build planets from nodes
+    currentSet.nodes.forEach((n, idx)=>{
+      const color = typeColor(n.type);
+      const size = sizeFromPsi(n.psi);
+      const radius = radiusFromDelta(n.delta, idx);
+      const planet = new THREE.Mesh(
+        new THREE.SphereGeometry(size, 28, 28),
+        new THREE.MeshStandardMaterial({color, emissive:color, emissiveIntensity:0.5, metalness:0.2, roughness:0.6})
+      );
+      planet.userData = { type:'node', node:n, orbitRadius:radius, angle:Math.random()*Math.PI*2 };
+      const orbit = makeOrbit(radius, color);
+      scene.add(orbit); orbits.push(orbit);
+      scene.add(planet); planets.push(planet);
+    });
+
+    // Build ripple links (as faint lines); strong |w|≥0.6 will flare belt each frame
+    const byId = Object.fromEntries(currentSet.nodes.map(n=>[n.id, n]));
+    (currentSet.ripples||[]).forEach(r=>{
+      const sIdx = currentSet.nodes.findIndex(n=>n.id===r.source);
+      const tIdx = currentSet.nodes.findIndex(n=>n.id===r.target);
+      if(sIdx<0||tIdx<0) return;
+      const a = planets[sIdx], b = planets[tIdx];
+      const g = new THREE.BufferGeometry().setFromPoints([a.position.clone(), b.position.clone()]);
+      const col = r.weight>0? 0x9cffd0 : 0xffa3a3;
+      const m = new THREE.LineBasicMaterial({color:col, transparent:true, opacity:0.6, linewidth:1});
+      const line = new THREE.Line(g,m); line.userData={source:sIdx,target:tIdx,weight:r.weight};
+      ripples.push(line); scene.add(line);
+    });
+
+    info.innerHTML = `📦 <b>${currentSet.set_id}</b> — ${currentSet.theory}<br>`+
+      `Nodes: ${currentSet.nodes.length} • Ripples: ${(currentSet.ripples||[]).length}<br>`+
+      `Size∝Ψ • Radius∝Δ • Colors: <span style="color:#6ecbff">C</span>/<span style="color:#ff7ad1">I</span>/<span style="color:#ffd166">P3</span>`;
+  }
+
+  // Interaction
+  const ray = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  addEventListener('click', (e)=>{
+    mouse.x=(e.clientX/innerWidth)*2-1; mouse.y=-(e.clientY/innerHeight)*2+1;
+    ray.setFromCamera(mouse,camera);
+    const hits = ray.intersectObjects(scene.children);
+    const o = hits[0]?.object;
+    if(!opened && o===star){ loadSet('NOB-SET-A'); return; }
+    if(o?.userData?.type==='node'){
+      const n=o.userData.node; info.innerHTML = `🌐 <b>${n.title}</b> <small>${n.id}</small><br>${n.core_pattern}`;
+      const target=o.position.clone(); camera.position.lerp(target.add(new THREE.Vector3(18,12,18)),0.35);
+    }
+  });
+  addEventListener('mousemove',(e)=>{
+    mouse.x=(e.clientX/innerWidth)*2-1; mouse.y=-(e.clientY/innerHeight)*2+1;
+    ray.setFromCamera(mouse,camera);
+    const hits = ray.intersectObjects(scene.children);
+    const o=hits[0]?.object;
+    const tt=document.getElementById('tooltip');
+    if(o?.userData?.type==='node'){
+      const n=o.userData.node; const sb=n.sense_balance||{};
+      tt.style.left=(e.clientX+12)+"px"; tt.style.top=(e.clientY+12)+"px"; tt.style.display='block';
+      tt.innerHTML = `<b>${n.title}</b><br><small>${n.domain}</small><br>`+
+        `Λ ${n.lambda?.toFixed(2)} • Δ ${n.delta?.toFixed(2)} • Ψ ${n.psi?.toFixed(2)}<br>`+
+        `E/L/H ${sb.E||0}/${sb.L||0}/${sb.H||0}<br>`+
+        `<i>${n.core_pattern}</i><br>`+
+        `<small>Janus: ${n.janus||'-'}</small>`;
+    } else { tt.style.display='none'; }
+  });
+
+  // Buttons
+  btnA.addEventListener('click', ()=> loadSet('NOB-SET-A'));
+  btnB.addEventListener('click', ()=> loadSet('NOB-SET-B'));
+  rerun.addEventListener('click', ()=> location.reload());
+
+  // Animate
+  function animate(){
+    requestAnimationFrame(animate);
+    controls.update();
+    star.rotation.y += 0.002; kyber.rotation.y += 0.0005;
+
+    // Rotate planets around origin and update ripple lines
+    planets.forEach((p,i)=>{
+      const spd=0.0015 + i*0.00035; p.userData.angle += spd;
+      p.position.set(Math.cos(p.userData.angle)*p.userData.orbitRadius, 0, Math.sin(p.userData.angle)*p.userData.orbitRadius);
+    });
+    ripples.forEach(line=>{
+      const s=planets[line.userData.source]; const t=planets[line.userData.target];
+      const pos=line.geometry.attributes.position;
+      pos.setXYZ(0, s.position.x, s.position.y, s.position.z);
+      pos.setXYZ(1, t.position.x, t.position.y, t.position.z);
+      pos.needsUpdate=true;
+    });
+
+    // Belt flare if strong ripple exists
+    if(currentSet){
+      const strong = ripples.some(r=> Math.abs(r.userData.weight) >= 0.6);
+      const mat = kyber.material; mat.opacity = THREE.MathUtils.lerp(mat.opacity, strong? 0.85 : 0.6, 0.05);
+      kyber.rotation.y += strong? 0.00025 : 0.0;
+    }
+
+    renderer.render(scene,camera);
+  }
+  animate();
+
+  // Resize
+  addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+
+  // Tests
+  const tests=[]; const t=(n,f)=>{ try{ const ok=!!f(); tests.push({n,ok}); return ok; } catch(e){ tests.push({n,ok:false,err:e.message}); return false; } };
+  t('three-imported', ()=> typeof THREE.REVISION!=='undefined');
+  t('controls-ok', ()=> typeof OrbitControls==='function');
+  t('datasets-present', ()=> document.getElementById('NOB-SET-A') && document.getElementById('NOB-SET-B'));
+  t('star-present', ()=> !!star.isMesh);
+  badge.textContent = `three r${THREE.REVISION} • ${tests.filter(x=>x.ok).length}/${tests.length} tests`;
+  console.table(tests);
+
+  // Auto-hint
+  info.insertAdjacentHTML('beforeend', '<br><small>Hint: click the star to auto-load Set A, or use the buttons.</small>');
+</script>
+</body>
+</html>
