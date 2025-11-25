@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NŊOB LIVE HOLOGRAM CANVAS — v2</title>
+
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: #000814;
+        font-family: system-ui;
+        color: #7df;
+    }
+
+    /* Sidebar (collapsible) */
+    #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 260px;
+        height: 100vh;
+        background: rgba(0, 10, 20, 0.92);
+        border-right: 1px solid rgba(0, 180, 255, 0.25);
+        padding: 20px;
+        transform: translateX(-260px);
+        transition: transform 0.35s ease;
+        z-index: 20;
+    }
+    #sidebar.open { transform: translateX(0px); }
+
+    #toggleBtn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 38px;
+        height: 38px;
+        border-radius: 6px;
+        background: rgba(0, 180, 255, 0.35);
+        border: 1px solid rgba(0,180,255,0.5);
+        cursor: pointer;
+        z-index: 30;
+    }
+    #toggleBtn:hover { background: rgba(0, 180, 255, 0.55); }
+
+    #inputBox {
+        width: 100%;
+        margin-top: 40px;
+        padding: 12px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(0,180,255,0.4);
+        border-radius: 6px;
+        color: #7df;
+        font-size: 16px;
+    }
+
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+</style>
+</head>
+
+<body>
+
+<button id="toggleBtn">≡</button>
+
+<div id="sidebar">
+    <h2>NŊOB INPUT</h2>
+    <p>Live text → hologram modulation</p>
+    <textarea id="inputBox" placeholder="Type here…"></textarea>
+</div>
+
+<canvas id="c"></canvas>
+
+<script>
+/* ===== SETUP ===== */
+
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+resize(); onresize = resize;
+
+// LIVE VARIABLES
+let stability = 0.4, gradient = 0.3, gain = 0.4;
+let clarityE = 0.3, clarityL = 0.3, clarityH = 0.3;
+
+document.getElementById("inputBox").addEventListener("input", e=>{
+    const t = e.target.value.toLowerCase();
+
+    // simple text → feature parsing
+    stability = (t.length % 10) / 10;
+    gradient  = (t.match(/[aeiou]/g)?.length || 1) / 10;
+    gain      = (t.split(" ").length % 8) / 10;
+
+    // RFC style clarity mapping
+    clarityE = Math.min(1, (t.match(/feel|love|why|hope|sad|angry/g)?.length || 0) / 5);
+    clarityL = Math.min(1, (t.match(/therefore|because|logic|reason|if/g)?.length || 0) / 5);
+    clarityH = Math.min(1, (t.match(/wait|pause|maybe|stop|unsure/g)?.length || 0) / 5);
+});
+
+/* ======== COLOUR MAPPING ======== */
+function coreColor(){
+    const g = 150 + gain * 80;
+    return { r: 0, g, b: 255 };
+}
+
+/* ======== 3-HEAD AI LICHEN — REPOSITIONED ======== */
+
+const manifolds = [];
+const MANIFOLD_COUNT = 3;
+function makeManifold(){
+    const nodes=[];
+    for(let i=0;i<900;i++){
+        const a=Math.random()*Math.PI*2,
+              b=Math.random()*Math.PI,
+              r=120+Math.random()*15;
+        nodes.push({
+            x:r*Math.sin(b)*Math.cos(a),
+            y:r*Math.sin(b)*Math.sin(a),
+            z:r*Math.cos(b),
+            vx:0,vy:0,vz:0
+        });
+    }
+    return { nodes, rot:0, pulse:Math.random()*Math.PI*2 };
+}
+for(let i=0;i<MANIFOLD_COUNT;i++){
+    manifolds.push(makeManifold());
+}
+
+// background floating pulses
+const sheet=[];
+for(let i=0;i<180;i++){
+    sheet.push({
+        x:(Math.random()-0.5)*450,
+        y:(Math.random()-0.5)*260,
+        z:(Math.random()-0.5)*200,
+        pulse:Math.random()*Math.PI*2,
+        intensity:0
+    });
+}
+
+/* ===== RFC Ripple Field (outer shell) ===== */
+
+const rippleShell = [];
+for(let i=0;i<200;i++){
+    rippleShell.push({
+        angle: Math.random()*Math.PI*2,
+        dist: 220 + Math.random()*20,
+        speed: 0.01 + Math.random()*0.015
+    });
+}
+
+/* ===== Thought Orbit Layer ===== */
+
+const thoughts=[];
+for(let i=0;i<60;i++){
+    thoughts.push({
+        a: Math.random()*Math.PI*2,
+        r: 160,
+        h: (Math.random()-0.5)*80,
+        speed: (0.005 + Math.random()*0.01)
+    });
+}
+
+/* ===== Stage-E Biome Agents ===== */
+
+const agents=[];
+for(let i=0;i<50;i++){
+    agents.push({
+        x:(Math.random()-0.5)*150,
+        y:(Math.random()-0.5)*150,
+        z:(Math.random()-0.5)*150,
+        vx:0,vy:0,vz:0
+    });
+}
+
+/* ===== Utilities ===== */
+
+function rotate3D(p,ry){
+    const s=Math.sin(ry), c=Math.cos(ry);
+    return { x:p.x*c-p.z*s, y:p.y, z:p.x*s+p.z*c };
+}
+
+function project(x,y,z){
+    const d = 500 + z;
+    if(d < 1) return { px:-9999, py:-9999, sc:0 };
+    const sc = 500/d;
+    return { px:x*sc + innerWidth/2, py:y*sc + innerHeight/2, sc };
+}
+
+function safeArc(x,y,r){
+    if(r<=0 || !isFinite(r) || r>2000) return false;
+    ctx.arc(x,y,r,0,Math.PI*2);
+    return true;
+}
+
+/* ===== UPDATE LOOP ===== */
+
+function update(dt){
+
+    // Sheet layer (background pulses)
+    for(const f of sheet){
+        f.pulse += 0.02 + gain*0.05;
+        f.intensity = gain*0.4 + Math.sin(f.pulse)*0.3;
+    }
+
+    // AI Lichen manifolds (3 heads in same place)
+    for(const M of manifolds){
+        M.rot += 0.003 + (gradient*0.002);
+
+        for(const n of M.nodes){
+            n.vx += (Math.random()-0.5)*(0.05+gradient*0.05);
+            n.vy += (Math.random()-0.5)*(0.05+gradient*0.05);
+            n.vz += (Math.random()-0.5)*(0.05+gradient*0.05);
+
+            const r = Math.sqrt(n.x*n.x+n.y*n.y+n.z*n.z);
+            if(r > 150){
+                n.vx -= n.x/r*(0.015+stability*0.02);
+                n.vy -= n.y/r*(0.015+stability*0.02);
+                n.vz -= n.z/r*(0.015+stability*0.02);
+            }
+
+            n.vx *= 0.95; n.vy *= 0.95; n.vz *= 0.95;
+            n.x += n.vx; n.y += n.vy; n.z += n.vz;
+        }
+    }
+
+    // Ripple shell
+    for(const r of rippleShell){
+        r.angle += r.speed + clarityE*0.005;
+    }
+
+    // Thought orbit
+    for(const t of thoughts){
+        t.a += t.speed + clarityL*0.004;
+    }
+
+    // Stage-E biome
+    for(const a of agents){
+        a.vx += (Math.random()-0.5) * (0.02 + clarityH*0.05);
+        a.vy += (Math.random()-0.5) * (0.02 + clarityH*0.05);
+        a.vz += (Math.random()-0.5) * (0.02 + clarityH*0.05);
+
+        a.vx*=0.95; a.vy*=0.95; a.vz*=0.95;
+
+        a.x+=a.vx; a.y+=a.vy; a.z+=a.vz;
+    }
+}
+
+/* ===== DRAW LOOP ===== */
+
+function draw(){
+    ctx.fillStyle = "rgba(0,0,20,0.22)";
+    ctx.fillRect(0,0,innerWidth,innerHeight);
+
+    const col = coreColor();
+
+    /* --- Background sheet --- */
+    for(const f of sheet){
+        const p = project(f.x,f.y,f.z);
+        if(p.sc===0) continue;
+        ctx.beginPath();
+        if(safeArc(p.px,p.py,2)){
+            ctx.fillStyle=`rgba(${col.r},${col.g},${col.b},${0.05+f.intensity*0.6})`;
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
+
+    /* --- Ripple shell --- */
+    for(const r of rippleShell){
+        const x = Math.cos(r.angle)*r.dist;
+        const y = Math.sin(r.angle)*r.dist;
+        const p = project(x,y,0);
+        ctx.beginPath();
+        if(safeArc(p.px,p.py,2+p.sc)){
+            ctx.fillStyle=`rgba(0,150,255,${0.15 + clarityE*0.3})`;
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
+
+    /* --- Thought Orbit Layer --- */
+    for(const t of thoughts){
+        const x = Math.cos(t.a)*t.r;
+        const y = Math.sin(t.a)*t.r;
+        const z = t.h;
+        const p=project(x,y,z);
+        ctx.beginPath();
+        if(safeArc(p.px,p.py,2)){
+            ctx.fillStyle=`rgba(200,0,255,${0.2 + clarityL*0.4})`;
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
+
+    /* --- Stage-E Agents --- */
+    for(const a of agents){
+        const p = project(a.x,a.y,a.z);
+        if(p.sc===0) continue;
+        ctx.beginPath();
+        if(safeArc(p.px,p.py,2)){
+            ctx.fillStyle=`rgba(0,255,160,${0.15 + clarityH*0.3})`;
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
+
+    /* --- AI LICHEN (3 heads overlapped) --- */
+    const all=[];
+    for(const M of manifolds){
+        for(const n of M.nodes){
+            const r=rotate3D(n, M.rot);
+            const p=project(r.x, r.y, r.z);
+            if(p.sc===0) continue;
+            all.push({p});
+        }
+    }
+
+    all.sort((a,b)=>a.p.sc - b.p.sc);
+
+    for(const o of all){
+        const p=o.p;
+        const r=1+p.sc*1.8;
+        ctx.beginPath();
+        if(safeArc(p.px,p.py,r)){
+            ctx.fillStyle=`rgba(${col.r},${col.g},${col.b},${0.22})`;
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
+}
+
+let last=performance.now();
+function loop(t){
+    const dt=(t-last)/16;
+    last=t;
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+}
+loop(last);
+
+/* Sidebar Toggle */
+document.getElementById("toggleBtn").onclick=()=>{
+    document.getElementById("sidebar").classList.toggle("open");
+};
+
+</script>
+</body>
+</html>
