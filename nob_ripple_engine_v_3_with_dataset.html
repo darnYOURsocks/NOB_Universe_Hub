@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>NŊOB Ripple Engine V3 — Dataset Integrated Edition</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+<style>
+body { margin:0; background:#050513; font-family:system-ui; color:#c7d4ff; overflow:hidden; }
+#ui {
+  position:absolute; left:0; top:0; width:300px; height:100vh;
+  background:rgba(10,10,25,0.95); padding:20px; overflow-y:auto;
+  box-shadow:4px 0 20px rgba(0,0,0,0.5);
+}
+button { width:100%; padding:10px; margin-top:10px; background:#1f2b77; color:white; border:none; border-radius:6px; cursor:pointer; }
+button:hover { background:#2d3bb8; }
+#canvas { position:absolute; left:0; top:0; width:100vw; height:100vh; z-index:-1; }
+textarea { width:100%; background:#0b0f24; border:1px solid #334; color:#b8d1ff; padding:10px; border-radius:5px; margin-top:5px; }
+</style>
+</head>
+<body>
+<div id="ui">
+  <h2>NŊOB Engine V3</h2>
+
+  <h3>Top-Level Tools</h3>
+  <button onclick="Toolkit.load('ripple')">Ripple Visualiser</button>
+  <button onclick="Toolkit.load('phasecoil')">ψ‑Phase Coil</button>
+  <button onclick="Toolkit.loadPreset()">Load Preset</button>
+  <button onclick="Toolkit.toggleAudio()">Audio Resonance</button>
+  <button onclick="Toolkit.load('warp')">Warp Mode</button>
+
+  <h3>Core Modules</h3>
+  <button onclick="Toolkit.load('semantic')">Semantic Builder</button>
+  <button onclick="Toolkit.load('fragility')">Fragility Forecaster</button>
+  <button onclick="Toolkit.load('stabilisation')">Stabilisation Engine</button>
+  <button onclick="Toolkit.load('global')">Global Mode Visualiser</button>
+  <button onclick="Toolkit.load('relational')">Relational Decryptor</button>
+
+  <h3>Module Controls</h3>
+  <div id="moduleControls">(none active)</div>
+
+  <h3>Resonance JSON</h3>
+  <textarea id="jsonEditor" rows="10"></textarea>
+  <button onclick="Toolkit.applyJSON()">Apply JSON</button>
+  <button onclick="Toolkit.refreshJSON()">Refresh JSON</button>
+
+  <h3>Import / Export</h3>
+  <textarea id="importBox" rows="6"></textarea>
+  <button onclick="Toolkit.import()">Import</button>
+  <button onclick="Toolkit.export()">Export</button>
+</div>
+<div id="canvas"></div>
+
+<script>
+(function(global){
+  const INITIAL_DATASET = {
+    "semantic": {
+      "preferredClusters": 6,
+      "patternNodes": [
+        {
+          "node_id": "PN-ANTAKYA-001",
+          "title": "Antakya Mirror Event",
+          "domains": ["personal_history", "identity_shock", "nz_symbolic", "trauma", "resonance"],
+          "status": "ACTIVE NEXUS",
+          "summary": "An external mirror experience destabilizing identity but offering transformative potential.",
+          "lambda_coherence": 0.68,
+          "delta_instability": 0.74,
+          "psi_meaning_pressure": 0.91,
+          "cross_links": ["PN-JAMES-SELF-002", "PN-SHED-METAPHOR-004", "PN-MEMORY-RECON-005"],
+          "ripple_role": "Catalyst"
+        },
+        {
+          "node_id": "PN-JAMES-SELF-002",
+          "title": "James Persona (Self-Coaching Voice)",
+          "domains": ["meta_cognition", "self_modeling", "communication", "identity_structure"],
+          "status": "STABILIZER",
+          "summary": "A secondary self-perspective used to deliver guidance and stabilisation.",
+          "lambda_coherence": 0.82,
+          "delta_instability": 0.41,
+          "psi_meaning_pressure": 0.86,
+          "cross_links": ["PN-ANTAKYA-001", "PN-SHED-ORIGIN-003", "PN-SHED-METAPHOR-004", "PN-MEMORY-RECON-005"],
+          "ripple_role": "Internal Regulator"
+        },
+        {
+          "node_id": "PN-SHED-ORIGIN-003",
+          "title": "Dad's Shed Heating Problem",
+          "domains": ["family", "engineering", "origin_story", "thermodynamics"],
+          "status": "ANCHOR",
+          "summary": "The physical engineering root of later metaphors.",
+          "lambda_coherence": 0.76,
+          "delta_instability": 0.33,
+          "psi_meaning_pressure": 0.64,
+          "cross_links": ["PN-SHED-METAPHOR-004"],
+          "ripple_role": "Physical Template"
+        },
+        {
+          "node_id": "PN-SHED-METAPHOR-004",
+          "title": "Shed Share / Time Share Model",
+          "domains": ["support_systems", "energy_regulation", "emotional_logic", "stage_h_structural"],
+          "status": "CORE RESOURCE",
+          "summary": "Converts emotional load into shared, manageable cycles.",
+          "lambda_coherence": 0.88,
+          "delta_instability": 0.29,
+          "psi_meaning_pressure": 0.93,
+          "cross_links": ["PN-SHED-ORIGIN-003", "PN-JAMES-SELF-002", "PN-ANTAKYA-001"],
+          "ripple_role": "Energy Stabilizer"
+        },
+        {
+          "node_id": "PN-MEMORY-RECON-005",
+          "title": "Memory as Recontextualized Pattern",
+          "domains": ["neuroscience", "trauma_recovery", "nz_symbolic", "identity"],
+          "status": "REFRAME TOOL",
+          "summary": "Memory is reconstructed at recall; variations are normal under trauma.",
+          "lambda_coherence": 0.79,
+          "delta_instability": 0.52,
+          "psi_meaning_pressure": 0.88,
+          "cross_links": ["PN-JAMES-SELF-002", "PN-ANTAKYA-001"],
+          "ripple_role": "Normaliser"
+        }
+      ]
+    },
+    "fragility": { "threshold": 1.2, "lastFragilityScore": 0.65 },
+    "stabilisation": { "fieldStrength": 0.72 },
+    "global": { "mode": "THE_ONE", "coherence": 0.62 },
+    "relational": { "signature": "ME–ME", "motifStrength": 0.88 }
+  };
+
+  /* -------------------------------------------------------------
+     The rest of the engine remains the same, only JSON is replaced
+  ------------------------------------------------------------- */
+
+  const Toolkit = {
+    scene:null, camera:null, renderer:null, controls:null, currentModule:null,
+    rippleField:[], audioCtx:null, audioOsc:null, audioGain:null,
+    resonanceMemory: JSON.parse(JSON.stringify(INITIAL_DATASET)),
+
+    init(){
+      this.scene = new THREE.Scene();
+      this.scene.background = new THREE.Color('#050513');
+      this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+      this.camera.position.set(45,45,65);
+      this.renderer = new THREE.WebGLRenderer({antialias:true});
+      this.renderer.setSize(window.innerWidth,window.innerHeight);
+      document.getElementById('canvas').appendChild(this.renderer.domElement);
+
+      this.controls = new THREE.OrbitControls(this.camera,this.renderer.domElement);
+      this.controls.target.set(0,0,0); this.controls.update();
+
+      window.addEventListener('resize', () => this.resize());
+
+      this.initRippleField();
+      this.animate();
+      this.refreshJSON();
+    },
+
+    resize(){ this.camera.aspect = window.innerWidth/window.innerHeight; this.camera.
