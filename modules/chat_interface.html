@@ -3,409 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Interface</title>
+    <title>Nobflix: The Wait-And-See Drift</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Quicksand:wght@300;500&family=Space+Mono&display=swap');
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-            background: #f7f7f8;
-            color: #2d2d2d;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background: #0a0a0c;
+            color: #e0e0e0;
+            font-family: 'Quicksand', sans-serif;
+            overflow-x: hidden;
         }
 
-        .header {
-            background: white;
-            border-bottom: 1px solid #e5e5e5;
-            padding: 12px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+        .nobflix-red { color: #E50914; }
+        .tech-green { color: #00ff41; }
+        .human-pink { color: #ff00ff; }
+        .mono { font-family: 'Space Mono', monospace; }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: 600;
-            color: #2d2d2d;
-        }
-
-        .new-chat-btn {
-            background: #2d2d2d;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .new-chat-btn:hover {
-            background: #1a1a1a;
-        }
-
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .chat-content {
+        .parallax-bg {
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0c 100%);
+            position: fixed;
             width: 100%;
-            max-width: 768px;
-            padding: 24px;
+            height: 100%;
+            z-index: -1;
         }
 
-        .message {
-            margin-bottom: 24px;
-            animation: fadeIn 0.3s ease-in;
+        .data-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .nob-dave {
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .message.user {
+        .scroll-section {
+            min-height: 100vh;
             display: flex;
-            gap: 16px;
-        }
-
-        .message.assistant {
-            display: flex;
-            gap: 16px;
-            background: white;
-            margin-left: -24px;
-            margin-right: -24px;
-            padding: 24px;
-            border-radius: 0;
-        }
-
-        .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .avatar.user {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .avatar.assistant {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-        }
-
-        .message-content {
-            flex: 1;
-            line-height: 1.6;
-            padding-top: 4px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 24px;
-            color: #666;
-        }
-
-        .empty-state h1 {
-            font-size: 32px;
-            margin-bottom: 16px;
-            color: #2d2d2d;
-        }
-
-        .empty-state p {
-            font-size: 16px;
-            margin-bottom: 32px;
-        }
-
-        .suggestion-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 12px;
-            max-width: 768px;
+            padding: 2rem;
+            max-width: 900px;
             margin: 0 auto;
         }
 
-        .suggestion-card {
-            background: white;
-            border: 1px solid #e5e5e5;
-            border-radius: 12px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
+        .meter-bar {
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
         }
 
-        .suggestion-card:hover {
-            border-color: #2d2d2d;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        .meter-fill {
+            height: 100%;
+            transition: width 2s ease-out;
         }
 
-        .suggestion-card h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: #2d2d2d;
+        .sql-node {
+            background: rgba(0, 0, 0, 0.6);
+            border-left: 2px solid #E50914;
+            padding: 1rem;
+            font-size: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            color: #00ff41;
         }
 
-        .suggestion-card p {
-            font-size: 13px;
-            color: #666;
-        }
-
-        .input-container {
-            background: white;
-            border-top: 1px solid #e5e5e5;
-            padding: 16px 24px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .input-wrapper {
-            width: 100%;
-            max-width: 768px;
-            position: relative;
-        }
-
-        .input-box {
-            width: 100%;
-            border: 1px solid #d1d1d1;
-            border-radius: 24px;
-            padding: 12px 52px 12px 20px;
-            font-size: 15px;
-            font-family: inherit;
-            resize: none;
-            min-height: 48px;
-            max-height: 200px;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        .input-box:focus {
-            outline: none;
-            border-color: #2d2d2d;
-            box-shadow: 0 0 0 3px rgba(45, 45, 45, 0.1);
-        }
-
-        .send-btn {
-            position: absolute;
-            right: 8px;
-            bottom: 8px;
-            width: 32px;
-            height: 32px;
-            border: none;
-            border-radius: 50%;
-            background: #2d2d2d;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-
-        .send-btn:hover {
-            background: #1a1a1a;
-        }
-
-        .send-btn:disabled {
-            background: #e5e5e5;
-            cursor: not-allowed;
-        }
-
-        .disclaimer {
-            text-align: center;
-            font-size: 12px;
-            color: #999;
-            margin-top: 8px;
+        .link-line {
+            height: 2px;
+            background: linear-gradient(to right, #E50914, transparent);
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-left">
-            <div class="logo">Chat AI</div>
-            <button class="new-chat-btn" onclick="newChat()">+ New Chat</button>
+
+<div class="parallax-bg" id="bg"></div>
+
+<!-- HEADER -->
+<nav class="p-6 flex justify-between items-center fixed top-0 w-full z-50 bg-gradient-to-b from-black to-transparent">
+    <div class="text-3xl font-bold nobflix-red tracking-tighter italic">NOBFLIX</div>
+    <div class="nob-dave text-xs opacity-70 uppercase">Meaning Engine v1.0 | <span class="tech-green">SQL ACTIVE</span></div>
+</nav>
+
+<!-- ACT I: THE SURFACE -->
+<section class="scroll-section text-center">
+    <h1 class="text-5xl font-bold mb-6 nob-dave">The Parable of the <br><span class="human-pink">Silent Raft</span></h1>
+    <p class="text-xl opacity-80 leading-relaxed max-w-2xl mx-auto">
+        Once in the NobUniverse, NobDave stopped rowing. He called it "Environmental Freedom." 
+        It felt like floating, but the database knew better.
+    </p>
+    <div class="mt-12 animate-bounce opacity-40">▼ Inspecting the Physics ▼</div>
+</section>
+
+<!-- ACT II: THE DATA PHYSICS (SQL LAYER) -->
+<section class="scroll-section">
+    <h2 class="text-2xl font-bold mb-8 nob-dave">ACT II: Under the Water (The Engine)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-4">
+            <div class="sql-node">
+                <span class="text-gray-500">-- nob_pattern_node</span><br>
+                ID: NZ-LANG-CTRL-001<br>
+                TITLE: "Control via Environmental Freedom"<br>
+                CONFIDENCE: 0.97
+            </div>
+            <div class="link-line"></div>
+            <div class="sql-node">
+                <span class="text-gray-500">-- language_climate_environment</span><br>
+                ENV_ID: LC-OPEN-DRIFT-CTRL<br>
+                VARIANCE: 0.72 <span class="text-red-500">(HIGH)</span><br>
+                STABILITY: 0.58 <span class="text-yellow-500">(SLIPPING)</span>
+            </div>
+        </div>
+        <div class="p-6 data-card rounded-xl">
+            <h3 class="text-sm font-bold mb-2 uppercase text-white">The Pattern Node Logic</h3>
+            <p class="text-sm opacity-70">
+                While the crew feels "free," the engine records this as <strong>Strategic Control</strong>. 
+                By allowing unconstrained responses, NobDave isn't losing control—he's letting the 
+                <span class="text-pink-500">Language Climate</span> reveal the truth through the "form" of the silence.
+            </p>
         </div>
     </div>
+</section>
 
-    <div class="chat-container" id="chatContainer">
-        <div class="chat-content" id="chatContent">
-            <div class="empty-state" id="emptyState">
-                <h1>How can I help you today?</h1>
-                <p>Start a conversation or try one of these suggestions</p>
-                <div class="suggestion-cards">
-                    <div class="suggestion-card" onclick="sendSuggestion('Explain quantum computing')">
-                        <h3>🔬 Explain quantum computing</h3>
-                        <p>In simple terms</p>
-                    </div>
-                    <div class="suggestion-card" onclick="sendSuggestion('Write a creative story')">
-                        <h3>✍️ Write a creative story</h3>
-                        <p>About a space adventure</p>
-                    </div>
-                    <div class="suggestion-card" onclick="sendSuggestion('Help me plan a trip')">
-                        <h3>🗺️ Help me plan a trip</h3>
-                        <p>To Japan in spring</p>
-                    </div>
-                    <div class="suggestion-card" onclick="sendSuggestion('Code a simple game')">
-                        <h3>💻 Code a simple game</h3>
-                        <p>In JavaScript</p>
-                    </div>
-                </div>
+<!-- ACT III: MEANING EXTRACTION -->
+<section class="scroll-section">
+    <div class="data-card p-8 rounded-2xl relative overflow-hidden border-l-4 border-pink-500">
+        <h2 class="text-2xl font-bold mb-4 nob-dave">ACT III: Contrast Listening</h2>
+        <div class="mono text-xs mb-6 text-gray-400">NZ-ANALYSIS-CONTRAST-001 // Signal: Choice of Form</div>
+        
+        <p class="mb-6 leading-relaxed">
+            The engine doesn't listen to what the crew <em>says</em>. It listens to what they <em>didn't say</em>.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+            <div class="bg-black/40 p-4 rounded border border-white/5">
+                <div class="text-[10px] text-gray-500 mb-2 uppercase">Possible Responses</div>
+                <ul class="space-y-2 opacity-50">
+                    <li>"We must keep rowing!"</li>
+                    <li>"I am taking command."</li>
+                    <li>"We are lost."</li>
+                </ul>
+            </div>
+            <div class="bg-pink-500/10 p-4 rounded border border-pink-500/30">
+                <div class="text-[10px] text-pink-400 mb-2 uppercase">The Chosen Form</div>
+                <div class="italic">"Yeah, we’ve been thinking about it..."</div>
+                <div class="mt-4 text-xs font-bold text-pink-500">Result: Wait-And-See Drift</div>
             </div>
         </div>
     </div>
+</section>
 
-    <div class="input-container">
-        <div class="input-wrapper">
-            <textarea 
-                class="input-box" 
-                id="messageInput" 
-                placeholder="Message Chat AI..."
-                rows="1"
-                onkeydown="handleKeyDown(event)"
-                oninput="autoResize(this)"
-            ></textarea>
-            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-                </svg>
-            </button>
-            <div class="disclaimer">Chat AI can make mistakes. Check important info.</div>
+<!-- ACT IV: THE UPGRADE RULE -->
+<section class="scroll-section">
+    <div class="bg-red-900/20 p-8 rounded-xl border border-red-500/30">
+        <h2 class="text-3xl font-bold mb-6 nob-dave">The Upgrade Rule</h2>
+        <p class="mb-8 opacity-80">
+            Survival in high-variance environments (0.72+) requires a <strong>Timebox</strong>. 
+            If meaning is derived from form, then the "Drift" must have an end-date to remain meaningful.
+        </p>
+        
+        <div class="grid grid-cols-3 gap-4 text-center">
+            <div class="p-4 bg-black/40 rounded">
+                <div class="text-xs text-gray-500 uppercase mb-1">MEASURE</div>
+                <div class="font-bold text-white">WOBBLE</div>
+            </div>
+            <div class="p-4 bg-black/40 rounded">
+                <div class="text-xs text-gray-500 uppercase mb-1">LIMIT</div>
+                <div class="font-bold text-white">MOON PEAK</div>
+            </div>
+            <div class="p-4 bg-black/40 rounded">
+                <div class="text-xs text-gray-500 uppercase mb-1">FORK</div>
+                <div class="font-bold text-white">ACT / WAIT</div>
+            </div>
         </div>
     </div>
+</section>
 
-    <script>
-        const chatContent = document.getElementById('chatContent');
-        const emptyState = document.getElementById('emptyState');
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const chatContainer = document.getElementById('chatContainer');
+<!-- OUTRO -->
+<section class="scroll-section text-center">
+    <h2 class="text-4xl font-bold mb-6 nob-dave">The Engine Never Sleeps</h2>
+    <p class="text-lg opacity-80 mb-12">
+        You are navigating a high-entropy query. <br>
+        The drift is governed by <strong>LC-RULE-CHOICE-001</strong>.
+    </p>
+    <button onclick="location.reload()" class="bg-white text-black font-bold py-4 px-12 rounded-full hover:bg-pink-500 hover:text-white transition-all uppercase tracking-widest text-sm">
+        Reset Simulation
+    </button>
+</section>
 
-        function autoResize(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
-        }
+<footer class="p-12 text-center opacity-30 text-[10px] mono">
+    INSERT INTO nob_node_link VALUES ('NZ-LANG-CTRL-001', 'NZ-METHOD-OPEN-QUERY-001', 'implemented_by');
+</footer>
 
-        function handleKeyDown(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        }
+<script>
+    window.addEventListener('mousemove', (e) => {
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        document.getElementById('bg').style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+    });
+</script>
 
-        function sendSuggestion(text) {
-            messageInput.value = text;
-            sendMessage();
-        }
-
-        function sendMessage() {
-            const message = messageInput.value.trim();
-            if (!message) return;
-
-            if (emptyState) {
-                emptyState.remove();
-            }
-
-            addMessage(message, 'user');
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-
-            sendBtn.disabled = true;
-            setTimeout(() => {
-                addMessage(getResponse(message), 'assistant');
-                sendBtn.disabled = false;
-                messageInput.focus();
-            }, 1000);
-        }
-
-        function addMessage(text, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
-            
-            const avatar = document.createElement('div');
-            avatar.className = `avatar ${sender}`;
-            avatar.textContent = sender === 'user' ? 'U' : 'AI';
-            
-            const content = document.createElement('div');
-            content.className = 'message-content';
-            content.textContent = text;
-            
-            messageDiv.appendChild(avatar);
-            messageDiv.appendChild(content);
-            chatContent.appendChild(messageDiv);
-            
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function getResponse(message) {
-            const responses = [
-                "That's an interesting question! Let me think about that...",
-                "I'd be happy to help you with that. Here's what I think...",
-                "Great question! Based on what you've asked...",
-                "I understand what you're looking for. Let me explain...",
-                "That's a thoughtful inquiry. Here's my perspective..."
-            ];
-            return responses[Math.floor(Math.random() * responses.length)];
-        }
-
-        function newChat() {
-            chatContent.innerHTML = `
-                <div class="empty-state" id="emptyState">
-                    <h1>How can I help you today?</h1>
-                    <p>Start a conversation or try one of these suggestions</p>
-                    <div class="suggestion-cards">
-                        <div class="suggestion-card" onclick="sendSuggestion('Explain quantum computing')">
-                            <h3>🔬 Explain quantum computing</h3>
-                            <p>In simple terms</p>
-                        </div>
-                        <div class="suggestion-card" onclick="sendSuggestion('Write a creative story')">
-                            <h3>✍️ Write a creative story</h3>
-                            <p>About a space adventure</p>
-                        </div>
-                        <div class="suggestion-card" onclick="sendSuggestion('Help me plan a trip')">
-                            <h3>🗺️ Help me plan a trip</h3>
-                            <p>To Japan in spring</p>
-                        </div>
-                        <div class="suggestion-card" onclick="sendSuggestion('Code a simple game')">
-                            <h3>💻 Code a simple game</h3>
-                            <p>In JavaScript</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-        }
-
-        messageInput.focus();
-    </script>
 </body>
 </html>
