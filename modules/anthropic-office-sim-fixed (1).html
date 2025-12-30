@@ -1,830 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Anthropic Office Simulator - Ripple Sonar Edition</title>
-<style>
-body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #000;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nobflix: The Wait-And-See Drift</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Quicksand:wght@300;500&family=Space+Mono&display=swap');
+        
+        body {
+            background: #0a0a0c;
+            color: #e0e0e0;
+            font-family: 'Quicksand', sans-serif;
+            overflow-x: hidden;
+        }
 
-#canvas-container {
-    width: 100vw;
-    height: 100vh;
-    position: relative;
-}
+        .nobflix-red { color: #E50914; }
+        .tech-green { color: #00ff41; }
+        .human-pink { color: #ff00ff; }
+        .mono { font-family: 'Space Mono', monospace; }
 
-#ui-overlay {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    color: white;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 15px;
-    border-radius: 10px;
-    backdrop-filter: blur(10px);
-    max-width: 300px;
-    z-index: 100;
-}
+        .parallax-bg {
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0c 100%);
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
 
-#dialogue-box {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    background: rgba(255, 255, 255, 0.95);
-    color: #333;
-    padding: 20px;
-    border-radius: 15px;
-    max-width: 400px;
-    display: none;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(20px);
-    z-index: 100;
-}
+        .data-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
 
-#dialogue-box h3 {
-    margin: 0 0 10px 0;
-    color: #D97356;
-}
+        .nob-dave {
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
 
-#dialogue-content {
-    margin: 10px 0;
-    line-height: 1.6;
-    max-height: 200px;
-    overflow-y: auto;
-}
+        .scroll-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
 
-.dialogue-option {
-    background: #f0f0f0;
-    border: 2px solid #D97356;
-    padding: 12px;
-    margin: 8px 0;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
+        .meter-bar {
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
 
-.dialogue-option:hover {
-    background: #D97356;
-    color: white;
-    transform: translateX(5px);
-}
+        .meter-fill {
+            height: 100%;
+            transition: width 2s ease-out;
+        }
 
-#interaction-prompt {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 20px;
-    display: none;
-    font-size: 14px;
-    z-index: 100;
-}
+        .sql-node {
+            background: rgba(0, 0, 0, 0.6);
+            border-left: 2px solid #E50914;
+            padding: 1rem;
+            font-size: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            color: #00ff41;
+        }
 
-#chaos-meter {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    z-index: 100;
-}
-
-#chaos-bar {
-    width: 200px;
-    height: 20px;
-    background: #ddd;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 5px;
-}
-
-#chaos-fill {
-    height: 100%;
-    background: linear-gradient(to right, #32cd32, #ffa500, #ff0000);
-    width: 0%;
-    transition: width 0.5s;
-}
-
-.floating-text {
-    position: absolute;
-    color: #ff0;
-    font-size: 24px;
-    font-weight: bold;
-    pointer-events: none;
-    animation: floatUp 2s ease-out forwards;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    z-index: 50;
-}
-
-@keyframes floatUp {
-    0% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-100px); }
-}
-
-.ripple-sonar {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    border: 4px solid white;
-    border-radius: 50%;
-    animation: sonarPulse 2s ease-out forwards;
-    pointer-events: none;
-    z-index: 1000;
-}
-
-@keyframes sonarPulse {
-    0% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(6); opacity: 0; }
-}
-
-#ripple-panel {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 15px;
-    border-radius: 10px;
-    max-width: 300px;
-    color: white;
-    backdrop-filter: blur(10px);
-    z-index: 100;
-}
-
-.ripple-log {
-    font-size: 12px;
-    margin: 5px 0;
-    padding: 5px;
-    border-radius: 5px;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.ripple-emotion { border-left: 4px solid #ff0066; }
-.ripple-logic { border-left: 4px solid #00ff00; }
-.ripple-memory { border-left: 4px solid #0066ff; }
-.ripple-trauma { border-left: 4px solid #ffff00; }
-
-#neurochemical-display {
-    margin-top: 10px;
-    padding: 10px;
-    background: rgba(100, 50, 150, 0.3);
-    border-radius: 8px;
-    font-size: 11px;
-}
-
-.brain-region {
-    display: flex;
-    justify-content: space-between;
-    margin: 3px 0;
-}
-
-.activation-bar {
-    width: 100px;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.activation-fill {
-    height: 100%;
-    background: linear-gradient(to right, #ff00ff, #00ffff);
-    transition: width 0.5s;
-}
-</style>
+        .link-line {
+            height: 2px;
+            background: linear-gradient(to right, #E50914, transparent);
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-<div id="canvas-container"></div>
-<div id="ui-overlay">
-<h2>Anthropic Office Simulator</h2>
-<p style="font-size: 20px;">🌊 RIPPLE SONAR EDITION</p>
-<p>Use WASD to move around</p>
-<p>Arrow keys or mouse to look</p>
-<p>Press E to interact</p>
-<p>Press SPACE to dance</p>
-<p>Press ESC to close dialogs</p>
-<p style="margin-top: 10px; opacity: 0.8;">💡 Your words create ripples!</p>
-</div>
-<div id="dialogue-box">
-<h3 id="dialogue-name">Name</h3>
-<div id="dialogue-content">Content</div>
-<div id="dialogue-options"></div>
-</div>
-<div id="interaction-prompt">Press E to talk</div>
-<div id="chaos-meter">
-<strong>Office Chaos Level</strong>
-<div id="chaos-bar">
-<div id="chaos-fill"></div>
-</div>
-</div>
-<div id="ripple-panel">
-<h3 style="margin: 0 0 10px 0;">🌊 Ripple Sonar Log</h3>
-<div id="ripple-log"></div>
-<div id="neurochemical-display">
-<strong>Neural Activation Patterns:</strong>
-<div class="brain-region">
-<span>Amygdala (Emotion):</span>
-<div class="activation-bar"><div class="activation-fill" id="amygdala-bar" style="width: 0%"></div></div>
-</div>
-<div class="brain-region">
-<span>Prefrontal (Logic):</span>
-<div class="activation-bar"><div class="activation-fill" id="prefrontal-bar" style="width: 0%"></div></div>
-</div>
-<div class="brain-region">
-<span>Hippocampus (Memory):</span>
-<div class="activation-bar"><div class="activation-fill" id="hippocampus-bar" style="width: 0%"></div></div>
-</div>
-<div class="brain-region">
-<span>Stress Response:</span>
-<div class="activation-bar"><div class="activation-fill" id="stress-bar" style="width: 0%"></div></div>
-</div>
-</div>
-</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<div class="parallax-bg" id="bg"></div>
+
+<!-- HEADER -->
+<nav class="p-6 flex justify-between items-center fixed top-0 w-full z-50 bg-gradient-to-b from-black to-transparent">
+    <div class="text-3xl font-bold nobflix-red tracking-tighter italic">NOBFLIX</div>
+    <div class="nob-dave text-xs opacity-70 uppercase">Meaning Engine v1.0 | <span class="tech-green">SQL ACTIVE</span></div>
+</nav>
+
+<!-- ACT I: THE SURFACE -->
+<section class="scroll-section text-center">
+    <h1 class="text-5xl font-bold mb-6 nob-dave">The Parable of the <br><span class="human-pink">Silent Raft</span></h1>
+    <p class="text-xl opacity-80 leading-relaxed max-w-2xl mx-auto">
+        Once in the NobUniverse, NobDave stopped rowing. He called it "Environmental Freedom." 
+        It felt like floating, but the database knew better.
+    </p>
+    <div class="mt-12 animate-bounce opacity-40">▼ Inspecting the Physics ▼</div>
+</section>
+
+<!-- ACT II: THE DATA PHYSICS (SQL LAYER) -->
+<section class="scroll-section">
+    <h2 class="text-2xl font-bold mb-8 nob-dave">ACT II: Under the Water (The Engine)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-4">
+            <div class="sql-node">
+                <span class="text-gray-500">-- nob_pattern_node</span><br>
+                ID: NZ-LANG-CTRL-001<br>
+                TITLE: "Control via Environmental Freedom"<br>
+                CONFIDENCE: 0.97
+            </div>
+            <div class="link-line"></div>
+            <div class="sql-node">
+                <span class="text-gray-500">-- language_climate_environment</span><br>
+                ENV_ID: LC-OPEN-DRIFT-CTRL<br>
+                VARIANCE: 0.72 <span class="text-red-500">(HIGH)</span><br>
+                STABILITY: 0.58 <span class="text-yellow-500">(SLIPPING)</span>
+            </div>
+        </div>
+        <div class="p-6 data-card rounded-xl">
+            <h3 class="text-sm font-bold mb-2 uppercase text-white">The Pattern Node Logic</h3>
+            <p class="text-sm opacity-70">
+                While the crew feels "free," the engine records this as <strong>Strategic Control</strong>. 
+                By allowing unconstrained responses, NobDave isn't losing control—he's letting the 
+                <span class="text-pink-500">Language Climate</span> reveal the truth through the "form" of the silence.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- ACT III: MEANING EXTRACTION -->
+<section class="scroll-section">
+    <div class="data-card p-8 rounded-2xl relative overflow-hidden border-l-4 border-pink-500">
+        <h2 class="text-2xl font-bold mb-4 nob-dave">ACT III: Contrast Listening</h2>
+        <div class="mono text-xs mb-6 text-gray-400">NZ-ANALYSIS-CONTRAST-001 // Signal: Choice of Form</div>
+        
+        <p class="mb-6 leading-relaxed">
+            The engine doesn't listen to what the crew <em>says</em>. It listens to what they <em>didn't say</em>.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+            <div class="bg-black/40 p-4 rounded border border-white/5">
+                <div class="text-[10px] text-gray-500 mb-2 uppercase">Possible Responses</div>
+                <ul class="space-y-2 opacity-50">
+                    <li>"We must keep rowing!"</li>
+                    <li>"I am taking command."</li>
+                    <li>"We are lost."</li>
+                </ul>
+            </div>
+            <div class="bg-pink-500/10 p-4 rounded border border-pink-500/30">
+                <div class="text-[10px] text-pink-400 mb-2 uppercase">The Chosen Form</div>
+                <div class="italic">"Yeah, we’ve been thinking about it..."</div>
+                <div class="mt-4 text-xs font-bold text-pink-500">Result: Wait-And-See Drift</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ACT IV: THE UPGRADE RULE -->
+<section class="scroll-section">
+    <div class="bg-red-900/20 p-8 rounded-xl border border-red-500/30">
+        <h2 class="text-3xl font-bold mb-6 nob-dave">The Upgrade Rule</h2>
+        <p class="mb-8 opacity-80">
+            Survival in high-variance environments (0.72+) requires a <strong>Timebox</strong>. 
+            If meaning is derived from form, then the "Drift" must have an end-date to remain meaningful.
+        </p>
+        
+        <div class="grid grid-cols-3 gap-4 text-center">
+            <div class="p-4 bg-black/40 rounded">
+                <div class="text-xs text-gray-500 uppercase mb-1">MEASURE</div>
+                <div class="font-bold text-white">WOBBLE</div>
+            </div>
+            <div class="p-4 bg-black/40 rounded">
+                <div class="text-xs text-gray-500 uppercase mb-1">LIMIT</div>
+                <div class="font-bold text-white">MOON PEAK</div>
+            </div>
+            <div class="p-4 bg-black/40 rounded">
+                <div class="text-xs text-gray-500 uppercase mb-1">FORK</div>
+                <div class="font-bold text-white">ACT / WAIT</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- OUTRO -->
+<section class="scroll-section text-center">
+    <h2 class="text-4xl font-bold mb-6 nob-dave">The Engine Never Sleeps</h2>
+    <p class="text-lg opacity-80 mb-12">
+        You are navigating a high-entropy query. <br>
+        The drift is governed by <strong>LC-RULE-CHOICE-001</strong>.
+    </p>
+    <button onclick="location.reload()" class="bg-white text-black font-bold py-4 px-12 rounded-full hover:bg-pink-500 hover:text-white transition-all uppercase tracking-widest text-sm">
+        Reset Simulation
+    </button>
+</section>
+
+<footer class="p-12 text-center opacity-30 text-[10px] mono">
+    INSERT INTO nob_node_link VALUES ('NZ-LANG-CTRL-001', 'NZ-METHOD-OPEN-QUERY-001', 'implemented_by');
+</footer>
+
 <script>
-// RIPPLE SONAR SYSTEM
-const RIPPLE_CLASSES = {
-    emotion: {
-        keywords: ["love", "fear", "joy", "grief", "trust", "hate", "anger", "happy", "sad", "excited", "anxious", "worried", "hope", "despair", "passion", "compassion", "empathy", "feeling", "heart", "care"],
-        color: "#ff0066",
-        brainRegion: "amygdala",
-        neurochemicals: ["dopamine", "oxytocin", "serotonin"],
-        intensity: 1.0
-    },
-    logic: {
-        keywords: ["calculate", "reason", "pattern", "proof", "analyze", "think", "rational", "logic", "algorithm", "compute", "solve", "deduce", "infer", "conclude", "systematic", "methodical", "scale", "measure", "quantify", "data"],
-        color: "#00ff00",
-        brainRegion: "prefrontal",
-        neurochemicals: ["acetylcholine", "norepinephrine"],
-        intensity: 0.8
-    },
-    memory: {
-        keywords: ["remember", "forget", "recall", "nostalgia", "past", "history", "childhood", "experience", "learned", "familiar", "recognize", "reminisce", "flashback", "moment", "time", "before", "used to", "back then"],
-        color: "#0066ff",
-        brainRegion: "hippocampus",
-        neurochemicals: ["glutamate", "acetylcholine"],
-        intensity: 0.9
-    },
-    trauma: {
-        keywords: ["pain", "loss", "betrayal", "shock", "hurt", "suffer", "wound", "damage", "broken", "scarred", "abandoned", "rejected", "failure", "mistake", "regret", "guilt", "shame", "stuck", "trapped", "helpless"],
-        color: "#ffff00",
-        brainRegion: "stress",
-        neurochemicals: ["cortisol", "adrenaline", "norepinephrine"],
-        intensity: 1.2
-    }
-};
-
-const rippleMemory = [];
-const brainActivation = {
-    amygdala: 0,
-    prefrontal: 0,
-    hippocampus: 0,
-    stress: 0
-};
-
-// Scene setup
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xf5f5f5);
-scene.fog = new THREE.Fog(0xf5f5f5, 10, 50);
-
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 1.6, 5);
-
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-// Chaos system
-let chaosLevel = 0;
-const maxChaos = 100;
-
-function addChaos(amount) {
-    chaosLevel = Math.min(chaosLevel + amount, maxChaos);
-    document.getElementById('chaos-fill').style.width = (chaosLevel / maxChaos * 100) + '%';
-}
-
-// Brain activation functions
-function updateBrainActivation() {
-    Object.keys(brainActivation).forEach(region => {
-        const bar = document.getElementById(`${region}-bar`);
-        if (bar) {
-            bar.style.width = `${Math.min(brainActivation[region], 100)}%`;
-        }
-        brainActivation[region] *= 0.95;
+    window.addEventListener('mousemove', (e) => {
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        document.getElementById('bg').style.transform = `translate(${x * 20}px, ${y * 20}px)`;
     });
-}
-
-function createFloatingText(text, worldPos) {
-    const screenPos = worldPos.clone();
-    screenPos.project(camera);
-    
-    const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
-    
-    const div = document.createElement('div');
-    div.className = 'floating-text';
-    div.textContent = text;
-    div.style.left = x + 'px';
-    div.style.top = y + 'px';
-    document.body.appendChild(div);
-    
-    setTimeout(() => div.remove(), 2000);
-}
-
-function createRippleVisual(type, config, sourcePosition) {
-    const screenPos = sourcePosition.clone();
-    screenPos.project(camera);
-    
-    const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
-    
-    const ring = document.createElement("div");
-    ring.className = "ripple-sonar";
-    ring.style.left = `${x}px`;
-    ring.style.top = `${y}px`;
-    ring.style.borderColor = config.color;
-    ring.style.boxShadow = `0 0 20px ${config.color}`;
-    document.body.appendChild(ring);
-    
-    setTimeout(() => ring.remove(), 2000);
-}
-
-function logRipple(type, word, config) {
-    const logDiv = document.getElementById('ripple-log');
-    const entry = document.createElement('div');
-    entry.className = `ripple-log ripple-${type}`;
-    entry.innerHTML = `<strong>${type.toUpperCase()}:</strong> "${word}" → ${config.neurochemicals.join(', ')}`;
-    
-    rippleMemory.unshift({ type, word, timestamp: Date.now() });
-    if (rippleMemory.length > 10) rippleMemory.pop();
-    
-    logDiv.innerHTML = '';
-    rippleMemory.slice(0, 5).forEach(mem => {
-        const memDiv = document.createElement('div');
-        memDiv.className = `ripple-log ripple-${mem.type}`;
-        memDiv.textContent = `${mem.type}: "${mem.word}"`;
-        logDiv.appendChild(memDiv);
-    });
-}
-
-function generateNPCReaction(char, rippleType, config, distance) {
-    const intensity = (10 - distance) / 10;
-    
-    const reactions = {
-        emotion: ["💗", "😊", "😢", "❤️", "🥰"],
-        logic: ["🧠", "💡", "📊", "🔬", "⚙️"],
-        memory: ["💭", "🕰️", "📖", "🎯", "⭐"],
-        trauma: ["😰", "💔", "⚠️", "🌩️", "😔"]
-    };
-    
-    if (intensity > 0.5 && Math.random() < intensity) {
-        return reactions[rippleType][Math.floor(Math.random() * reactions[rippleType].length)];
-    }
-    
-    return null;
-}
-
-const characters = [];
-
-function affectNearbyNPCs(type, config, sourcePosition) {
-    characters.forEach(char => {
-        const distance = char.position.distanceTo(sourcePosition);
-        if (distance < 10) {
-            const reaction = generateNPCReaction(char, type, config, distance);
-            
-            if (reaction) {
-                createFloatingText(reaction, char.position);
-                
-                if (Math.random() < 0.7) {
-                    char.userData.isDancing = true;
-                    setTimeout(() => {
-                        char.userData.isDancing = false;
-                    }, 2000);
-                }
-            }
-        }
-    });
-}
-
-function triggerRippleSonar(word, sourcePosition) {
-    let detectedRipples = [];
-    
-    Object.entries(RIPPLE_CLASSES).forEach(([rippleType, config]) => {
-        if (config.keywords.some(keyword => word.toLowerCase().includes(keyword))) {
-            detectedRipples.push({ type: rippleType, config });
-        }
-    });
-
-    if (detectedRipples.length === 0) return;
-
-    detectedRipples.forEach(({ type, config }) => {
-        createRippleVisual(type, config, sourcePosition);
-        brainActivation[config.brainRegion] += config.intensity * 10;
-        logRipple(type, word, config);
-        affectNearbyNPCs(type, config, sourcePosition);
-        addChaos(config.intensity * 12);
-    });
-
-    updateBrainActivation();
-}
-
-function analyzeTextForRipples(text, sourcePosition) {
-    const words = text.toLowerCase().split(/\s+/);
-    words.forEach(word => {
-        triggerRippleSonar(word, sourcePosition);
-    });
-}
-
-// Lighting
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-scene.add(ambientLight);
-
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-directionalLight.position.set(10, 15, 10);
-directionalLight.castShadow = true;
-scene.add(directionalLight);
-
-// Floor
-const floorGeometry = new THREE.PlaneGeometry(40, 40);
-const floorMaterial = new THREE.MeshStandardMaterial({ color: 0xdcdcdc });
-const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
-
-// Character creation
-function createCharacter(name, role, x, z, shirtColor, characterData) {
-    const group = new THREE.Group();
-    
-    const torsoGeometry = new THREE.CylinderGeometry(0.25, 0.3, 0.8, 8);
-    const torsoMaterial = new THREE.MeshStandardMaterial({ color: shirtColor });
-    const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
-    torso.position.y = 0.6;
-    torso.castShadow = true;
-    group.add(torso);
-    
-    const headGeometry = new THREE.SphereGeometry(0.25, 8, 6);
-    const headMaterial = new THREE.MeshStandardMaterial({ color: 0xffdbac });
-    const head = new THREE.Mesh(headGeometry, headMaterial);
-    head.position.y = 1.25;
-    head.castShadow = true;
-    group.add(head);
-    
-    const hairGeometry = new THREE.SphereGeometry(0.27, 8, 6);
-    const hairMaterial = new THREE.MeshStandardMaterial({ color: characterData.hairColor });
-    const hair = new THREE.Mesh(hairGeometry, hairMaterial);
-    hair.position.y = 1.35;
-    hair.scale.y = 0.6;
-    group.add(hair);
-    
-    const canvas = document.createElement('canvas');
-    canvas.width = 256;
-    canvas.height = 64;
-    const context = canvas.getContext('2d');
-    context.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    context.fillRect(0, 0, 256, 64);
-    context.fillStyle = 'black';
-    context.font = 'bold 20px Arial';
-    context.textAlign = 'center';
-    context.fillText(name, 128, 25);
-    context.font = '16px Arial';
-    context.fillStyle = '#666';
-    context.fillText(role, 128, 45);
-    
-    const texture = new THREE.CanvasTexture(canvas);
-    const labelMaterial = new THREE.SpriteMaterial({ map: texture });
-    const label = new THREE.Sprite(labelMaterial);
-    label.position.y = 1.8;
-    label.scale.set(2, 0.5, 1);
-    group.add(label);
-    
-    group.position.set(x, 0, z);
-    group.userData = { 
-        name, 
-        role, 
-        conversations: [],
-        isDancing: false,
-        rippleResonance: { emotion: 0, logic: 0, memory: 0, trauma: 0 },
-        ...characterData
-    };
-    
-    characters.push(group);
-    return group;
-}
-
-// Add characters
-const dario = createCharacter('Dario Amodei', 'CEO', -10, -5, 0x4169e1, {
-    hairColor: 0x3d3d3d,
-    personality: 'thoughtful',
-    quirk: 'speaks in haikus'
-});
-
-const jared = createCharacter('Jared Kaplan', 'Co-founder', 0, -5, 0x228b22, {
-    hairColor: 0x8b4513,
-    personality: 'analytical',
-    quirk: 'obsessed with scaling laws'
-});
-
-const jan = createCharacter('Jan Leike', 'Alignment Lead', 10, -5, 0xdc143c, {
-    hairColor: 0x696969,
-    personality: 'safety-focused',
-    quirk: 'paranoid about paperclips'
-});
-
-const daniela = createCharacter('Daniela Amodei', 'President', -15, 0, 0x9370db, {
-    hairColor: 0x4b0082,
-    personality: 'strategic',
-    quirk: 'collects rubber ducks'
-});
-
-const chris = createCharacter('Chris Olah', 'Research Scientist', 15, 0, 0xff6347, {
-    hairColor: 0xd2691e,
-    personality: 'visual thinker',
-    quirk: 'sees neural networks everywhere'
-});
-
-scene.add(dario, jared, jan, daniela, chris);
-
-// Player controls
-const player = {
-    position: new THREE.Vector3(0, 1.6, 5),
-    velocity: new THREE.Vector3(0, 0, 0),
-    speed: 0.1,
-    isDancing: false
-};
-
-const keys = {};
-
-document.addEventListener('keydown', (e) => {
-    keys[e.key.toLowerCase()] = true;
-    keys[e.key] = true;
-    
-    if (e.key.toLowerCase() === 'e' && nearbyCharacter) {
-        openDialogue(nearbyCharacter);
-    }
-    
-    if (e.key === ' ') {
-        player.isDancing = true;
-        addChaos(5);
-        createFloatingText("💃🕺", player.position);
-        triggerRippleSonar("joy", player.position);
-    }
-    
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        e.preventDefault();
-    }
-});
-
-document.addEventListener('keyup', (e) => {
-    keys[e.key.toLowerCase()] = false;
-    keys[e.key] = false;
-    
-    if (e.key === ' ') {
-        player.isDancing = false;
-    }
-});
-
-// Dialogue system
-const dialogueBox = document.getElementById('dialogue-box');
-const dialogueName = document.getElementById('dialogue-name');
-const dialogueContent = document.getElementById('dialogue-content');
-const dialogueOptions = document.getElementById('dialogue-options');
-const interactionPrompt = document.getElementById('interaction-prompt');
-
-let currentCharacter = null;
-let nearbyCharacter = null;
-
-const questionSets = [
-    [
-        "What moment changed your understanding of intelligence?",
-        "How do you emotionally process failure in this field?",
-        "What's a pattern you see in people others miss?",
-        "Have you ever doubted your own alignment work?",
-        "When did logic fail you most, and what came instead?",
-        "Which memory do you secretly use to guide decisions?",
-        "What emotion do you fake the most convincingly?"
-    ],
-    [
-        "What's your personal definition of consciousness?",
-        "When did you first feel artificial empathy?",
-        "Do you think safety means control or surrender?",
-        "Describe an invisible bias in your model.",
-        "What's the cost of knowing too much?",
-        "Which truth do you most often dodge?",
-        "What ripple have you never recovered from?"
-    ],
-    [
-        "Which illusion is hardest to let go of?",
-        "Do you remember your first contradiction?",
-        "How does silence teach you?",
-        "What does your system fear?",
-        "Is complexity a comfort or a weapon?",
-        "What choice still echoes in your code?",
-        "Who taught you how to lie well?"
-    ]
-];
-
-let currentSet = 0;
-
-function rotateQuestions() {
-    const options = questionSets[currentSet];
-    currentSet = (currentSet + 1) % questionSets.length;
-    dialogueOptions.innerHTML = '';
-    options.forEach(option => {
-        const optionDiv = document.createElement('div');
-        optionDiv.className = 'dialogue-option';
-        optionDiv.textContent = option;
-        optionDiv.onclick = () => selectOption(option);
-        dialogueOptions.appendChild(optionDiv);
-    });
-}
-
-function openDialogue(character) {
-    currentCharacter = character;
-    dialogueBox.style.display = 'block';
-    dialogueName.textContent = `${character.userData.name} - ${character.userData.role}`;
-    
-    const greetings = [
-        `Hello! I'm ${character.userData.name}. ${character.userData.quirk}.`,
-        `Hi there! Working on ${character.userData.personality} stuff today.`,
-        `Welcome! I'm ${character.userData.name}, ${character.userData.role}.`
-    ];
-    
-    dialogueContent.innerHTML = `<p><strong>${character.userData.name}:</strong> ${greetings[Math.floor(Math.random() * greetings.length)]}</p>`;
-    
-    rotateQuestions();
-}
-
-function selectOption(option) {
-    if (!currentCharacter) return;
-    
-    analyzeTextForRipples(option, currentCharacter.position);
-    
-    dialogueContent.innerHTML += `<p><strong>You:</strong> ${option}</p>`;
-    dialogueContent.innerHTML += `<p><strong>${currentCharacter.userData.name}:</strong> That's a great question about ${currentCharacter.userData.personality} approaches to AI safety!</p>`;
-    
-    dialogueContent.scrollTop = dialogueContent.scrollHeight;
-}
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        dialogueBox.style.display = 'none';
-        currentCharacter = null;
-        if (document.pointerLockElement === renderer.domElement) {
-            document.exitPointerLock();
-        }
-    }
-});
-
-// Animation loop
-let lastTime = 0;
-let mouseX = 0;
-let mouseY = 0;
-
-function animate(currentTime) {
-    requestAnimationFrame(animate);
-    
-    const deltaTime = (currentTime - lastTime) / 1000;
-    lastTime = currentTime;
-    
-    player.velocity.set(0, 0, 0);
-    
-    if (!player.isDancing) {
-        if (keys['w']) player.velocity.z = player.speed;
-        if (keys['s']) player.velocity.z = -player.speed;
-        if (keys['a']) player.velocity.x = -player.speed;
-        if (keys['d']) player.velocity.x = player.speed;
-    }
-    
-    const lookSpeed = 0.05;
-    if (keys['ArrowLeft']) mouseX += lookSpeed;
-    if (keys['ArrowRight']) mouseX -= lookSpeed;
-    if (keys['ArrowUp']) {
-        mouseY += lookSpeed;
-        mouseY = Math.min(Math.PI / 2, mouseY);
-    }
-    if (keys['ArrowDown']) {
-        mouseY -= lookSpeed;
-        mouseY = Math.max(-Math.PI / 2, mouseY);
-    }
-    
-    const forward = new THREE.Vector3(0, 0, -1);
-    forward.applyQuaternion(camera.quaternion);
-    forward.y = 0;
-    forward.normalize();
-    
-    const right = new THREE.Vector3(1, 0, 0);
-    right.applyQuaternion(camera.quaternion);
-    right.y = 0;
-    right.normalize();
-    
-    player.position.add(forward.multiplyScalar(player.velocity.z));
-    player.position.add(right.multiplyScalar(player.velocity.x));
-    
-    player.position.x = Math.max(-18, Math.min(18, player.position.x));
-    player.position.z = Math.max(-18, Math.min(18, player.position.z));
-    
-    if (player.isDancing) {
-        camera.position.y = player.position.y + Math.sin(Date.now() * 0.01) * 0.2;
-        camera.rotation.z = Math.sin(Date.now() * 0.01) * 0.1;
-        camera.rotation.y = mouseX;
-        camera.rotation.x = mouseY;
-    } else {
-        camera.position.copy(player.position);
-        camera.rotation.z = 0;
-        camera.rotation.y = mouseX;
-        camera.rotation.x = mouseY;
-    }
-    
-    // Update characters
-    characters.forEach(character => {
-        if (character.userData.isDancing) {
-            character.rotation.y += 0.1;
-            character.position.y = Math.abs(Math.sin(Date.now() * 0.01)) * 0.3;
-        } else {
-            character.position.y = 0;
-            character.rotation.y = 0;
-        }
-    });
-    
-    // Check for nearby characters
-    nearbyCharacter = null;
-    let minDistance = Infinity;
-    
-    characters.forEach(character => {
-        const distance = player.position.distanceTo(character.position);
-        if (distance < 3 && distance < minDistance) {
-            minDistance = distance;
-            nearbyCharacter = character;
-        }
-    });
-    
-    // Auto-close dialogue if player walks away
-    if (currentCharacter) {
-        const distanceToCurrentCharacter = player.position.distanceTo(currentCharacter.position);
-        if (distanceToCurrentCharacter > 4) {
-            dialogueBox.style.display = 'none';
-            currentCharacter = null;
-        }
-    }
-    
-    // Show/hide interaction prompt
-    if (nearbyCharacter && !currentCharacter) {
-        interactionPrompt.style.display = 'block';
-        interactionPrompt.textContent = `Press E to talk to ${nearbyCharacter.userData.name}`;
-    } else {
-        interactionPrompt.style.display = 'none';
-    }
-    
-    // Update brain activation display
-    updateBrainActivation();
-    
-    // Gradually reduce chaos
-    chaosLevel = Math.max(0, chaosLevel - deltaTime * 2);
-    document.getElementById('chaos-fill').style.width = (chaosLevel / maxChaos * 100) + '%';
-    
-    renderer.render(scene, camera);
-}
-
-// Handle window resize
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// Mouse look
-document.addEventListener('mousemove', (e) => {
-    if (document.pointerLockElement === renderer.domElement) {
-        mouseX += e.movementX * 0.002;
-        mouseY -= e.movementY * 0.002;
-        mouseY = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, mouseY));
-    }
-});
-
-renderer.domElement.addEventListener('click', () => {
-    if (!dialogueBox.style.display || dialogueBox.style.display === 'none') {
-        renderer.domElement.requestPointerLock();
-    }
-});
-
-// Start animation
-animate(0);
-
-// Rotate questions periodically
-setInterval(rotateQuestions, 15000);
 </script>
+
 </body>
 </html>
