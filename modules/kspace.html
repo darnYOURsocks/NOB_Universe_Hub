@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nobflix: The Wait-And-See Drift</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Quicksand:wght@300;500&family=Space+Mono&display=swap');
+        
+        body {
+            background: #0a0a0c;
+            color: #e0e0e0;
+            font-family: 'Quicksand', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .nobflix-red { color: #E50914; }
+        .tech-green { color: #00ff41; }
+        .human-pink { color: #ff00ff; }
+        .mono { font-family: 'Space Mono', monospace; }
+
+        .parallax-bg {
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0c 100%);
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .data-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nob-dave {
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .scroll-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .meter-bar {
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            height: 100%;
+            transition: width 2s ease-out;
+        }
+
+        .sql-node {
+            background: rgba(0, 0, 0, 0.6);
+            border-left: 2px solid #E50914;
+            padding: 1rem;
+            font-size: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            color: #00ff41;
+        }
+
+        .link-line {
+            height: 2px;
+            background: linear-gradient(to right, #E50914, transparent);
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="parallax-bg" id="bg"></div>
+
+<!-- HEADER -->
+<nav class="p-6 flex justify-between items-center fixed top-0 w-full z-50 bg-gradient-to-b from-black to-transparent">
+    <div class="text-3xl font-bold nobflix-red tracking-tighter italic">NOBFLIX</div>
+    <div class="nob-dave text-xs opacity-70 uppercase">Meaning Engine v1.0 | <span class="tech-green">SQL ACTIVE</span></div>
+</nav>
+
+<!-- ACT I: THE SURFACE -->
+<section class="scroll-section text-center">
+    <h1 class="text-5xl font-bold mb-6 nob-dave">The Parable of the <br><span class="human-pink">Silent Raft</span></h1>
+    <p class="text-xl opacity-80 leading-relaxed max-w-2xl mx-auto">
+        Once in the NobUniverse, NobDave stopped rowing. He called it "Environmental Freedom." 
+        It felt like floating, but the database knew better.
+    </p>
+    <div class="mt-12 animate-bounce opacity-40">▼ Inspecting the Physics ▼</div>
+</section>
+
+<!-- ACT II: THE DATA PHYSICS (SQL LAYER) -->
+<section class="scroll-section">
+    <h2 class="text-2xl font-bold mb-8 nob-dave">ACT II: Under the Water (The Engine)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-4">
+            <div class="sql-node">
+                <span class="text-gray-500">-- nob_pattern_node</span><br>
+                ID: NZ-LANG-CTRL-001<br>
+                TITLE: "Control via Environmental Freedom"<br>
+                CONFIDENCE: 0.97
+            </div>
+            <div class="link-line"></div>
+            <div class="sql-node">
+                <span class="text-gray-500">-- language_climate_environment</span><br>
+                ENV_ID: LC-OPEN-DRIFT-CTRL<br>
+                VARIANCE: 0.72 <span class="text-red-500">(HIGH)</span><br>
+                STABILITY: 0.58 <span class="text-yellow-500">(SLIPPING)</span>
+            </div>
+        </div>
+        <div class="p-6 data-card rounded-xl">
+            <h3 class="text-sm font-bold mb-2 uppercase text-white">The Pattern Node Logic</h3>
+            <p class="text-sm opacity-70">
+                While the crew feels "free," the engine records this as <strong>Strategic Control</strong>. 
+                By allowing unconstrained responses, NobDave isn't losing control—he's letting the 
+                <span class="text-pink-500">Language Climate</span> reveal the truth through the "form" of the silence.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- ACT III: MEANING EXTRACTION -->
+<section class="scroll-section">
+    <div class="data-card p-8 rounded-2xl relative overflow-hidden border-l-4 border-pink-500">
+        <h2 class="text-2xl font-bold mb-4 nob-dave">ACT III: Contrast Listening</h2>
+        <div class="mono text-xs mb-6 text-gray-400">NZ-ANALYSIS-CONTRAST-001 // Signal: Choice of Form</div>
+        
+        <p class="mb-6 leading-relaxed">
+            The engine doesn't listen to what the crew <em>says</em>. It listens to what they <em>didn't say</em>.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+            <div class="bg-black/40 p-4 rounded border border-white/5">
+                <div class="text-[10px] text-gray-500 mb-2 uppercase">Possible Responses</div>
+                <ul class="space-y-2 opacity-50">
+                    <li>"We must keep rowing!"</li>
+                    <li>"I am taking command."</li>
+                    <li>"We are lost."</li>
+                </ul>
+            </div>
+            <div class="bg-pink-500/10 p-4 rounded border border-pink-500/30">
+                <div class="text-[10px] text-pink-400 mb-2 uppercase">The Chosen Form</div>
+                <div class="italic">"Yeah, we’ve been thinking about it..."</div>
+                <div class="mt-4 text-xs font-bold text-pink-500">Result: Wait-And-See Drift</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ACT IV: THE UPGRADE RULE -->
+<section class="scroll-section">
+    <div class="bg-red-900/20 p-8 rounded-xl border border-red-500/30">
+        <h2 class="text-3xl font-bold mb-6 nob-dave">The Upgrade Rule</h2>
+        <p class="mb-8 opacity-80">
+            Survival in high-variance environments (0.72+) requires a <strong>Timebox</strong>. 
+            If meaning is derived from form, then the "Drift" must have an end-date to remain meaningful.
+        </p>
+        
+        <div class="grid grid-cols-3 gap-4 text-center">
+            <div class="p-4 bg-black/40 rounded">
+                <div class="text-xs text-gray-500 uppercase mb-1">MEASURE</div>
+                <div class="font-bold text-white">WOBBLE</div>
+            </div>
+            <div class="p-4 bg-black/40 rounded">
+                <div class="text-xs text-gray-500 uppercase mb-1">LIMIT</div>
+                <div class="font-bold text-white">MOON PEAK</div>
+            </div>
+            <div class="p-4 bg-black/40 rounded">
+                <div class="text-xs text-gray-500 uppercase mb-1">FORK</div>
+                <div class="font-bold text-white">ACT / WAIT</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- OUTRO -->
+<section class="scroll-section text-center">
+    <h2 class="text-4xl font-bold mb-6 nob-dave">The Engine Never Sleeps</h2>
+    <p class="text-lg opacity-80 mb-12">
+        You are navigating a high-entropy query. <br>
+        The drift is governed by <strong>LC-RULE-CHOICE-001</strong>.
+    </p>
+    <button onclick="location.reload()" class="bg-white text-black font-bold py-4 px-12 rounded-full hover:bg-pink-500 hover:text-white transition-all uppercase tracking-widest text-sm">
+        Reset Simulation
+    </button>
+</section>
+
+<footer class="p-12 text-center opacity-30 text-[10px] mono">
+    INSERT INTO nob_node_link VALUES ('NZ-LANG-CTRL-001', 'NZ-METHOD-OPEN-QUERY-001', 'implemented_by');
+</footer>
+
+<script>
+    window.addEventListener('mousemove', (e) => {
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        document.getElementById('bg').style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+    });
+</script>
+
+</body>
+</html>
