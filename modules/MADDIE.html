@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ŊOB Maths Arcade • Rock Gig + Mosaic Mission</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#0b1020; --bg2:#0f172a; --panel:#0b1226; --panel2:#101b37;
+      --rose:#f43f5e; --gold:#fbbf24; --emerald:#34d399; --sky:#38bdf8;
+      --muted:#94a3b8; --line:rgba(148,163,184,.25);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    /*
+      CANVAS-FIT CHANGES (summary)
+      - Keep the ripple canvas fixed; UI scrolls within a "content" layer (no clipping on short screens).
+      - Use 100svh/100dvh-safe sizing and clamp() font/button sizes so Rock + Mosaic fit phones.
+      - Mosaic tile size becomes responsive (computed from available width).
+    */
+
+    body {
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 50% 0%, #1e1b4b 0%, var(--bg2) 55%, #050816 100%);
+      color: #fff;
+      margin: 0;
+      overflow: hidden;           /* body never scrolls; internal layer scrolls */
+      touch-action: manipulation;
+    }
+
+    .app-shell{ position: relative; width: 100vw; height: 100svh; height: 100dvh; overflow: hidden; }
+
+    /* The fixed canvas background */
+    #rippleStage{ position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+    /* Scrollable UI layer */
+    .content-scroll{
+      position: relative;
+      z-index: 10;
+      height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    .rock-font { font-family: 'Bungee', cursive; letter-spacing: .02em; }
+    .guitar-glow { text-shadow: 0 0 10px var(--rose), 0 0 20px rgba(244,63,94,.8); }
+    .glass { background: rgba(2,6,23,.55); backdrop-filter: blur(10px); border: 1px solid rgba(148,163,184,.18); }
+
+    .btn { transition: transform .08s ease, filter .08s ease; }
+    .btn:active { transform: scale(.97); filter: brightness(1.05); }
+
+    .numpad-btn {
+      background: rgba(255,255,255,0.09);
+      border: 2px solid rgba(255,255,255,0.16);
+      transition: transform .08s ease, background .08s ease, border-color .08s ease;
+    }
+    .numpad-btn:active { transform: scale(0.96); background: rgba(244,63,94,.8); border-color: rgba(255,255,255,.75); }
+
+    @keyframes shake {
+      0%{transform:translate(1px,1px) rotate(0deg)}
+      10%{transform:translate(-1px,-2px) rotate(-1deg)}
+      20%{transform:translate(-3px,0px) rotate(1deg)}
+      30%{transform:translate(3px,2px) rotate(0deg)}
+      40%{transform:translate(1px,-1px) rotate(1deg)}
+      50%{transform:translate(-1px,2px) rotate(-1deg)}
+      60%{transform:translate(-3px,1px) rotate(0deg)}
+      70%{transform:translate(3px,1px) rotate(-1deg)}
+      80%{transform:translate(-1px,-1px) rotate(1deg)}
+      90%{transform:translate(1px,2px) rotate(0deg)}
+      100%{transform:translate(1px,-2px) rotate(-1deg)}
+    }
+    .correct-anim { animation: shake .45s cubic-bezier(.36,.07,.19,.97) both; }
+
+    .kbd { font-family: var(--mono); font-size: 12px; padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(148,163,184,.25); background: rgba(15,23,42,.6); }
+
+    .modal-backdrop { background: rgba(0,0,0,.55); backdrop-filter: blur(6px); }
+    .tile { border: 1px solid rgba(148,163,184,.25); }
+    .tile:hover { outline: 2px solid rgba(56,189,248,.35); }
+
+    /* Clamp headings so they don’t blow the layout on small screens */
+    .h1-clamp{ font-size: clamp(2.0rem, 6vw, 3.75rem); line-height: 1; }
+    .eq-clamp{ font-size: clamp(2.4rem, 10vw, 3.75rem); line-height: 1.05; }
+    .ans-clamp{ font-size: clamp(1.8rem, 7vw, 2.6rem); line-height: 1; }
+
+    /* Mosaic: keep grid visible and comfortable on phones */
+    .mosaic-frame{ max-height: calc(100svh - 320px); max-height: calc(100dvh - 320px); }
+    @media (min-width: 768px){
+      .mosaic-frame{ max-height: calc(100svh - 280px); max-height: calc(100dvh - 280px); }
+    }
+
+    /* Make the top strip usable while scrolling */
+    .top-strip{ position: sticky; top: 0; z-index: 20; padding-top: 12px; padding-bottom: 12px; }
+    .top-strip::before{
+      content:"";
+      position:absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(2,6,23,.85), rgba(2,6,23,.45));
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(148,163,184,.18);
+      z-index: -1;
+    }
+
+    /* Reduce numpad footprint on small screens */
+    .pad-lg{ padding: 1.05rem; font-size: 1.6rem; }
+    @media (min-width: 768px){
+      .pad-lg{ padding: 1.5rem; font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Ripple Stage Canvas (fixed background) -->
+    <canvas id="rippleStage"></canvas>
+
+    <!-- Scrollable UI layer -->
+    <div class="content-scroll">
+      <div class="min-h-[100svh] min-h-[100dvh] flex flex-col items-center justify-start p-4">
+
+        <!-- Header Strip -->
+        <div class="top-strip w-full flex justify-center">
+          <div class="w-full max-w-4xl flex items-center justify-between px-0 md:px-0">
+            <div class="flex items-center gap-3">
+              <div class="rock-font text-lg md:text-2xl text-rose-400 guitar-glow whitespace-nowrap">ŊOB MATHS ARCADE</div>
+              <div class="hidden md:flex items-center gap-2 text-slate-300 text-sm">
+                <span class="px-2 py-1 rounded-full glass">Stealth Homework Mode</span>
+                <span class="px-2 py-1 rounded-full glass">Ripple Rewards</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="soundBtn" class="btn glass px-3 py-2 rounded-xl text-sm text-slate-200 hover:border-slate-400/40">
+                🔊 Sound: <span id="soundState">ON</span>
+              </button>
+              <button id="parentBtn" class="btn glass px-3 py-2 rounded-xl text-sm text-slate-200 hover:border-slate-400/40">
+                🔒 Parent
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- HOME -->
+        <section id="home" class="w-full max-w-4xl glass rounded-3xl p-5 md:p-10 mt-4">
+          <div class="text-center">
+            <h1 class="rock-font h1-clamp text-rose-500 guitar-glow mb-2">CHOOSE YOUR MISSION</h1>
+            <p class="text-slate-300 mb-5">
+              Play a “game”… accidentally do maths. ✅
+              <span class="hidden md:inline">Tips: <span class="kbd">Enter</span> to submit, <span class="kbd">Backspace</span> to clear.</span>
+            </p>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <button onclick="goMode('rock')" class="btn text-left glass rounded-2xl p-5 hover:border-rose-400/40">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="rock-font text-2xl text-yellow-300">🎸 Rock Gig</div>
+                  <div class="text-slate-300 mt-1">Times tables + streaks + ranks (TT Rockstars vibe).</div>
+                </div>
+                <div class="text-3xl">⚡</div>
+              </div>
+              <div class="mt-4 flex gap-2 flex-wrap text-xs">
+                <span class="px-2 py-1 rounded-full bg-rose-500/20 border border-rose-500/30">Fast</span>
+                <span class="px-2 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30">Streak rewards</span>
+                <span class="px-2 py-1 rounded-full bg-sky-500/20 border border-sky-500/30">Adaptive</span>
+              </div>
+            </button>
+
+            <button onclick="goMode('mosaic')" class="btn text-left glass rounded-2xl p-5 hover:border-rose-400/40">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="rock-font text-2xl text-amber-200">🧩 Mosaic Mission</div>
+                  <div class="text-slate-300 mt-1">Solve BODMAS tiles to reveal the hidden Christmas picture.</div>
+                </div>
+                <div class="text-3xl">🎄</div>
+              </div>
+              <div class="mt-4 flex gap-2 flex-wrap text-xs">
+                <span class="px-2 py-1 rounded-full bg-amber-500/20 border border-amber-500/30">Worksheet-to-game</span>
+                <span class="px-2 py-1 rounded-full bg-slate-500/20 border border-slate-500/30">BODMAS practice</span>
+                <span class="px-2 py-1 rounded-full bg-rose-500/20 border border-rose-500/30">Reveal reward</span>
+              </div>
+            </button>
+          </div>
+
+          <div class="mt-6 grid md:grid-cols-3 gap-3">
+            <div class="glass rounded-2xl p-4">
+              <div class="text-xs uppercase tracking-widest text-slate-400">Today’s Ripple Score</div>
+              <div id="todayRipple" class="rock-font text-3xl text-emerald-300">0</div>
+              <div class="text-slate-300 text-sm mt-1">Earned from streaks + solved tiles.</div>
+            </div>
+            <div class="glass rounded-2xl p-4">
+              <div class="text-xs uppercase tracking-widest text-slate-400">Best Streak</div>
+              <div id="bestStreak" class="rock-font text-3xl text-yellow-300">0</div>
+              <div class="text-slate-300 text-sm mt-1">Across all sessions.</div>
+            </div>
+            <div class="glass rounded-2xl p-4">
+              <div class="text-xs uppercase tracking-widest text-slate-400">Mosaic Completion</div>
+              <div id="mosaicPct" class="rock-font text-3xl text-rose-300">0%</div>
+              <div class="text-slate-300 text-sm mt-1">Your Christmas picture progress.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ROCK MODE -->
+        <section id="rock" class="hidden w-full max-w-md flex flex-col gap-4 mt-4 pb-8">
+          <div class="flex items-center justify-between">
+            <button onclick="backHome()" class="btn glass px-4 py-2 rounded-xl">← Home</button>
+            <div class="text-center">
+              <div class="rock-font text-xl text-yellow-300">ROCK GIG</div>
+              <div class="text-xs text-slate-400 -mt-1">Charge your ripple with correct answers</div>
+            </div>
+            <button onclick="startRock()" class="btn bg-rose-600 hover:bg-rose-500 px-4 py-2 rounded-xl rock-font">START</button>
+          </div>
+
+          <!-- Header: Timer/Score/Streak -->
+          <div class="glass rounded-2xl p-4 flex justify-between items-center">
+            <div class="text-left">
+              <p class="text-xs uppercase tracking-widest text-slate-400">Score</p>
+              <p id="rockScore" class="rock-font text-3xl text-yellow-400">0</p>
+            </div>
+            <div id="rockTimerBox" class="text-center bg-slate-800/40 rounded-full px-6 py-2 border border-rose-400/40">
+              <p id="rockTimer" class="rock-font text-2xl">60</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs uppercase tracking-widest text-slate-400">Streak</p>
+              <p id="rockStreak" class="rock-font text-3xl text-emerald-400">0</p>
+            </div>
+          </div>
+
+          <!-- Rock Meter -->
+          <div class="w-full bg-slate-800/40 h-4 rounded-full overflow-hidden border border-slate-700/60">
+            <div id="rockBar" class="h-full bg-rose-500 w-0 shadow-[0_0_15px_rgba(244,63,94,.9)]"></div>
+          </div>
+
+          <!-- Question -->
+          <div id="rockQBox" class="glass rounded-3xl p-6 text-center">
+            <div id="rockEq" class="rock-font eq-clamp mb-2">3 × 4</div>
+            <div id="rockAnsPreview" class="rock-font ans-clamp text-rose-400 h-10">?</div>
+            <div id="rockHint" class="mt-2 text-slate-300 text-sm hidden">Hint: break it into easy chunks.</div>
+          </div>
+
+          <!-- Numpad -->
+          <div class="grid grid-cols-3 gap-3">
+            <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="pad(1)">1</button>
+            <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="pad(2)">2</button>
+            <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="pad(3)">3</button>
+            <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="pad(4)">4</button>
+            <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="pad(5)">5</button>
+            <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="pad(6)">6</button>
+            <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="pad(7)">7</button>
+            <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="pad(8)">8</button>
+            <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="pad(9)">9</button>
+            <button class="numpad-btn rock-font text-xl pad-lg rounded-2xl bg-slate-700/60" onclick="padClear()">CLR</button>
+            <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="pad(0)">0</button>
+            <button class="numpad-btn rock-font text-xl pad-lg rounded-2xl bg-rose-600/90 border-none" onclick="rockSubmit()">GO</button>
+          </div>
+
+          <!-- Rock End -->
+          <div id="rockEnd" class="hidden glass rounded-3xl p-6 text-center">
+            <div class="rock-font text-4xl text-yellow-300 mb-1">GIG FINISHED!</div>
+            <div id="rockRank" class="rock-font text-6xl guitar-glow mb-4">BUSKER</div>
+            <div class="flex justify-around bg-slate-900/40 rounded-2xl p-4 border border-slate-700/60">
+              <div>
+                <div class="text-xs text-slate-400 uppercase">Correct</div>
+                <div id="rockCorrect" class="rock-font text-4xl text-emerald-300">0</div>
+              </div>
+              <div>
+                <div class="text-xs text-slate-400 uppercase">Accuracy</div>
+                <div id="rockAcc" class="rock-font text-4xl text-rose-300">0%</div>
+              </div>
+            </div>
+            <div class="mt-4 flex gap-2 justify-center flex-wrap">
+              <button onclick="startRock()" class="btn rock-font bg-rose-600 hover:bg-rose-500 px-6 py-3 rounded-full">PLAY AGAIN</button>
+              <button onclick="backHome()" class="btn rock-font bg-white text-slate-900 px-6 py-3 rounded-full">HOME</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- MOSAIC MODE -->
+        <section id="mosaic" class="hidden w-full max-w-4xl glass rounded-3xl p-5 md:p-8 mt-4 pb-8">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <div class="flex items-center gap-2">
+              <button onclick="backHome()" class="btn glass px-4 py-2 rounded-xl">← Home</button>
+              <div>
+                <div class="rock-font text-2xl text-amber-200">MOSAIC MISSION</div>
+                <div class="text-sm text-slate-300">Solve tiles to reveal the hidden picture (BODMAS rules).</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="glass rounded-xl px-3 py-2 text-sm">
+                <span class="text-slate-300">Solved:</span>
+                <span id="mosSolved" class="rock-font text-yellow-300">0</span>/<span id="mosTotal" class="rock-font text-yellow-300">0</span>
+              </div>
+              <button onclick="resetMosaicProgress()" class="btn glass px-3 py-2 rounded-xl text-sm">Reset</button>
+            </div>
+          </div>
+
+          <!-- Color Key -->
+          <div class="grid md:grid-cols-4 gap-2 mb-4 text-sm">
+            <div class="glass rounded-xl p-3 flex items-center justify-between">
+              <span class="text-slate-300">52</span>
+              <span class="px-3 py-1 rounded-full" style="background:#ef4444">red</span>
+            </div>
+            <div class="glass rounded-xl p-3 flex items-center justify-between">
+              <span class="text-slate-300">48</span>
+              <span class="px-3 py-1 rounded-full" style="background:#8b5a2b">brown</span>
+            </div>
+            <div class="glass rounded-xl p-3 flex items-center justify-between">
+              <span class="text-slate-300">25</span>
+              <span class="px-3 py-1 rounded-full" style="background:#c69c6d">light brown</span>
+            </div>
+            <div class="glass rounded-xl p-3 flex items-center justify-between">
+              <span class="text-slate-300">99</span>
+              <span class="px-3 py-1 rounded-full" style="background:#111827">black</span>
+            </div>
+          </div>
+
+          <!-- Mosaic Grid (scrolls if needed) -->
+          <div class="mosaic-frame overflow-auto rounded-2xl border border-slate-700/60">
+            <div id="mosaicGrid" class="grid gap-0 bg-white/5">
+              <!-- tiles injected -->
+            </div>
+          </div>
+
+          <div class="mt-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+            <div class="text-slate-300 text-sm">
+              Tap a tile → answer → it auto-colours if it matches the key.
+              <span class="hidden md:inline">Keyboard works too.</span>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <button onclick="showImport()" class="btn glass px-4 py-2 rounded-xl text-sm">Import Worksheet</button>
+              <button onclick="completeIfDone(true)" class="btn bg-rose-600 hover:bg-rose-500 px-4 py-2 rounded-xl rock-font text-sm">Check Reveal</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- MODAL: TILE SOLVER -->
+        <div id="tileModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+          <div class="w-full max-w-md glass rounded-3xl p-5 max-h-[90svh] max-h-[90dvh] overflow-auto">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="text-xs uppercase tracking-widest text-slate-400">Tile</div>
+                <div id="tileExpr" class="rock-font text-3xl text-amber-200 mt-1">12 × 6 + 5 - 3</div>
+              </div>
+              <button onclick="closeTileModal()" class="btn glass px-3 py-2 rounded-xl">✕</button>
+            </div>
+
+            <div class="mt-3 glass rounded-2xl p-4 text-center">
+              <div class="text-xs uppercase tracking-widest text-slate-400">Answer</div>
+              <div id="tileAnsPreview" class="rock-font text-5xl text-rose-300 h-14">?</div>
+              <div id="tileFeedback" class="text-sm text-slate-300 h-5"></div>
+            </div>
+
+            <div class="mt-4 grid grid-cols-3 gap-3">
+              <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="tilePad(1)">1</button>
+              <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="tilePad(2)">2</button>
+              <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="tilePad(3)">3</button>
+              <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="tilePad(4)">4</button>
+              <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="tilePad(5)">5</button>
+              <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="tilePad(6)">6</button>
+              <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="tilePad(7)">7</button>
+              <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="tilePad(8)">8</button>
+              <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="tilePad(9)">9</button>
+              <button class="numpad-btn rock-font text-xl pad-lg rounded-2xl bg-slate-700/60" onclick="tileClear()">CLR</button>
+              <button class="numpad-btn rock-font pad-lg rounded-2xl" onclick="tilePad(0)">0</button>
+              <button class="numpad-btn rock-font text-xl pad-lg rounded-2xl bg-emerald-600/90 border-none" onclick="tileSubmit()">SOLVE</button>
+            </div>
+
+            <div class="mt-3 text-xs text-slate-400">
+              BODMAS reminder: brackets → orders (× ÷) → (+ −)
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL: PARENT -->
+        <div id="parentModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+          <div class="w-full max-w-2xl glass rounded-3xl p-6 max-h-[90svh] max-h-[90dvh] overflow-auto">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="rock-font text-3xl text-sky-200">PARENT MODE</div>
+                <div class="text-slate-300 text-sm mt-1">Adjust settings. Saves on this device.</div>
+              </div>
+              <button onclick="closeParent()" class="btn glass px-3 py-2 rounded-xl">✕</button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-5">
+              <div class="glass rounded-2xl p-4">
+                <div class="text-xs uppercase tracking-widest text-slate-400">Rock Gig Tables</div>
+                <div class="text-slate-300 text-sm mt-1">Comma-separated (e.g. 3,4,8)</div>
+                <input id="setTables" class="mt-2 w-full rounded-xl bg-slate-900/50 border border-slate-700/60 px-3 py-2 text-white" placeholder="3,4,8" />
+                <div class="grid grid-cols-2 gap-3 mt-3">
+                  <label class="flex items-center gap-2 text-sm text-slate-300">
+                    <input id="setDivision" type="checkbox" class="accent-rose-500" /> Include division
+                  </label>
+                  <label class="flex items-center gap-2 text-sm text-slate-300">
+                    <input id="setHints" type="checkbox" class="accent-rose-500" /> Show hints on errors
+                  </label>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mt-3">
+                  <div>
+                    <div class="text-xs uppercase tracking-widest text-slate-400">Time (sec)</div>
+                    <input id="setTime" type="number" min="20" max="240" class="mt-1 w-full rounded-xl bg-slate-900/50 border border-slate-700/60 px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <div class="text-xs uppercase tracking-widest text-slate-400">Max multiplier</div>
+                    <input id="setMaxMul" type="number" min="6" max="20" class="mt-1 w-full rounded-xl bg-slate-900/50 border border-slate-700/60 px-3 py-2 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl p-4">
+                <div class="text-xs uppercase tracking-widest text-slate-400">Stealth Rewards</div>
+                <div class="text-slate-300 text-sm mt-1">Keeps kids “in the loop” without feeling like homework.</div>
+                <div class="grid grid-cols-2 gap-3 mt-3">
+                  <div class="glass rounded-xl p-3">
+                    <div class="text-xs text-slate-400 uppercase">Rock Correct</div>
+                    <div class="rock-font text-2xl text-emerald-300"><span id="statRock">0</span></div>
+                  </div>
+                  <div class="glass rounded-xl p-3">
+                    <div class="text-xs text-slate-400 uppercase">Mosaic Solves</div>
+                    <div class="rock-font text-2xl text-amber-200"><span id="statMosaic">0</span></div>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mt-3">
+                  <div class="glass rounded-xl p-3">
+                    <div class="text-xs text-slate-400 uppercase">Best Streak</div>
+                    <div class="rock-font text-2xl text-yellow-300"><span id="statStreak">0</span></div>
+                  </div>
+                  <div class="glass rounded-xl p-3">
+                    <div class="text-xs text-slate-400 uppercase">Today Ripple</div>
+                    <div class="rock-font text-2xl text-sky-200"><span id="statRipple">0</span></div>
+                  </div>
+                </div>
+
+                <button onclick="saveParent()" class="btn mt-4 w-full rock-font bg-rose-600 hover:bg-rose-500 px-4 py-3 rounded-2xl">
+                  SAVE SETTINGS
+                </button>
+                <button onclick="hardResetAll()" class="btn mt-2 w-full glass px-4 py-3 rounded-2xl text-slate-200">
+                  Reset all progress (device)
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-4 text-xs text-slate-400">
+              Tip: hold “Parent” for 2 seconds to open (so kids don’t stumble into it).
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL: IMPORT -->
+        <div id="importModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+          <div class="w-full max-w-3xl glass rounded-3xl p-6 max-h-[90svh] max-h-[90dvh] overflow-auto">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="rock-font text-3xl text-amber-200">IMPORT WORKSHEET</div>
+                <div class="text-slate-300 text-sm mt-1">Paste a 9-column grid. Rows separated by new lines. Columns separated by <span class="kbd">|</span>.</div>
+              </div>
+              <button onclick="closeImport()" class="btn glass px-3 py-2 rounded-xl">✕</button>
+            </div>
+
+            <textarea id="importText" class="mt-4 w-full h-64 rounded-2xl bg-slate-950/50 border border-slate-700/60 p-4 text-slate-100 font-mono text-sm"
+              placeholder="Example row:
+7×4+50 | 120-48 | 123-45+3 | 10×4÷2 | 2×3+26 | 6+17+2 | 48-12+30 | 4×4-12 | 5×5"></textarea>
+
+            <div class="mt-4 flex gap-2 justify-end flex-wrap">
+              <button onclick="loadDefaultMosaic()" class="btn glass px-4 py-2 rounded-xl">Load default (Christmas)</button>
+              <button onclick="applyImport()" class="btn rock-font bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-xl">IMPORT</button>
+            </div>
+
+            <div class="mt-3 text-xs text-slate-400">
+              Supports: + − × ÷ ( ) and normal * / too. BODMAS is enforced by the parser.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ---------------------------
+   ŊOB Maths Arcade (single-file)
+   - Rock Gig: times tables drill
+   - Mosaic Mission: BODMAS worksheet reveal
+   - LocalStorage progress + parent settings
+----------------------------*/
+
+/* ========== STORAGE KEYS ========== */
+const KEY = {
+  settings: "nobMathArcade_settings_v1",
+  progress: "nobMathArcade_progress_v1",
+  mosaic:   "nobMathArcade_mosaic_v1"
+};
+
+/* ========== DEFAULTS ========== */
+const DEFAULT_SETTINGS = {
+  tables: [3,4,8],
+  includeDivision: true,
+  timeSec: 60,
+  maxMultiplier: 12,
+  showHints: false,
+  sound: true
+};
+
+const DEFAULT_PROGRESS = {
+  bestStreak: 0,
+  totalRockCorrect: 0,
+  totalMosaicSolved: 0,
+  rippleByDay: {} // yyyy-mm-dd -> number
+};
+
+const COLOR_KEY = {
+  52: { name: "red",        hex: "#ef4444" },
+  48: { name: "brown",      hex: "#8b5a2b" },
+  25: { name: "lightbrown", hex: "#c69c6d" },
+  99: { name: "black",      hex: "#111827" }
+};
+
+/* ========== DEFAULT MOSAIC (TRANSCRIBED FROM YOUR PHOTO) ========== */
+const DEFAULT_MOSAIC_GRID = [
+  ["7×4+50","120-48","123-45+3","10×4÷2","2×3+26","6+17+2","48-12+30","4×4-12","5×5"],
+  ["120÷12+16","6×8+2","12+32+16","9×8+2","9×4","60÷5","100-75","12×6+5-3","100÷4"],
+  ["500-125","15×2+4","12+62","9×3-4","(2+3)×(6+2)","8×5-17","27÷3+9","(32+8)-15","6×4+1"],
+  ["108-50","11×8","12×2-21","30÷5+6","53+12-8","84÷2+6","8×5+8","12×4","12+57+2"],
+  ["12÷3+9","10×8+15","84÷12","6×8+15","39+9","6×4×2","200-152","98-50","4×10+8"],
+  ["7×4-19","90-47+2","12×3","56-4×2","6+12+9+21","200-75","5+9+7+3","8×8-16","348-300"],
+  ["8×4-14","50÷10+22","84-36","4×7+20","12×2×2","11×9","34×2","90÷2+3","3×4×4"],
+  ["24÷2+9","64-12","(6+2)×6","12×3+12","100÷2-2","19+20+9","10×6-12","27+11+10","8×4+16"],
+  ["5×10+2","26×2","37+11","9×5+3","6×4×2","11×4+2+2","24×2","16÷2+40","95-48"],
+  ["48-36","12×3+6","10×5+15","8+11+24","10×5-2","100-50-2","28+12+8","3×6+30","100-23"]
+];
+
+/* ========== GLOBAL STATE ========== */
+let settings = loadJSON(KEY.settings, DEFAULT_SETTINGS);
+let progress = loadJSON(KEY.progress, DEFAULT_PROGRESS);
+let mode = "home";
+
+/* Rock */
+let rock = {
+  active: false,
+  score: 0,
+  streak: 0,
+  timeLeft: settings.timeSec,
+  currentAnswer: "",
+  expected: 0,
+  totalAttempts: 0,
+  correctAttempts: 0,
+  timerId: null,
+  lastWasWrong: false
+};
+
+/* Mosaic */
+let mosaic = loadJSON(KEY.mosaic, null);
+if (!mosaic) mosaic = makeMosaicState(DEFAULT_MOSAIC_GRID);
+
+/* Tile Modal */
+let tileState = {
+  open: false,
+  r: -1, c: -1,
+  input: ""
+};
+
+/* ========== UTIL: STORAGE ========== */
+function loadJSON(key, fallback){
+  try {
+    const raw = localStorage.getItem(key);
+    if(!raw) return structuredClone(fallback);
+    return Object.assign(structuredClone(fallback), JSON.parse(raw));
+  } catch(e){
+    return structuredClone(fallback);
+  }
+}
+function saveJSON(key, obj){
+  try { localStorage.setItem(key, JSON.stringify(obj)); } catch(e){}
+}
+function todayKey(){
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+function addRipple(points){
+  const k = todayKey();
+  if(!progress.rippleByDay[k]) progress.rippleByDay[k] = 0;
+  progress.rippleByDay[k] += points;
+  saveJSON(KEY.progress, progress);
+  refreshHomeStats();
+}
+function getTodayRipple(){
+  const k = todayKey();
+  return progress.rippleByDay[k] || 0;
+}
+
+/* ========== UTIL: SAFE EXPRESSION PARSER (BODMAS) ========== */
+function normalizeExpr(expr){
+  return expr
+    .replaceAll("×","*")
+    .replaceAll("÷","/")
+    .replaceAll("−","-")
+    .replaceAll(" ", "");
+}
+function tokenize(expr){
+  const s = normalizeExpr(expr);
+  const tokens = [];
+  let i = 0;
+  while(i < s.length){
+    const ch = s[i];
+    if(/[0-9]/.test(ch)){
+      let j = i;
+      while(j < s.length && /[0-9]/.test(s[j])) j++;
+      tokens.push({t:"num", v: Number(s.slice(i,j))});
+      i = j;
+      continue;
+    }
+    if(ch === "(" || ch === ")"){
+      tokens.push({t:"par", v: ch});
+      i++;
+      continue;
+    }
+    if(ch === "+" || ch === "-" || ch === "*" || ch === "/"){
+      tokens.push({t:"op", v: ch});
+      i++;
+      continue;
+    }
+    i++;
+  }
+  return tokens;
+}
+function precedence(op){
+  if(op === "*" || op === "/") return 2;
+  if(op === "+" || op === "-") return 1;
+  return 0;
+}
+function toRPN(tokens){
+  const out = [];
+  const ops = [];
+  for(let i=0;i<tokens.length;i++){
+    const tok = tokens[i];
+    if(tok.t === "num"){
+      out.push(tok);
+    } else if(tok.t === "op"){
+      const prev = tokens[i-1];
+      const isUnaryMinus = (tok.v === "-") && (!prev || (prev.t === "op") || (prev.t === "par" && prev.v === "("));
+      if(isUnaryMinus){ out.push({t:"num", v: 0}); }
+      while(ops.length){
+        const top = ops[ops.length-1];
+        if(top.t === "op" && precedence(top.v) >= precedence(tok.v)) out.push(ops.pop());
+        else break;
+      }
+      ops.push(tok);
+    } else if(tok.t === "par" && tok.v === "("){
+      ops.push(tok);
+    } else if(tok.t === "par" && tok.v === ")"){
+      while(ops.length && !(ops[ops.length-1].t === "par" && ops[ops.length-1].v === "(")){
+        out.push(ops.pop());
+      }
+      if(ops.length && ops[ops.length-1].t === "par" && ops[ops.length-1].v === "(") ops.pop();
+    }
+  }
+  while(ops.length) out.push(ops.pop());
+  return out;
+}
+function evalRPN(rpn){
+  const st = [];
+  for(const tok of rpn){
+    if(tok.t === "num"){ st.push(tok.v); continue; }
+    if(tok.t === "op"){
+      const b = st.pop();
+      const a = st.pop();
+      if(a === undefined || b === undefined) return NaN;
+      let res = NaN;
+      if(tok.v === "+") res = a + b;
+      if(tok.v === "-") res = a - b;
+      if(tok.v === "*") res = a * b;
+      if(tok.v === "/") res = a / b;
+      st.push(res);
+    }
+  }
+  return st.length ? st[0] : NaN;
+}
+function safeEval(expr){
+  const tokens = tokenize(expr);
+  const rpn = toRPN(tokens);
+  const val = evalRPN(rpn);
+  if(Number.isFinite(val)) {
+    const nearInt = Math.round(val);
+    if(Math.abs(val - nearInt) < 1e-9) return nearInt;
+  }
+  return val;
+}
+
+/* ========== AUDIO (tiny “arcade” beeps) ========== */
+let audioCtx = null;
+function beep(type="good"){
+  if(!settings.sound) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    const freq = type==="good" ? 660 : type==="win" ? 880 : 220;
+    o.frequency.setValueAtTime(freq, now);
+    o.type = "square";
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.15, now+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now+0.12);
+    o.start(now);
+    o.stop(now+0.13);
+  }catch(e){}
+}
+
+/* ========== NAV ========== */
+function goMode(m){
+  mode = m;
+  document.getElementById("home").classList.toggle("hidden", m!=="home");
+  document.getElementById("rock").classList.toggle("hidden", m!=="rock");
+  document.getElementById("mosaic").classList.toggle("hidden", m!=="mosaic");
+  if(m==="rock"){ refreshRockUI(); showRockEnd(false); }
+  if(m==="mosaic"){ renderMosaic(); refreshMosaicStats(); }
+}
+function backHome(){
+  endRock(true);
+  goMode("home");
+  refreshHomeStats();
+}
+
+/* ========== HOME STATS ========== */
+function refreshHomeStats(){
+  document.getElementById("todayRipple").innerText = getTodayRipple();
+  document.getElementById("bestStreak").innerText = progress.bestStreak || 0;
+
+  const solved = mosaic.solvedCount || 0;
+  const total = mosaic.total || 1;
+  document.getElementById("mosaicPct").innerText = Math.round((solved/total)*100) + "%";
+}
+refreshHomeStats();
+
+/* ========== SOUND TOGGLE ========== */
+const soundBtn = document.getElementById("soundBtn");
+const soundState = document.getElementById("soundState");
+soundState.textContent = settings.sound ? "ON" : "OFF";
+soundBtn.addEventListener("click", ()=>{
+  settings.sound = !settings.sound;
+  soundState.textContent = settings.sound ? "ON" : "OFF";
+  saveJSON(KEY.settings, settings);
+  if(settings.sound) beep("good");
+});
+
+/* ========== PARENT MODE (hold 2s) ========== */
+let holdTimer = null;
+const parentBtn = document.getElementById("parentBtn");
+parentBtn.addEventListener("touchstart", startHold, {passive:true});
+parentBtn.addEventListener("mousedown", startHold);
+parentBtn.addEventListener("touchend", cancelHold, {passive:true});
+parentBtn.addEventListener("mouseup", cancelHold);
+parentBtn.addEventListener("mouseleave", cancelHold);
+
+function startHold(){ cancelHold(); holdTimer = setTimeout(()=>openParent(), 1200); }
+function cancelHold(){ if(holdTimer) clearTimeout(holdTimer); holdTimer = null; }
+
+function openParent(){
+  document.getElementById("parentModal").classList.remove("hidden");
+  document.getElementById("setTables").value = settings.tables.join(",");
+  document.getElementById("setDivision").checked = !!settings.includeDivision;
+  document.getElementById("setHints").checked = !!settings.showHints;
+  document.getElementById("setTime").value = settings.timeSec;
+  document.getElementById("setMaxMul").value = settings.maxMultiplier;
+
+  document.getElementById("statRock").innerText = progress.totalRockCorrect || 0;
+  document.getElementById("statMosaic").innerText = progress.totalMosaicSolved || 0;
+  document.getElementById("statStreak").innerText = progress.bestStreak || 0;
+  document.getElementById("statRipple").innerText = getTodayRipple();
+  beep("good");
+}
+function closeParent(){ document.getElementById("parentModal").classList.add("hidden"); }
+function saveParent(){
+  const raw = document.getElementById("setTables").value;
+  const list = raw.split(",").map(x=>Number(x.trim())).filter(n=>Number.isFinite(n) && n>0 && n<100);
+  settings.tables = list.length ? list : [3,4,8];
+  settings.includeDivision = document.getElementById("setDivision").checked;
+  settings.showHints = document.getElementById("setHints").checked;
+  settings.timeSec = clamp(Number(document.getElementById("setTime").value)||60, 20, 240);
+  settings.maxMultiplier = clamp(Number(document.getElementById("setMaxMul").value)||12, 6, 20);
+
+  saveJSON(KEY.settings, settings);
+  rock.timeLeft = settings.timeSec;
+  refreshRockUI();
+  closeParent();
+  beep("win");
+}
+function hardResetAll(){
+  if(!confirm("Reset ALL progress on this device?")) return;
+  localStorage.removeItem(KEY.progress);
+  localStorage.removeItem(KEY.mosaic);
+  localStorage.removeItem(KEY.settings);
+  settings = structuredClone(DEFAULT_SETTINGS);
+  progress = structuredClone(DEFAULT_PROGRESS);
+  mosaic = makeMosaicState(DEFAULT_MOSAIC_GRID);
+  saveJSON(KEY.settings, settings);
+  saveJSON(KEY.progress, progress);
+  saveJSON(KEY.mosaic, mosaic);
+  refreshHomeStats();
+  renderMosaic();
+  beep("win");
+  closeParent();
+}
+
+/* ========== ROCK GIG ========== */
+function refreshRockUI(){
+  document.getElementById("rockScore").innerText = rock.score;
+  document.getElementById("rockStreak").innerText = rock.streak;
+  document.getElementById("rockTimer").innerText = rock.timeLeft;
+  const hint = document.getElementById("rockHint");
+  hint.classList.toggle("hidden", !settings.showHints);
+}
+function showRockEnd(show){ document.getElementById("rockEnd").classList.toggle("hidden", !show); }
+function startRock(){
+  rock.active = true;
+  rock.score = 0;
+  rock.streak = 0;
+  rock.timeLeft = settings.timeSec;
+  rock.currentAnswer = "";
+  rock.expected = 0;
+  rock.totalAttempts = 0;
+  rock.correctAttempts = 0;
+  rock.lastWasWrong = false;
+  rock.streakPeak = 0;
+  showRockEnd(false);
+
+  document.getElementById("rockTimerBox").classList.remove("animate-pulse");
+  document.getElementById("rockTimer").classList.remove("text-rose-400");
+
+  setRockPreview("?");
+  updateRockBar();
+  nextRockQuestion();
+
+  if(rock.timerId) clearInterval(rock.timerId);
+  rock.timerId = setInterval(()=>{
+    if(!rock.active) return;
+    rock.timeLeft--;
+    document.getElementById("rockTimer").innerText = rock.timeLeft;
+    if(rock.timeLeft <= 10){
+      document.getElementById("rockTimerBox").classList.add("animate-pulse");
+      document.getElementById("rockTimer").classList.add("text-rose-400");
+    }
+    if(rock.timeLeft <= 0){ endRock(false); }
+  }, 1000);
+}
+function endRock(silent){
+  if(rock.timerId){ clearInterval(rock.timerId); rock.timerId = null; }
+  if(!rock.active && silent) return;
+  rock.active = false;
+
+  progress.totalRockCorrect = (progress.totalRockCorrect||0) + rock.correctAttempts;
+  progress.bestStreak = Math.max(progress.bestStreak||0, rock.streakPeak||0, rock.streak);
+  saveJSON(KEY.progress, progress);
+
+  addRipple(rock.correctAttempts + Math.floor((progress.bestStreak||0)/5));
+
+  const correct = rock.correctAttempts;
+  const attempts = rock.totalAttempts;
+  const acc = attempts ? Math.round((correct/attempts)*100) : 0;
+
+  document.getElementById("rockCorrect").innerText = correct;
+  document.getElementById("rockAcc").innerText = acc + "%";
+
+  let rank = "BUSKER";
+  if(correct > 10) rank = "GIGGING GENIUS";
+  if(correct > 20) rank = "ARENA ANIMAL";
+  if(correct > 30) rank = "ROCK LEGEND";
+  if(correct > 45) rank = "MATHS GOD";
+  document.getElementById("rockRank").innerText = rank;
+
+  showRockEnd(true);
+  if(!silent) beep("win");
+  refreshHomeStats();
+}
+function nextRockQuestion(){
+  const tables = settings.tables.length ? settings.tables : [3,4,8];
+  const table = tables[Math.floor(Math.random()*tables.length)];
+  const mul = Math.floor(Math.random()*settings.maxMultiplier)+1;
+  const isDiv = settings.includeDivision && (Math.random() > 0.7);
+
+  if(isDiv){
+    const product = table * mul;
+    rock.expected = mul;
+    document.getElementById("rockEq").innerText = `${product} ÷ ${table}`;
+  } else {
+    rock.expected = table * mul;
+    document.getElementById("rockEq").innerText = `${table} × ${mul}`;
+  }
+  rock.currentAnswer = "";
+  setRockPreview("?");
+}
+function setRockPreview(txt){ document.getElementById("rockAnsPreview").innerText = txt; }
+function updateRockBar(){
+  const bar = document.getElementById("rockBar");
+  const pct = Math.min(rock.streak * 10, 100);
+  bar.style.width = pct + "%";
+  bar.style.background = rock.streak >= 10 ? "rgba(251,191,36,.95)" : "rgba(244,63,94,.95)";
+}
+
+function pad(n){
+  if(!rock.active) return;
+  if(rock.currentAnswer.length >= 3) return;
+  rock.currentAnswer += String(n);
+  setRockPreview(rock.currentAnswer);
+  if(rock.currentAnswer === String(rock.expected)) rockSubmit();
+}
+function padClear(){
+  if(!rock.active) return;
+  rock.currentAnswer = "";
+  setRockPreview("?");
+}
+function rockSubmit(){
+  if(!rock.active) return;
+  if(rock.currentAnswer === "") return;
+
+  rock.totalAttempts++;
+  const qBox = document.getElementById("rockQBox");
+  const ans = Number(rock.currentAnswer);
+
+  if(ans === rock.expected){
+    rock.correctAttempts++;
+    rock.score += 10 + (rock.streak * 2);
+    rock.streak++;
+    rock.streakPeak = Math.max(rock.streakPeak||0, rock.streak);
+
+    progress.bestStreak = Math.max(progress.bestStreak||0, rock.streak);
+    saveJSON(KEY.progress, progress);
+
+    qBox.classList.add("correct-anim");
+    setTimeout(()=>qBox.classList.remove("correct-anim"), 450);
+
+    document.getElementById("rockScore").innerText = rock.score;
+    document.getElementById("rockStreak").innerText = rock.streak;
+    updateRockBar();
+
+    addRipple(1);
+    beep("good");
+    nextRockQuestion();
+  } else {
+    rock.streak = 0;
+    document.getElementById("rockStreak").innerText = rock.streak;
+    updateRockBar();
+
+    setRockPreview("WRONG");
+    setTimeout(()=>{ padClear(); }, 320);
+    beep("bad");
+
+    if(settings.showHints){
+      document.getElementById("rockHint").classList.remove("hidden");
+      setTimeout(()=>document.getElementById("rockHint").classList.add("hidden"), 1200);
+    }
+  }
+}
+
+/* ========== MOSAIC ========== */
+function makeMosaicState(grid){
+  const rows = grid.length;
+  const cols = grid[0].length;
+  const cells = [];
+  let total = 0;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const expr = grid[r][c];
+      const value = safeEval(expr);
+      const key = COLOR_KEY[value] ? value : null;
+      cells.push({ r,c, expr, value, keyValue: key, solved: false, user: null });
+      total++;
+    }
+  }
+  return { rows, cols, grid, cells, total, solvedCount: 0 };
+}
+
+function saveMosaic(){ saveJSON(KEY.mosaic, mosaic); }
+
+function computeTilePx(cols){
+  const frame = document.querySelector('.mosaic-frame');
+  const gridEl = document.getElementById('mosaicGrid');
+  if(!frame || !gridEl) return 60;
+
+  // available width inside frame; keep within [34..72]
+  const w = frame.clientWidth - 2; // borders
+  const px = Math.floor(w / cols);
+  return clamp(px, 34, 72);
+}
+
+function renderMosaic(){
+  const gridEl = document.getElementById("mosaicGrid");
+  gridEl.innerHTML = "";
+
+  // Responsive tile size based on available width
+  const tilePx = computeTilePx(mosaic.cols);
+  gridEl.style.gridTemplateColumns = `repeat(${mosaic.cols}, minmax(${tilePx}px, 1fr))`;
+
+  const byRC = new Map(mosaic.cells.map(x=>[`${x.r},${x.c}`, x]));
+  for(let r=0;r<mosaic.rows;r++){
+    for(let c=0;c<mosaic.cols;c++){
+      const cell = byRC.get(`${r},${c}`);
+      const btn = document.createElement("button");
+      btn.className = "tile btn aspect-square flex items-center justify-center text-center p-1 md:p-2 bg-white/5 hover:bg-white/10";
+      btn.setAttribute("aria-label", `Tile ${r+1}-${c+1}`);
+      btn.onclick = ()=>openTile(r,c);
+
+      const fill = getCellFill(cell);
+      btn.style.background = fill.bg;
+      btn.style.color = fill.fg;
+
+      const label = document.createElement("div");
+      label.className = "text-[11px] md:text-xs leading-tight";
+      if(cell.solved){
+        label.innerHTML = `<div class=\"rock-font text-sm md:text-base\">${fill.mark}</div>
+          <div class=\"font-mono opacity-80\">${cell.user}</div>`;
+      } else {
+        label.innerHTML = `<div class=\"rock-font text-base md:text-lg text-slate-700/70\">?</div>`;
+      }
+      btn.appendChild(label);
+      gridEl.appendChild(btn);
+    }
+  }
+  refreshMosaicStats();
+}
+
+function getCellFill(cell){
+  if(!cell.solved) return { bg: "rgba(255,255,255,0.06)", fg: "#e2e8f0", mark: "?" };
+  const key = cell.keyValue;
+  if(key && COLOR_KEY[key]){
+    const hex = COLOR_KEY[key].hex;
+    const fg = (key===99) ? "#f8fafc" : "#0b1020";
+    return { bg: hex, fg, mark: "✓" };
+  }
+  return { bg: "rgba(255,255,255,0.85)", fg: "#0b1020", mark: "✓" };
+}
+
+function refreshMosaicStats(){
+  document.getElementById("mosSolved").innerText = mosaic.solvedCount;
+  document.getElementById("mosTotal").innerText = mosaic.total;
+  refreshHomeStats();
+}
+
+function openTile(r,c){
+  const cell = mosaic.cells.find(x=>x.r===r && x.c===c);
+  if(!cell || cell.solved) return;
+  tileState.open = true;
+  tileState.r = r;
+  tileState.c = c;
+  tileState.input = "";
+
+  document.getElementById("tileExpr").innerText = cell.expr.replaceAll("*","×").replaceAll("/","÷");
+  document.getElementById("tileAnsPreview").innerText = "?";
+  document.getElementById("tileFeedback").innerText = "";
+  document.getElementById("tileModal").classList.remove("hidden");
+  beep("good");
+}
+function closeTileModal(){ tileState.open = false; document.getElementById("tileModal").classList.add("hidden"); }
+function tilePad(n){
+  if(!tileState.open) return;
+  if(tileState.input.length >= 4) return;
+  tileState.input += String(n);
+  document.getElementById("tileAnsPreview").innerText = tileState.input;
+}
+function tileClear(){
+  if(!tileState.open) return;
+  tileState.input = "";
+  document.getElementById("tileAnsPreview").innerText = "?";
+  document.getElementById("tileFeedback").innerText = "";
+}
+function tileSubmit(){
+  if(!tileState.open) return;
+  const cell = mosaic.cells.find(x=>x.r===tileState.r && x.c===tileState.c);
+  if(!cell) return;
+
+  const user = Number(tileState.input);
+  if(!Number.isFinite(user)) return;
+
+  const expected = cell.value;
+  if(user === expected){
+    cell.solved = true;
+    cell.user = user;
+    mosaic.solvedCount++;
+    progress.totalMosaicSolved = (progress.totalMosaicSolved||0) + 1;
+    saveJSON(KEY.progress, progress);
+
+    addRipple(cell.keyValue ? 2 : 1);
+
+    saveMosaic();
+    renderMosaic();
+    document.getElementById("tileFeedback").innerText = "Correct! Tile revealed ✅";
+    document.getElementById("tileFeedback").className = "text-sm text-emerald-300 h-5";
+    beep("good");
+
+    setTimeout(()=>{ closeTileModal(); completeIfDone(false); }, 350);
+  } else {
+    document.getElementById("tileFeedback").innerText = "Not quite — try again.";
+    document.getElementById("tileFeedback").className = "text-sm text-rose-300 h-5";
+    beep("bad");
+    tileState.input = "";
+    document.getElementById("tileAnsPreview").innerText = "?";
+  }
+}
+
+function completeIfDone(force){
+  if(mosaic.solvedCount >= mosaic.total){
+    beep("win");
+    alert("🎉 Mosaic complete! Hidden picture fully revealed.\n\n(And… you just did a whole BODMAS worksheet.)");
+    return true;
+  }
+  if(force){
+    const pct = Math.round((mosaic.solvedCount/mosaic.total)*100);
+    alert(`Progress: ${mosaic.solvedCount}/${mosaic.total} tiles (${pct}%). Keep going!`);
+  }
+  return false;
+}
+
+function resetMosaicProgress(){
+  if(!confirm("Reset Mosaic progress?")) return;
+  mosaic = makeMosaicState(mosaic.grid);
+  saveMosaic();
+  renderMosaic();
+  beep("win");
+}
+
+/* ========== IMPORT MOSAIC ========== */
+function showImport(){
+  document.getElementById("importModal").classList.remove("hidden");
+  document.getElementById("importText").value = DEFAULT_MOSAIC_GRID.map(row=>row.join(" | ")).join("\n");
+}
+function closeImport(){ document.getElementById("importModal").classList.add("hidden"); }
+function loadDefaultMosaic(){
+  document.getElementById("importText").value = DEFAULT_MOSAIC_GRID.map(row=>row.join(" | ")).join("\n");
+  beep("good");
+}
+function applyImport(){
+  const text = document.getElementById("importText").value.trim();
+  if(!text) return;
+
+  const rows = text.split("\n").map(line=>line.split("|").map(x=>x.trim()).filter(Boolean));
+  const cols = rows[0]?.length || 0;
+  const valid = rows.length>0 && cols>0 && rows.every(r=>r.length===cols);
+  if(!valid){
+    alert("Import failed: every row must have the same number of columns.\nUse | between columns.");
+    return;
+  }
+
+  mosaic = makeMosaicState(rows);
+  saveMosaic();
+  closeImport();
+  renderMosaic();
+  beep("win");
+}
+
+/* ========== KEYBOARD SUPPORT ========== */
+window.addEventListener("keydown", (e)=>{
+  if(mode==="rock" && rock.active){
+    if(e.key >= "0" && e.key <= "9") pad(e.key);
+    if(e.key === "Enter") rockSubmit();
+    if(e.key === "Backspace") padClear();
+  }
+  if(tileState.open){
+    if(e.key >= "0" && e.key <= "9") tilePad(e.key);
+    if(e.key === "Enter") tileSubmit();
+    if(e.key === "Backspace") tileClear();
+    if(e.key === "Escape") closeTileModal();
+  }
+});
+
+/* ========== HELPERS ========== */
+function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
+
+/* ========== INIT MOSAIC VIEW ========== */
+renderMosaic();
+refreshMosaicStats();
+refreshHomeStats();
+
+// Recompute mosaic tile sizing on resize
+window.addEventListener('resize', ()=>{ if(mode==="mosaic") renderMosaic(); }, {passive:true});
+
+/* ========== RIPPLE STAGE BACKGROUND ========== */
+const canvas = document.getElementById("rippleStage");
+const ctx = canvas.getContext("2d", { alpha: true });
+let W=0,H=0, t=0;
+
+function resize(){
+  W = canvas.width = Math.floor(window.innerWidth * devicePixelRatio);
+  H = canvas.height = Math.floor(window.innerHeight * devicePixelRatio);
+}
+window.addEventListener("resize", resize, {passive:true});
+resize();
+
+function drawRipple(){
+  t += 0.016;
+  ctx.clearRect(0,0,W,H);
+
+  const g = ctx.createRadialGradient(W*0.5, H*0.1, 50, W*0.5, H*0.5, Math.max(W,H)*0.7);
+  g.addColorStop(0, "rgba(56,189,248,0.12)");
+  g.addColorStop(0.35, "rgba(244,63,94,0.10)");
+  g.addColorStop(1, "rgba(2,6,23,0.65)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,W,H);
+
+  const lines = 10;
+  for(let i=0;i<lines;i++){
+    const y0 = (H/(lines+1))*(i+1);
+    const amp = (12 + i*2) * devicePixelRatio;
+    const freq = 0.006 + i*0.0006;
+    const speed = 0.7 + i*0.05;
+    ctx.beginPath();
+    for(let x=0;x<=W;x+=6*devicePixelRatio){
+      const y = y0 + Math.sin(x*freq + t*speed) * amp * (0.7 + 0.3*Math.sin(t*0.7+i));
+      if(x===0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle = `rgba(244,63,94,${0.03 + i*0.003})`;
+    ctx.lineWidth = 2*devicePixelRatio;
+    ctx.stroke();
+  }
+
+  for(let i=0;i<40;i++){
+    const x = (Math.sin(t*0.3 + i*12.34)*0.5+0.5)*W;
+    const y = (Math.cos(t*0.25 + i*7.89)*0.5+0.5)*H;
+    ctx.fillStyle = `rgba(248,250,252,${0.06})`;
+    ctx.fillRect(x, y, 2*devicePixelRatio, 2*devicePixelRatio);
+  }
+
+  requestAnimationFrame(drawRipple);
+}
+drawRipple();
+
+/* ========== START AT HOME ========== */
+goMode("home");
+</script>
+</body>
+</html>
